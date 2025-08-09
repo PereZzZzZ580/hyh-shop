@@ -1,0 +1,210 @@
+
+---
+
+## `/prisma/schema.prisma`
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { USER ADMIN }
+enum OrderStatus { PENDING PAID FULFILLED CANCELLED REFUNDED }
+enum PaymentStatus { INITIATED APPROVED DECLINED REFUNDED }
+enum ShipmentStatus { NONE READY SHIPPED DELIVERED RETURNED }
+enum InventoryMovementType { IN OUT ADJUST }
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  country   String
+  city      String
+  line1     String
+  line2     String?
+  phone     String?
+  zip       String?
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  parent    Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  parentId  String?
+  children  Category[] @relation("CategoryToCategory")
+  products  Product[]
+}
+
+model Media {
+  id     String @id @default(cuid())
+  url    String
+  alt    String?
+  sort   Int    @default(0)
+  product Product? @relation(fields: [productId], references: [id])
+  productId String?
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  sku         String?   @unique
+  name        String
+  slug        String    @unique
+  brand       String?
+  description String?
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  specs       Json?
+  care        Json?
+  targetGender String?
+  hairType    String[]
+  seoTitle    String?
+  seoDescription String?
+  images      Media[]
+  variants    Variant[]
+  reviews     Review[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tags        TagOnProduct[]
+}
+
+model Variant {
+  id         String   @id @default(cuid())
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+  attributes Json
+  barcode    String?
+  price      Int
+  compareAtPrice Int?
+  stock      Int      @default(0)
+  weight     Int?
+  width      Int?
+  height     Int?
+  length     Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  movements  InventoryMovement[]
+}
+
+model InventoryMovement {
+  id        String   @id @default(cuid())
+  variant   Variant  @relation(fields: [variantId], references: [id])
+  variantId String
+  type      InventoryMovementType
+  qty       Int
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Cart {
+  id        String    @id @default(cuid())
+  userId    String?
+  anonId    String?   @unique
+  items     CartItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    String
+  variant   Variant @relation(fields: [variantId], references: [id])
+  variantId String
+  qty       Int
+  priceSnapshot Int
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  user          User?    @relation(fields: [userId], references: [id])
+  userId        String?
+  status        OrderStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(INITIATED)
+  shipmentStatus ShipmentStatus @default(NONE)
+  address       Address? @relation(fields: [addressId], references: [id])
+  addressId     String?
+  currency      String   @default("COP")
+  subtotal      Int
+  discountTotal Int      @default(0)
+  shippingTotal Int      @default(0)
+  taxTotal      Int      @default(0)
+  grandTotal    Int
+  items         OrderItem[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  paymentRef    String?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  variant   Variant @relation(fields: [variantId], references: [id])
+  variantId String
+  qty       Int
+  unitPrice Int
+  discount  Int @default(0)
+}
+
+model Coupon {
+  id        String @id @default(cuid())
+  code      String @unique
+  rule      Json
+  active    Boolean @default(true)
+  startsAt  DateTime?
+  endsAt    DateTime?
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  rating    Int
+  title     String?
+  body      String?
+  createdAt DateTime @default(now())
+  approved  Boolean  @default(false)
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+  products TagOnProduct[]
+}
+
+model TagOnProduct {
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  tag       Tag     @relation(fields: [tagId], references: [id])
+  tagId     String
+  @@id([productId, tagId])
+}
+
+model ShippingZone {
+  id      String @id @default(cuid())
+  name    String
+  cities  String[]
+  baseFee Int
+  perKg   Int
+}
