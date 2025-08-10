@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/store/cart";
 
 export default function CartPage() {
@@ -37,10 +38,16 @@ export default function CartPage() {
 
       {items.length > 0 && (
         <div className="mt-6 flex items-center justify-between">
-          <p className="text-lg">Total: <strong>${total().toLocaleString("es-CO")}</strong></p>
+          <p className="text-lg">
+            Total: <strong>${total().toLocaleString("es-CO")}</strong>
+          </p>
           <div className="flex gap-3">
-            <button onClick={clear} className="h-10 rounded-lg px-4 border border-white/15">Vaciar</button>
-            <button className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30">Ir a pagar</button>
+            <button onClick={clear} className="h-10 rounded-lg px-4 border border-white/15">
+              Vaciar
+            </button>
+            <Link href="/checkout" className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
+              Ir a pagar
+            </Link>
           </div>
         </div>
       )}
