@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // directa (para migrate/studio)
 }
 
 // ...existing code...
@@ -90,10 +91,20 @@ model Category {
 model Media {
   id        String   @id @default(cuid())
   url       String
+  provider  String? // "cloudinary"
+  publicId  String?
+  mimeType  String?
+  width     Int?
+  height    Int?
+  bytes     Int?
   alt       String?
   sort      Int      @default(0)
-  product   Product? @relation(fields: [productId], references: [id])
   productId String?
+  variantId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant   Variant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
 }
 
 model Product {
@@ -137,6 +148,7 @@ model Variant {
   cartItems      CartItem[]
   orderItems     OrderItem[]
   movements      InventoryMovement[]
+  media          Media[]
 }
 
 model InventoryMovement {
