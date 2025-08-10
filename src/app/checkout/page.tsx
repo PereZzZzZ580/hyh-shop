@@ -40,14 +40,47 @@ export default function CheckoutPage() {
 
   if (!mounted) return null; // evita hydration mismatch por persistencia del carrito
 
-  const onSubmit = async (data: FormData) => {
-    // Aquí luego enviarás al backend. Por ahora, simulamos:
-    await new Promise((r) => setTimeout(r, 600));
-    const orderId = "ORD-" + Date.now();
-    console.log({ orderId, data, items });
-    clear();
-    router.push("/carrito"); // o lleva a una página /pedido/[orderId] si la creas luego
-  };
+    const onSubmit = async (data: FormData) => {
+        // simulamos latencia
+        await new Promise((r) => setTimeout(r, 600));
+
+        const orderId = "ORD-" + Date.now();
+        const envioCost = data.metodoEnvio === "domicilio" ? 7000 : 0;
+        const subtotal = total();
+        const grandTotal = subtotal + envioCost;
+
+        // snapshot de items para el recibo
+        const receipt = {
+            orderId,
+            createdAt: new Date().toISOString(),
+            customer: {
+            nombre: data.nombre,
+            email: data.email,
+            telefono: data.telefono,
+            ciudad: data.ciudad,
+            direccion: data.direccion,
+            },
+            items: items.map(({ product, qty }) => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            qty,
+            image: product.image,
+            })),
+            subtotal,
+            envio: envioCost,
+            total: grandTotal,
+        };
+
+        // guardamos el recibo para leerlo en /pedido/[id]
+        if (typeof window !== "undefined") {
+            localStorage.setItem("hyh-last-order", JSON.stringify(receipt));
+        }
+
+        clear(); // vaciamos carrito
+        router.push(`/pedido/${orderId}`); // redirigimos a la página de éxito
+    };
+
 
   const subtotal = total();
   const granTotal = subtotal + envio;
