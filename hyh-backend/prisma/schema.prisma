@@ -1,8 +1,3 @@
-
----
-
-## `/prisma/schema.prisma`
-```prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,20 +7,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role { USER ADMIN }
-enum OrderStatus { PENDING PAID FULFILLED CANCELLED REFUNDED }
-enum PaymentStatus { INITIATED APPROVED DECLINED REFUNDED }
-enum ShipmentStatus { NONE READY SHIPPED DELIVERED RETURNED }
-enum InventoryMovementType { IN OUT ADJUST }
+// ...existing code...
+enum Role {
+  USER
+  ADMIN
+}
 
+enum PaymentMethod {
+  COD
+  WHATSAPP
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  INITIATED
+  APPROVED
+  DECLINED
+  REFUNDED
+}
+
+enum ShipmentStatus {
+  NONE
+  READY
+  SHIPPED
+  DELIVERED
+  RETURNED
+}
+
+enum InventoryMovementType {
+  IN
+  OUT
+  ADJUST
+}
+
+// ...existing code...
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String    @id @default(cuid())
+  email     String    @unique
   password  String
   name      String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   addresses Address[]
   orders    Order[]
   reviews   Review[]
@@ -41,116 +71,125 @@ model Address {
   line2     String?
   phone     String?
   zip       String?
+  orders    Order[]
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Category {
-  id        String     @id @default(cuid())
-  name      String
-  slug      String     @unique
-  parent    Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
-  parentId  String?
-  children  Category[] @relation("CategoryToCategory")
-  products  Product[]
+  id       String     @id @default(cuid())
+  name     String
+  slug     String     @unique
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  parentId String?
+  children Category[] @relation("CategoryToCategory")
+  products Product[]
 }
 
 model Media {
-  id     String @id @default(cuid())
-  url    String
-  alt    String?
-  sort   Int    @default(0)
-  product Product? @relation(fields: [productId], references: [id])
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  sort      Int      @default(0)
+  product   Product? @relation(fields: [productId], references: [id])
   productId String?
 }
 
 model Product {
-  id          String    @id @default(cuid())
-  sku         String?   @unique
-  name        String
-  slug        String    @unique
-  brand       String?
-  description String?
-  category    Category  @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  specs       Json?
-  care        Json?
-  targetGender String?
-  hairType    String[]
-  seoTitle    String?
+  id             String         @id @default(cuid())
+  sku            String?        @unique
+  name           String
+  slug           String         @unique
+  brand          String?
+  description    String?
+  category       Category       @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  specs          Json?
+  care           Json?
+  targetGender   String?
+  hairType       String[]
+  seoTitle       String?
   seoDescription String?
-  images      Media[]
-  variants    Variant[]
-  reviews     Review[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  tags        TagOnProduct[]
+  images         Media[]
+  variants       Variant[]
+  reviews        Review[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  tags           TagOnProduct[]
 }
 
 model Variant {
-  id         String   @id @default(cuid())
-  product    Product  @relation(fields: [productId], references: [id])
-  productId  String
-  attributes Json
-  barcode    String?
-  price      Int
+  id             String              @id @default(cuid())
+  product        Product             @relation(fields: [productId], references: [id])
+  productId      String
+  attributes     Json
+  barcode        String?
+  price          Int
   compareAtPrice Int?
-  stock      Int      @default(0)
-  weight     Int?
-  width      Int?
-  height     Int?
-  length     Int?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  movements  InventoryMovement[]
+  stock          Int                 @default(0)
+  weight         Int?
+  width          Int?
+  height         Int?
+  length         Int?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  movements      InventoryMovement[]
 }
 
 model InventoryMovement {
-  id        String   @id @default(cuid())
-  variant   Variant  @relation(fields: [variantId], references: [id])
+  id        String                @id @default(cuid())
+  variant   Variant               @relation(fields: [variantId], references: [id])
   variantId String
   type      InventoryMovementType
   qty       Int
   note      String?
-  createdAt DateTime @default(now())
+  createdAt DateTime              @default(now())
 }
 
 model Cart {
-  id        String    @id @default(cuid())
+  id        String     @id @default(cuid())
   userId    String?
-  anonId    String?   @unique
+  anonId    String?    @unique
   items     CartItem[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model CartItem {
-  id        String  @id @default(cuid())
-  cart      Cart    @relation(fields: [cartId], references: [id])
-  cartId    String
-  variant   Variant @relation(fields: [variantId], references: [id])
-  variantId String
-  qty       Int
+  id            String  @id @default(cuid())
+  cart          Cart    @relation(fields: [cartId], references: [id])
+  cartId        String
+  variant       Variant @relation(fields: [variantId], references: [id])
+  variantId     String
+  qty           Int
   priceSnapshot Int
 }
 
 model Order {
-  id            String   @id @default(cuid())
-  user          User?    @relation(fields: [userId], references: [id])
-  userId        String?
-  status        OrderStatus @default(PENDING)
-  paymentStatus PaymentStatus @default(INITIATED)
+  id             String         @id @default(cuid())
+  user           User?          @relation(fields: [userId], references: [id])
+  userId         String?
+  status         OrderStatus    @default(PENDING)
+  paymentStatus  PaymentStatus  @default(INITIATED)
   shipmentStatus ShipmentStatus @default(NONE)
-  address       Address? @relation(fields: [addressId], references: [id])
-  addressId     String?
-  currency      String   @default("COP")
-  subtotal      Int
-  discountTotal Int      @default(0)
-  shippingTotal Int      @default(0)
-  taxTotal      Int      @default(0)
-  grandTotal    Int
-  items         OrderItem[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  paymentRef    String?
+  address        Address?       @relation(fields: [addressId], references: [id])
+  addressId      String?
+  currency       String         @default("COP")
+  subtotal       Int
+  discountTotal  Int            @default(0)
+  shippingTotal  Int            @default(0)
+  taxTotal       Int            @default(0)
+  grandTotal     Int
+  items          OrderItem[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  paymentRef     String?
+  paymentMethod  PaymentMethod  @default(COD)
+  contactPhone   String?
+  contactName    String?
 }
 
 model OrderItem {
@@ -161,16 +200,16 @@ model OrderItem {
   variantId String
   qty       Int
   unitPrice Int
-  discount  Int @default(0)
+  discount  Int     @default(0)
 }
 
 model Coupon {
-  id        String @id @default(cuid())
-  code      String @unique
-  rule      Json
-  active    Boolean @default(true)
-  startsAt  DateTime?
-  endsAt    DateTime?
+  id       String    @id @default(cuid())
+  code     String    @unique
+  rule     Json
+  active   Boolean   @default(true)
+  startsAt DateTime?
+  endsAt   DateTime?
 }
 
 model Review {
@@ -187,9 +226,9 @@ model Review {
 }
 
 model Tag {
-  id   String @id @default(cuid())
-  name String @unique
-  slug String @unique
+  id       String         @id @default(cuid())
+  name     String         @unique
+  slug     String         @unique
   products TagOnProduct[]
 }
 
@@ -198,11 +237,12 @@ model TagOnProduct {
   productId String
   tag       Tag     @relation(fields: [tagId], references: [id])
   tagId     String
+
   @@id([productId, tagId])
 }
 
 model ShippingZone {
-  id      String @id @default(cuid())
+  id      String   @id @default(cuid())
   name    String
   cities  String[]
   baseFee Int
