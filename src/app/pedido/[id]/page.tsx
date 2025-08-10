@@ -84,6 +84,12 @@ export default function PedidoExito({ params }: { params: Promise<{ id: string }
           <Link href="/" className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
             Ir al inicio
           </Link>
+
+          <Link href={`/pedido/${id}/share`}
+            className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
+                Compartir recibo
+                
+            </Link>
         </div>
       </div>
     </section>
