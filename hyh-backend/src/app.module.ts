@@ -12,6 +12,18 @@ import { MediaModule } from './media/media.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
-  imports: [ConfigModule, MediaModule, CloudinaryModule, PrismaModule, CatalogModule, CartModule, OrdersModule, AuthModule, CouponsModule, ShippingModule, AccountModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    MediaModule,
+    CloudinaryModule,
+    PrismaModule,
+    CatalogModule,
+    CartModule,
+    OrdersModule,
+    AuthModule,
+    CouponsModule,
+    ShippingModule,
+    AccountModule,
+  ],
 })
 export class AppModule {}

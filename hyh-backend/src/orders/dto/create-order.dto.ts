@@ -1,21 +1,25 @@
-import { IsArray, ValidateNested, IsEnum, IsOptional, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
-
-enum PaymentMethod { COD = 'COD', WHATSAPP = 'WHATSAPP' }
-
-class OrderItemInput {
-  @IsString() variantId!: string;
-  @IsString() quantity!: string; // o number + Transform
-}
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDto {
-  @IsEnum(PaymentMethod)
-  paymentMethod!: PaymentMethod;
+  @IsString()
+  cartId!: string;
 
-  @IsOptional() @IsString() phone?: string;
-  @IsOptional() @IsString() city?: string;
-  @IsOptional() @IsString() note?: string;
+@IsIn(['COD', 'WHATSAPP'] as const)
+  paymentMethod!: 'COD' | 'WHATSAPP';
 
-  @IsArray() @ValidateNested({ each: true }) @Type(() => OrderItemInput)
-  items!: OrderItemInput[];
+@IsOptional()
+  @IsString()
+  addressId?: string;
+
+@IsOptional()
+  @IsString()
+  addressRaw?: string;
+
+@IsOptional()
+  @IsString()
+  contactName?: string;
+
+  @IsOptional()
+  @IsString()
+  contactPhone?: string;
 }

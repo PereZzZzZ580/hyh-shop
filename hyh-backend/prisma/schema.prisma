@@ -166,13 +166,13 @@ model Order {
   paymentRef     String?
   contactName    String?
   contactPhone   String?
+  phone          String?
+  city           String?
+  note           String?
   paymentMethod  PaymentMethod  @default(COD)
   address        Address?       @relation(fields: [addressId], references: [id])
   user           User?          @relation(fields: [userId], references: [id])
   items          OrderItem[]
-  phone          String?
-  city           String?
-  note           String?
 }
 
 model OrderItem {

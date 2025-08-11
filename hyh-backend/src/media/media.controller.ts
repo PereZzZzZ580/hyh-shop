@@ -1,9 +1,26 @@
-import { Controller, Get, Post, Patch, Delete, Query, Body, Param, UploadedFile, UploadedFiles, UseInterceptors, ParseFilePipe, FileTypeValidator } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UploadedFile,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+  ParseFilePipe,
+  FileTypeValidator,
+} from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
-
+import { JwtAuthGuard } from '../auth/jwt.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 @Controller('media')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
@@ -15,6 +32,8 @@ export class MediaController {
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   uploadOne(
     @UploadedFile(
       new ParseFilePipe({ validators: [new FileTypeValidator({ fileType: /^(image\/)\w+/ })] }),
@@ -26,6 +45,8 @@ export class MediaController {
 
   @Post('upload-many')
   @UseInterceptors(FilesInterceptor('files', 10))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   uploadMany(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() dto: CreateMediaDto,
@@ -34,11 +55,15 @@ export class MediaController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   update(@Param('id') id: string, @Body() dto: UpdateMediaDto) {
     return this.mediaService.update(id, dto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   remove(@Param('id') id: string) {
     return this.mediaService.remove(id);
   }

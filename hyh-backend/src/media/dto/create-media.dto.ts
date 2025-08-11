@@ -1,5 +1,4 @@
-import { IsOptional, IsString, IsUUID, IsBoolean, IsInt, Min, ValidateIf } from 'class-validator';
-
+import { IsOptional, IsString, IsBoolean, IsInt, Min, ValidateIf } from 'class-validator';
 export class CreateMediaDto {
   @IsOptional()
   @IsString()

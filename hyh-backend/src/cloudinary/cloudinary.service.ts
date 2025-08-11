@@ -24,7 +24,7 @@ export class CloudinaryService {
         streamifier.createReadStream(buffer).pipe(stream);
       });
       return result;
-    } catch (e) {
+    } catch  {
       throw new InternalServerErrorException('Error subiendo imagen a Cloudinary');
     }
   }
