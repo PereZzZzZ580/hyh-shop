@@ -1,7 +1,7 @@
 import ProductCard from "@/components/product/ProductCard";
 import type { Product } from "@/types/product";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default async function Home() {
   const res = await fetch(`${API_URL}/products`, { cache: "no-store" });
