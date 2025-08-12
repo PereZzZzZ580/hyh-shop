@@ -1,0 +1,24 @@
+"use client";
+
+import { useAuth } from "@/store/auth";
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+export async function apiFetch<T>(path: string, options: RequestInit = {}) {
+  const token = useAuth.getState().token;
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+  if (!res.ok) {
+    throw new Error("Error al llamar a la API");
+  }
+  return res.json() as Promise<T>;
+}
