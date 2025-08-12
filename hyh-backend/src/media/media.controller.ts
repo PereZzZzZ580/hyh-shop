@@ -31,13 +31,13 @@ export class MediaController {
   @Get()
   list(@Query('productId') productId?: string, @Query('variantId') variantId?: string) {
     return this.mediaService.list({ productId, variantId });
-    }
+  }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthGuard, RolesGuard, ThrottlerGuard)
   @Roles('ADMIN')
-  @Throttle(20, 60)
+  @Throttle({ default: { limit: 20, ttl: 60 } })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateMediaDto })
   uploadOne(
@@ -53,7 +53,7 @@ export class MediaController {
   @UseInterceptors(FilesInterceptor('files', 10))
   @UseGuards(JwtAuthGuard, RolesGuard, ThrottlerGuard)
   @Roles('ADMIN')
-  @Throttle(20, 60)
+  @Throttle({ default: { limit: 20, ttl: 60 } })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateMediaDto })
   uploadMany(
