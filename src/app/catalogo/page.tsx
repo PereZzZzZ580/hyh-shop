@@ -1,22 +1,28 @@
 import Link from "next/link";
-import { products } from "../../lib/mockdata";
-import ProductCard from "../../components/product/ProductCard";
+import ProductCard from "@/components/product/ProductCard";
+import type { Product } from "@/types/product";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 type Props = {
   searchParams: { categoria?: string; min?: string; max?: string };
 };
 
-export default function Catalogo({ searchParams }: Props) {
-  const categoria = searchParams.categoria as "ropa" | "cabello" | undefined;
-  const min = searchParams.min ? Number(searchParams.min) : undefined;
-  const max = searchParams.max ? Number(searchParams.max) : undefined;
+export default async function Catalogo({ searchParams }: Props) {
+  const categoria = searchParams.categoria;
+  const min = searchParams.min;
+  const max = searchParams.max;
 
-  const filtered = products.filter((p) => {
-    if (categoria && p.category !== categoria) return false;
-    if (min !== undefined && p.price < min) return false;
-    if (max !== undefined && p.price > max) return false;
-    return true;
+  const params = new URLSearchParams();
+  if (categoria) params.set("categorySlug", categoria);
+  if (min) params.set("minPrice", min);
+  if (max) params.set("maxPrice", max);
+
+  const res = await fetch(`${API_URL}/products?${params.toString()}`, {
+    cache: "no-store",
   });
+  const data = await res.json();
+  const products: Product[] = data.items;
 
   return (
     <section>
@@ -57,10 +63,10 @@ export default function Catalogo({ searchParams }: Props) {
         </div>
       </form>
 
-      <p className="mt-3 opacity-80 text-sm">{filtered.length} producto(s)</p>
+      <p className="mt-3 opacity-80 text-sm">{products.length} producto(s)</p>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filtered.map((p) => (
+        {products.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>

@@ -6,7 +6,11 @@ import { useCart } from "@/store/cart";
 
 export default function Header() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const fetchCart = useCart((s) => s.fetch);
+  useEffect(() => {
+    setMounted(true);
+    fetchCart();
+  }, [fetchCart]);
 
   const count = useCart((s) => s.count());
 

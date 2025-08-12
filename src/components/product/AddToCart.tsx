@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useCart } from "../../store/cart";
-import type { Product } from "../../types/product";
+import { useCart } from "@/store/cart";
 
-export default function AddToCart({ product }: { product: Product }) {
+export default function AddToCart({ variantId }: { variantId: string }) {
   const add = useCart((s) => s.addItem);
   const [qty, setQty] = useState(1);
 
@@ -18,7 +17,7 @@ export default function AddToCart({ product }: { product: Product }) {
         className="w-20 h-10 rounded-lg bg-transparent border border-white/20 text-center"
       />
       <button
-        onClick={() => add(product, qty)}
+        onClick={() => add(variantId, qty)}
         className="h-10 px-4 rounded-lg border border-white/15 hover:border-white/30"
       >
         Agregar al carrito
