@@ -1,8 +1,8 @@
 "use client";
 
-import { create } from "zustand";
 import { apiFetch } from "@/lib/api";
 import type { Cart, CartItem } from "@/types/cart";
+import { create } from "zustand";
 
 
 type CartState = {
@@ -21,8 +21,12 @@ export const useCart = create<CartState>()((set, get) => ({
   id: null,
   items: [],
   fetch: async () => {
-    const cart = await apiFetch<Cart>("/cart");
-    set({ id: cart.id, items: cart.items });
+    try {
+      const cart = await apiFetch<Cart>("/cart");
+      set({ id: cart.id, items: cart.items });
+    } catch {
+      set({ id: null, items: [] });
+    }
   },
   addItem: async (variantId, qty = 1) => {
     const cart = await apiFetch<Cart>("/cart/items", {

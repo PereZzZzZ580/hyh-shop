@@ -1,8 +1,8 @@
-import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import type { Product } from "@/types/product";
+import Link from "next/link";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 type Props = {
   searchParams: { categoria?: string; min?: string; max?: string };

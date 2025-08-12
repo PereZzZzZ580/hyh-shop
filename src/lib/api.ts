@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/store/auth";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}) {
   const token = useAuth.getState().token;
@@ -18,7 +18,8 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}) {
     headers,
   });
   if (!res.ok) {
-    throw new Error("Error al llamar a la API");
+    const msg = await res.text();
+    throw new Error(msg || "Error al llamar a la API");
   }
   return res.json() as Promise<T>;
 }

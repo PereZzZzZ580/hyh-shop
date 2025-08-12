@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
 import ProductDetail from "@/components/product/ProductDetail";
 import type { Product } from "@/types/product";
+import { notFound } from "next/navigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 type Props = { params: { slug: string } };
 
