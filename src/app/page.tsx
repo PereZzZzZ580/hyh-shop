@@ -1,7 +1,13 @@
-import { products } from "../lib/mockdata";
-import ProductCard from "../components/product/ProductCard";
+import ProductCard from "@/components/product/ProductCard";
+import type { Product } from "@/types/product";
 
-export default function Home() {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+export default async function Home() {
+  const res = await fetch(`${API_URL}/products`, { cache: "no-store" });
+  const data = await res.json();
+  const products: Product[] = data.items;
+
   return (
     <section>
       <h1 className="text-3xl font-bold">Novedades</h1>
