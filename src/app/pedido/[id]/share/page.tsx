@@ -14,6 +14,7 @@ type OrderSummary = {
     grandTotal: number;
   };
   items: Item[];
+  whatsapp?: { number: string; waLink: string } | null;
 };
 
 const money = (n: number) => new Intl.NumberFormat("es-CO").format(n);
@@ -77,6 +78,15 @@ export default function PedidoShare({ params }: { params: Promise<{ id: string }
       ) : (
         <>
           <div className="mt-4 flex flex-wrap gap-3">
+            {resumen.whatsapp?.waLink && (
+              <a
+                href={resumen.whatsapp.waLink}
+                target="_blank"
+                className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center"
+              >
+                WhatsApp
+              </a>
+            )}
             <button onClick={compartir} className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30">
               Compartir…
             </button>
