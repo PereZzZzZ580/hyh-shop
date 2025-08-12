@@ -2,37 +2,31 @@
 
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
-type ReceiptItem = { id: string; name: string; price: number; qty: number };
-type Receipt = {
-  orderId: string;
-  createdAt: string;
-  customer: { nombre: string; email: string; telefono: string; ciudad: string; direccion: string };
-  items: ReceiptItem[];
-  subtotal: number;
-  envio: number;
-  total: number;
+type Item = { name: string; qty: number; unitPrice: number };
+type OrderSummary = {
+  id: string;
+  totals: {
+    subtotal: number;
+    discountTotal: number;
+    shippingTotal: number;
+    taxTotal: number;
+    grandTotal: number;
+  };
+  items: Item[];
+  address: { line1?: string | null; city?: string | null } | null;
 };
 
 export default function PedidoExito({ params }: { params: Promise<{ id: string }> }) {
-  // Desenvuelve params con React.use()
   const { id } = use(params);
-
-  const [receipt, setReceipt] = useState<Receipt | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [resumen, setResumen] = useState<OrderSummary | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("hyh-last-order");
-      if (raw) {
-        const parsed: Receipt = JSON.parse(raw);
-        if (parsed.orderId === id) setReceipt(parsed);
-      }
-    } catch {}
-    setLoading(false);
+    apiFetch<OrderSummary>(`/orders/${id}/summary`).then(setResumen).catch(() => {});
   }, [id]);
 
-  if (loading) return null;
+  if (!resumen) return null;
 
   return (
     <section className="max-w-3xl">
@@ -42,39 +36,30 @@ export default function PedidoExito({ params }: { params: Promise<{ id: string }
           <span className="text-sm opacity-80">N.º {id}</span>
         </div>
 
-        {receipt ? (
-          <>
-            <p className="mt-2 opacity-80">
-              Gracias <strong>{receipt.customer.nombre}</strong>. Te enviamos un correo a{" "}
-              <strong>{receipt.customer.email}</strong>.
+        <div className="mt-6 space-y-2 text-sm">
+          {resumen.items.map((it, idx) => (
+            <div key={idx} className="flex justify-between">
+              <span className="opacity-80">{it.name} × {it.qty}</span>
+              <span>${(it.unitPrice * it.qty).toLocaleString("es-CO")}</span>
+            </div>
+          ))}
+          <hr className="my-2 border-white/10" />
+          <div className="flex justify-between"><span>Subtotal</span><span>${resumen.totals.subtotal.toLocaleString("es-CO")}</span></div>
+          <div className="flex justify-between"><span>Envío</span><span>${resumen.totals.shippingTotal.toLocaleString("es-CO")}</span></div>
+          {resumen.totals.discountTotal > 0 && (
+            <div className="flex justify-between"><span>Descuento</span><span>-${resumen.totals.discountTotal.toLocaleString("es-CO")}</span></div>
+          )}
+          <div className="flex justify-between text-lg font-semibold mt-1">
+            <span>Total</span><span>${resumen.totals.grandTotal.toLocaleString("es-CO")}</span>
+          </div>
+        </div>
+
+        {resumen.address && (
+          <div className="mt-6">
+            <p className="opacity-80 text-sm">
+              Envío a: {resumen.address.line1}, {resumen.address.city}
             </p>
-
-            <div className="mt-6 space-y-2 text-sm">
-              {receipt.items.map((it) => (
-                <div key={it.id} className="flex justify-between">
-                  <span className="opacity-80">{it.name} × {it.qty}</span>
-                  <span>${(it.price * it.qty).toLocaleString("es-CO")}</span>
-                </div>
-              ))}
-              <hr className="my-2 border-white/10" />
-              <div className="flex justify-between"><span>Subtotal</span><span>${receipt.subtotal.toLocaleString("es-CO")}</span></div>
-              <div className="flex justify-between"><span>Envío</span><span>${receipt.envio.toLocaleString("es-CO")}</span></div>
-              <div className="flex justify-between text-lg font-semibold mt-1">
-                <span>Total</span><span>${receipt.total.toLocaleString("es-CO")}</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <p className="opacity-80 text-sm">
-                Envío a: {receipt.customer.direccion}, {receipt.customer.ciudad}
-              </p>
-            </div>
-          </>
-        ) : (
-          <p className="mt-2 opacity-80">
-            No encontramos el detalle de este pedido en este dispositivo. Es posible que hayas
-            limpiado el almacenamiento o que el pedido se haya hecho desde otro navegador.
-          </p>
+          </div>
         )}
 
         <div className="mt-8 flex gap-3">
@@ -84,14 +69,12 @@ export default function PedidoExito({ params }: { params: Promise<{ id: string }
           <Link href="/" className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
             Ir al inicio
           </Link>
-
-          <Link href={`/pedido/${id}/share`}
-            className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
-                Compartir recibo
-                
-            </Link>
+          <Link href={`/pedido/${id}/share`} className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
+            Compartir recibo
+          </Link>
         </div>
       </div>
     </section>
   );
 }
+
