@@ -2,63 +2,54 @@
 
 import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
-type ReceiptItem = { id: string; name: string; price: number; qty: number; image: string };
-type Receipt = {
-  orderId: string;
-  createdAt: string;
-  customer: { nombre: string; email: string; telefono: string; ciudad: string; direccion: string };
-  items: ReceiptItem[];
-  subtotal: number;
-  envio: number;
-  total: number;
+type Item = { name: string; qty: number; unitPrice: number };
+type OrderSummary = {
+  id: string;
+  totals: {
+    subtotal: number;
+    discountTotal: number;
+    shippingTotal: number;
+    grandTotal: number;
+  };
+  items: Item[];
 };
 
 const money = (n: number) => new Intl.NumberFormat("es-CO").format(n);
 
 export default function PedidoShare({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [resumen, setResumen] = useState<OrderSummary | null>(null);
   const [copiado, setCopiado] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("hyh-last-order");
-      if (raw) {
-        const parsed: Receipt = JSON.parse(raw);
-        if (parsed.orderId === id) setReceipt(parsed);
-      }
-    } catch {}
+    apiFetch<OrderSummary>(`/orders/${id}/summary`).then(setResumen).catch(() => {});
   }, [id]);
 
   const texto = useMemo(() => {
-    if (!receipt) return "";
-    const fecha = new Date(receipt.createdAt).toLocaleString("es-CO");
-    const items = receipt.items
-      .map((it) => `- ${it.name} x${it.qty} — $${money(it.price * it.qty)}`)
+    if (!resumen) return "";
+    const items = resumen.items
+      .map((it) => `- ${it.name} x${it.qty} — $${money(it.unitPrice * it.qty)}`)
       .join("\n");
-
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-
     return [
       "HYH SHOP — Recibo de pedido",
-      `N.º: ${receipt.orderId}`,
-      `Fecha: ${fecha}`,
-      "",
-      `Cliente: ${receipt.customer.nombre} (${receipt.customer.telefono})`,
-      `Email: ${receipt.customer.email}`,
-      `Envío a: ${receipt.customer.direccion}, ${receipt.customer.ciudad}`,
+      `N.º: ${id}`,
       "",
       "Productos:",
       items || "- (vacío)",
       "",
-      `Subtotal: $${money(receipt.subtotal)}`,
-      `Envío: $${money(receipt.envio)}`,
-      `Total: $${money(receipt.total)}`,
+      `Subtotal: $${money(resumen.totals.subtotal)}`,
+      `Envío: $${money(resumen.totals.shippingTotal)}`,
+      resumen.totals.discountTotal ? `Descuento: -$${money(resumen.totals.discountTotal)}` : null,
+      `Total: $${money(resumen.totals.grandTotal)}`,
       "",
-      `Ver en web: ${baseUrl}/pedido/${receipt.orderId}`,
-    ].join("\n");
-  }, [receipt]);
+      `Ver en web: ${baseUrl}/pedido/${id}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }, [resumen, id]);
 
   const copiar = async () => {
     try {
@@ -71,10 +62,7 @@ export default function PedidoShare({ params }: { params: Promise<{ id: string }
   const compartir = async () => {
     try {
       if (navigator.share) {
-        await navigator.share({
-          title: `Pedido ${id} — HYH SHOP`,
-          text: texto,
-        });
+        await navigator.share({ title: `Pedido ${id} — HYH SHOP`, text: texto });
       } else {
         await copiar();
       }
@@ -84,11 +72,8 @@ export default function PedidoShare({ params }: { params: Promise<{ id: string }
   return (
     <section className="max-w-3xl">
       <h1 className="text-3xl font-bold">Compartir pedido</h1>
-      {!receipt ? (
-        <p className="mt-3 opacity-80">
-          No encontramos el recibo en este dispositivo. Abre primero la página de éxito del pedido,
-          o genera un pedido nuevo.
-        </p>
+      {!resumen ? (
+        <p className="mt-3 opacity-80">No encontramos el recibo.</p>
       ) : (
         <>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -116,3 +101,4 @@ export default function PedidoShare({ params }: { params: Promise<{ id: string }
     </section>
   );
 }
+

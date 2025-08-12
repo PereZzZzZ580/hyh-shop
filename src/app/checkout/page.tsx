@@ -1,164 +1,197 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useCart } from "@/store/cart";
+import { apiFetch } from "@/lib/api";
+import type { Address } from "@/types/address";
 import { useRouter } from "next/navigation";
 
-const schema = z.object({
-  nombre: z.string().min(3, "Mínimo 3 caracteres"),
-  email: z.string().email("Email inválido"),
-  telefono: z.string().min(7, "Teléfono inválido"),
-  direccion: z.string().min(4, "Dirección requerida"),
-  ciudad: z.string().min(2, "Ciudad requerida"),
-  departamento: z.string().min(2, "Departamento requerido"),
-  codigoPostal: z.string().min(3, "Código postal requerido"),
-  metodoEnvio: z.enum(["pickup", "domicilio"]),
-});
-
-type FormData = z.infer<typeof schema>;
+type Preview = {
+  totals: {
+    subtotal: number;
+    discountTotal: number;
+    shippingTotal: number;
+    taxTotal: number;
+    grandTotal: number;
+  };
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, total, clear } = useCart();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const { items, clear, id: cartId } = useCart();
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: { metodoEnvio: "pickup" },
-  });
+  const [direcciones, setDirecciones] = useState<Address[]>([]);
+  const [direccionId, setDireccionId] = useState("");
+  const [ciudad, setCiudad] = useState("");
+  const [linea1, setLinea1] = useState("");
+  const [cupon, setCupon] = useState("");
+  const [metodoPago, setMetodoPago] = useState<"WHATSAPP" | "COD">("WHATSAPP");
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
-  const envio = watch("metodoEnvio") === "domicilio" ? 7000 : 0;
+  useEffect(() => {
+    apiFetch<Address[]>("/me/addresses")
+      .then((d) => setDirecciones(d))
+      .catch(() => {});
+  }, []);
 
-  if (!mounted) return null; // evita hydration mismatch por persistencia del carrito
-
-    const onSubmit = async (data: FormData) => {
-        // simulamos latencia
-        await new Promise((r) => setTimeout(r, 600));
-
-        const orderId = "ORD-" + Date.now();
-        const envioCost = data.metodoEnvio === "domicilio" ? 7000 : 0;
-        const subtotal = total();
-        const grandTotal = subtotal + envioCost;
-
-        // snapshot de items para el recibo
-        const receipt = {
-            orderId,
-            createdAt: new Date().toISOString(),
-            customer: {
-            nombre: data.nombre,
-            email: data.email,
-            telefono: data.telefono,
-            ciudad: data.ciudad,
-            direccion: data.direccion,
-            },
-            items: items.map(({ id, variant, qty, priceSnapshot }) => ({
-            id,
-            name: variant.product.name,
-            price: priceSnapshot,
-            qty,
-          })),
-            subtotal,
-            envio: envioCost,
-            total: grandTotal,
-        };
-
-        // guardamos el recibo para leerlo en /pedido/[id]
-        if (typeof window !== "undefined") {
-            localStorage.setItem("hyh-last-order", JSON.stringify(receipt));
-        }
-
-        clear(); // vaciamos carrito
-        router.push(`/pedido/${orderId}`); // redirigimos a la página de éxito
+  useEffect(() => {
+    if (!cartId) return;
+    const obtener = async () => {
+      try {
+        const p = await apiFetch<Preview>("/checkout/preview", {
+          method: "POST",
+          body: JSON.stringify({
+            cartId,
+            city: ciudad || undefined,
+            coupon: cupon || undefined,
+            paymentMethod: metodoPago,
+          }),
+        });
+        setPreview(p);
+      } catch {}
     };
+    obtener();
+  }, [cartId, ciudad, cupon, metodoPago]);
 
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cartId) return;
+    setEnviando(true);
+    try {
+      type OrderBody = {
+        cartId: string;
+        paymentMethod: "WHATSAPP" | "COD";
+        contactName: string;
+        contactPhone: string;
+        addressId?: string;
+        addressRaw?: { country: string; city: string; line1: string };
+      };
+      const body: OrderBody = {
+        cartId,
+        paymentMethod: metodoPago,
+        contactName: nombre,
+        contactPhone: telefono,
+      };
+      if (direccionId && direccionId !== "nueva") {
+        body.addressId = direccionId;
+      } else {
+        body.addressRaw = { country: "Colombia", city: ciudad, line1: linea1 };
+      }
+      const res = await apiFetch<{ orderId: string }>("/orders", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      clear();
+      router.push(`/pedido/${res.orderId}`);
+    } catch {}
+    setEnviando(false);
+  };
 
-  const subtotal = total();
-  const granTotal = subtotal + envio;
+  const seleccionarDireccion = (id: string) => {
+    setDireccionId(id);
+    const encontrada = direcciones.find((d) => d.id === id);
+    if (encontrada) {
+      setCiudad(encontrada.city);
+      setLinea1(encontrada.line1);
+    }
+  };
 
   return (
     <section className="grid gap-8 md:grid-cols-2">
-      {/* Formulario */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4">
         <h1 className="text-3xl font-bold">Checkout</h1>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        {direcciones.length > 0 && (
           <div>
-            <label className="block mb-1 text-sm opacity-80">Nombre completo</label>
-            <input {...register("nombre")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.nombre && <p className="text-red-400 text-sm mt-1">{errors.nombre.message}</p>}
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm opacity-80">Email</label>
-            <input type="email" {...register("email")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm opacity-80">Teléfono</label>
-            <input {...register("telefono")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.telefono && <p className="text-red-400 text-sm mt-1">{errors.telefono.message}</p>}
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm opacity-80">Ciudad</label>
-            <input {...register("ciudad")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.ciudad && <p className="text-red-400 text-sm mt-1">{errors.ciudad.message}</p>}
-          </div>
-
-          <div className="sm:col-span-2">
             <label className="block mb-1 text-sm opacity-80">Dirección</label>
-            <input {...register("direccion")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.direccion && <p className="text-red-400 text-sm mt-1">{errors.direccion.message}</p>}
+            <select
+              value={direccionId}
+              onChange={(e) => seleccionarDireccion(e.target.value)}
+              className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+            >
+              <option value="">Selecciona</option>
+              {direcciones.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.line1} - {d.city}
+                </option>
+              ))}
+              <option value="nueva">Nueva dirección</option>
+            </select>
           </div>
+        )}
 
-          <div>
-            <label className="block mb-1 text-sm opacity-80">Departamento</label>
-            <input {...register("departamento")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.departamento && <p className="text-red-400 text-sm mt-1">{errors.departamento.message}</p>}
-          </div>
+        {(direccionId === "" || direccionId === "nueva") && (
+          <>
+            <div>
+              <label className="block mb-1 text-sm opacity-80">Ciudad</label>
+              <input
+                value={ciudad}
+                onChange={(e) => setCiudad(e.target.value)}
+                className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-sm opacity-80">Dirección</label>
+              <input
+                value={linea1}
+                onChange={(e) => setLinea1(e.target.value)}
+                className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+              />
+            </div>
+          </>
+        )}
 
-          <div>
-            <label className="block mb-1 text-sm opacity-80">Código Postal</label>
-            <input {...register("codigoPostal")} className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
-            {errors.codigoPostal && <p className="text-red-400 text-sm mt-1">{errors.codigoPostal.message}</p>}
-          </div>
+        <div>
+          <label className="block mb-1 text-sm opacity-80">Cupón</label>
+          <input
+            value={cupon}
+            onChange={(e) => setCupon(e.target.value)}
+            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          />
         </div>
 
-        <fieldset className="mt-2">
-          <legend className="opacity-80 text-sm mb-2">Envío</legend>
-          <div className="flex gap-4">
-            <label className="inline-flex items-center gap-2">
-              <input type="radio" value="pickup" {...register("metodoEnvio")} />
-              Recoger en tienda (gratis)
-            </label>
-            <label className="inline-flex items-center gap-2">
-              <input type="radio" value="domicilio" {...register("metodoEnvio")} />
-              Domicilio ($7.000)
-            </label>
-          </div>
-          {errors.metodoEnvio && <p className="text-red-400 text-sm mt-1">{errors.metodoEnvio.message}</p>}
-        </fieldset>
+        <div>
+          <label className="block mb-1 text-sm opacity-80">Método de pago</label>
+          <select
+            value={metodoPago}
+            onChange={(e) => setMetodoPago(e.target.value as "WHATSAPP" | "COD")}
+            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          >
+            <option value="WHATSAPP">WhatsApp</option>
+            <option value="COD">Contraentrega</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-1 text-sm opacity-80">Nombre de contacto</label>
+          <input
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 text-sm opacity-80">Teléfono de contacto</label>
+          <input
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          />
+        </div>
 
         <button
           type="submit"
-          disabled={isSubmitting || items.length === 0}
+          disabled={enviando || items.length === 0}
           className="h-11 rounded-lg px-5 border border-white/20 hover:border-white/40 disabled:opacity-50"
         >
-          {isSubmitting ? "Procesando..." : "Confirmar pedido"}
+          {enviando ? "Procesando..." : "Confirmar pedido"}
         </button>
       </form>
 
-      {/* Resumen */}
       <aside className="border border-white/10 rounded-2xl p-4 h-fit">
         <h2 className="text-xl font-semibold">Resumen</h2>
         <div className="mt-3 space-y-2 text-sm">
@@ -169,13 +202,17 @@ export default function CheckoutPage() {
             </div>
           ))}
           <hr className="my-2 border-white/10" />
-          <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toLocaleString("es-CO")}</span></div>
-          <div className="flex justify-between"><span>Envío</span><span>${envio.toLocaleString("es-CO")}</span></div>
+          <div className="flex justify-between"><span>Subtotal</span><span>${(preview?.totals.subtotal || 0).toLocaleString("es-CO")}</span></div>
+          <div className="flex justify-between"><span>Envío</span><span>${(preview?.totals.shippingTotal || 0).toLocaleString("es-CO")}</span></div>
+          {preview?.totals.discountTotal ? (
+            <div className="flex justify-between"><span>Descuento</span><span>-${preview.totals.discountTotal.toLocaleString("es-CO")}</span></div>
+          ) : null}
           <div className="flex justify-between text-lg font-semibold mt-1">
-            <span>Total</span><span>${granTotal.toLocaleString("es-CO")}</span>
+            <span>Total</span><span>${(preview?.totals.grandTotal || 0).toLocaleString("es-CO")}</span>
           </div>
         </div>
       </aside>
     </section>
   );
 }
+
