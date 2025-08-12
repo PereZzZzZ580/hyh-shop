@@ -105,10 +105,15 @@ export class OrdersService {
     });
     if (!cart || cart.items.length === 0) throw new BadRequestException('Cart is empty');
 
-    // validar COD por ciudad
+    // validar COD
     const city = (params.addressRaw?.city || '').toLowerCase();
-    if (params.paymentMethod === 'COD' && COD_CITIES.length && !COD_CITIES.includes(city)) {
-      throw new BadRequestException(`Contraentrega solo disponible en: ${COD_CITIES.join(', ')}`);
+    if (params.paymentMethod === 'COD') {
+      if (!params.contactName || !params.contactPhone || !city) {
+        throw new BadRequestException('Contraentrega requiere nombre, teléfono y ciudad');
+      }
+      if (COD_CITIES.length && !COD_CITIES.includes(city)) {
+        throw new BadRequestException(`Contraentrega solo disponible en: ${COD_CITIES.join(', ')}`);
+      }
     }
 
     // totales

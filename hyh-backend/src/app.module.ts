@@ -10,10 +10,13 @@ import { AccountModule } from './account/account.module';
 import { ConfigModule } from '@nestjs/config';
 import { MediaModule } from './media/media.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { HealthModule } from './health/health.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot({ ttl: 60, limit: 10 }),
     MediaModule,
     CloudinaryModule,
     PrismaModule,
@@ -24,6 +27,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CouponsModule,
     ShippingModule,
     AccountModule,
+    HealthModule
   ],
 })
 export class AppModule {}

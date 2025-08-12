@@ -96,6 +96,12 @@ model Product {
   reviews        Review[]
   tags           TagOnProduct[]
   variants       Variant[]
+
+  @@index([categoryId])
+  @@index([brand])
+  @@index([targetGender])
+  @@index([name])
+  @@index([hairType], type: Gin)
 }
 
 model Variant {

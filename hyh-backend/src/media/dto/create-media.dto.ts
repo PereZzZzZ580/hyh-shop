@@ -15,11 +15,11 @@ export class CreateMediaDto {
 
   @ValidateIf((o) => !o.variantId)
   @IsOptional()
-  @IsUUID()
+  @IsString()
   productId?: string;
 
   @ValidateIf((o) => !o.productId)
   @IsOptional()
-  @IsUUID()
+  @IsString()
   variantId?: string;
 }
