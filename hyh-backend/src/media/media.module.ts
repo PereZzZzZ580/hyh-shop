@@ -5,6 +5,7 @@ import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
     }),
   ],
   controllers: [MediaController],
-  providers: [MediaService],
+  providers: [MediaService, RolesGuard],
   exports: [MediaService],
 })
 export class MediaModule {}
