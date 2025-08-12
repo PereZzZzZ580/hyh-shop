@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
-type ReceiptItem = { id: string; name: string; price: number; qty: number; image: string };
+type ReceiptItem = { id: string; name: string; price: number; qty: number };
 type Receipt = {
   orderId: string;
   createdAt: string;
