@@ -9,6 +9,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCart((s) => s.addItem);
   const variant = product.variants[0];
   const image = product.images[0]?.url;
+  const sinStock = !variant || variant.stock < 1;
 
   return (
     <div className="rounded-2xl overflow-hidden border border-white/10">
@@ -25,6 +26,7 @@ export default function ProductCard({ product }: { product: Product }) {
             ${variant.price.toLocaleString("es-CO")}
           </p>
         )}
+        {sinStock && <p className="mt-1 text-sm text-red-400">Sin stock</p>}
 
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Link
@@ -34,7 +36,7 @@ export default function ProductCard({ product }: { product: Product }) {
             Ver detalle
           </Link>
 
-          {variant && (
+          {variant && !sinStock && (
             <button
               onClick={() => addItem(variant.id, 1)}
               className="h-9 rounded-lg border border-white/15 hover:border-white/30"

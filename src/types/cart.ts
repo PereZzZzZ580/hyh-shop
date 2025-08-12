@@ -7,6 +7,9 @@ export type CartProduct = {
 export type CartVariant = {
   id: string;
   price: number;
+  compareAtPrice?: number | null;
+  stock: number;
+  attributes: Record<string, string>;
   product: CartProduct;
 };
 

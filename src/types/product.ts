@@ -1,15 +1,22 @@
-export type ProductImage = {
+export type Media = {
   id: string;
   url: string;
   alt?: string | null;
+  width?: number | null;
+  height?: number | null;
+  isCover?: boolean | null;
 };
 
-export type ProductVariant = {
+export type Variant = {
   id: string;
   price: number;
+  compareAtPrice?: number | null;
+  stock: number;
+  attributes: Record<string, string>;
+  media?: Media[];
 };
 
-export type ProductCategory = {
+export type Category = {
   id: string;
   name: string;
   slug: string;
@@ -20,7 +27,8 @@ export type Product = {
   name: string;
   slug: string;
   brand?: string | null;
-  category: ProductCategory;
-  images: ProductImage[];
-  variants: ProductVariant[];
+  description?: string | null;
+  category: Category;
+  images: Media[];
+  variants: Variant[];
 };
