@@ -1,54 +1,48 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { Product } from "@/types/product";
+import { apiFetch } from "@/lib/api";
+import type { Cart, CartItem } from "@/types/cart";
 
-export type CartItem = {
-  product: Product;
-  qty: number;
-};
 
 type CartState = {
   items: CartItem[];
-  addItem: (product: Product, qty?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQty: (productId: string, qty: number) => void;
+  fetch: () => Promise<void>;
+  addItem: (variantId: string, qty?: number) => Promise<void>;
+  removeItem: (itemId: string) => Promise<void>;
+  updateQty: (itemId: string, qty: number) => Promise<void>;
   clear: () => void;
   count: () => number;
   total: () => number;
 };
 
-export const useCart = create<CartState>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      addItem: (product, qty = 1) =>
-        set((state) => {
-          const exists = state.items.find((i) => i.product.id === product.id);
-          if (exists) {
-            return {
-              items: state.items.map((i) =>
-                i.product.id === product.id ? { ...i, qty: i.qty + qty } : i
-              ),
-            };
-          }
-          return { items: [...state.items, { product, qty }] };
-        }),
-      removeItem: (productId) =>
-        set((state) => ({
-          items: state.items.filter((i) => i.product.id !== productId),
-        })),
-      updateQty: (productId, qty) =>
-        set((state) => ({
-          items: state.items.map((i) =>
-            i.product.id === productId ? { ...i, qty } : i
-          ),
-        })),
-      clear: () => set({ items: [] }),
-      count: () => get().items.reduce((acc, i) => acc + i.qty, 0),
-      total: () => get().items.reduce((acc, i) => acc + i.qty * i.product.price, 0),
-    }),
-    { name: "hyh-cart" }
-  )
-);
+export const useCart = create<CartState>()((set, get) => ({
+  items: [],
+  fetch: async () => {
+    const cart = await apiFetch<Cart>("/cart");
+    set({ items: cart.items });
+  },
+  addItem: async (variantId, qty = 1) => {
+    const cart = await apiFetch<Cart>("/cart/items", {
+      method: "POST",
+      body: JSON.stringify({ variantId, qty }),
+    });
+    set({ items: cart.items });
+  },
+  removeItem: async (itemId) => {
+    const cart = await apiFetch<Cart>(`/cart/items/${itemId}`, {
+      method: "DELETE",
+    });
+    set({ items: cart.items });
+  },
+  updateQty: async (itemId, qty) => {
+    const cart = await apiFetch<Cart>(`/cart/items/${itemId}`, {
+      method: "PUT",
+      body: JSON.stringify({ qty }),
+    });
+    set({ items: cart.items });
+  },
+  clear: () => set({ items: [] }),
+  count: () => get().items.reduce((acc, i) => acc + i.qty, 0),
+  total: () => get().items.reduce((acc, i) => acc + i.qty * i.priceSnapshot, 0),
+}));

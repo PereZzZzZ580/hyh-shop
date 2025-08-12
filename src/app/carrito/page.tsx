@@ -11,22 +11,22 @@ export default function CartPage() {
       <h1 className="text-3xl font-bold">Tu carrito</h1>
       <div className="mt-6 space-y-4">
         {items.length === 0 && <p className="opacity-80">Aún no tienes productos.</p>}
-        {items.map(({ product, qty }) => (
-          <div key={product.id} className="flex items-center justify-between border border-white/10 rounded-xl p-4">
+        {items.map(({ id, variant, qty, priceSnapshot }) => (
+          <div key={id} className="flex items-center justify-between border border-white/10 rounded-xl p-4">
             <div>
-              <p className="font-medium">{product.name}</p>
-              <p className="opacity-80 text-sm">${product.price.toLocaleString("es-CO")}</p>
+              <p className="font-medium">{variant.product.name}</p>
+              <p className="opacity-80 text-sm">${priceSnapshot.toLocaleString("es-CO")}</p>
             </div>
             <div className="flex items-center gap-3">
               <input
                 type="number"
                 min={1}
                 value={qty}
-                onChange={(e) => updateQty(product.id, Number(e.target.value))}
+                onChange={(e) => updateQty(id, Number(e.target.value))}
                 className="w-16 h-9 rounded-lg bg-transparent border border-white/20 text-center"
               />
               <button
-                onClick={() => removeItem(product.id)}
+                onClick={() => removeItem(id)}
                 className="h-9 rounded-lg px-3 border border-white/15 hover:border-red-400/50"
               >
                 Quitar
@@ -45,7 +45,10 @@ export default function CartPage() {
             <button onClick={clear} className="h-10 rounded-lg px-4 border border-white/15">
               Vaciar
             </button>
-            <Link href="/checkout" className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center">
+            <Link
+              href="/checkout"
+              className="h-10 rounded-lg px-4 border border-white/15 hover:border-white/30 inline-flex items-center"
+            >
               Ir a pagar
             </Link>
           </div>
