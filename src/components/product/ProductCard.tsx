@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useCart } from "@/store/cart";
 import type { Product } from "@/types/product";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCart((s) => s.addItem);
@@ -14,8 +14,15 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <div className="rounded-2xl overflow-hidden border border-white/10">
       <div className="relative aspect-[4/3]">
-        {image && (
+        {image ? (
           <Image src={image} alt={product.name} fill className="object-cover" />
+          ) : (
+          <Image
+            src="/file.svg"
+            alt="Sin imagen"
+            fill
+            className="object-contain p-8 opacity-50"
+          />
         )}
       </div>
 
