@@ -21,14 +21,14 @@
   --shadow-hover-gold: 0 0 0 1px #FFD700 inset, 0 8px 24px rgba(255, 215, 0, .18);
   --transition-global: all 0.25s ease;
 }
-
-html {
-  background: var(--bg);
-  color: var(--text);  
-}
+html {}
 
 body {
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 h1, h2, h3 {
@@ -46,4 +46,31 @@ img {
 img:hover {
   transform: scale(1.04);
   filter: brightness(1.06);
+}
+
+section {
+  padding-block: 64px;
+}
+
+@media (min-width: 768px) {
+  section {
+    padding-block: 96px;
+  }
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 }
