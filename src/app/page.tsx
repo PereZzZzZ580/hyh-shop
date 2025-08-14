@@ -1,3 +1,4 @@
+import Hero from "@/components/Hero";
 import ProductCard from "@/components/product/ProductCard";
 import type { Product } from "@/types/product";
 
@@ -9,13 +10,16 @@ export default async function Home() {
   const products: Product[] = data.items;
 
   return (
-    <section>
-      <h1 className="text-3xl font-bold">Novedades</h1>
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
-    </section>
+    <>
+      <Hero />
+      <section>
+        <h1 className="text-3xl font-bold">Novedades</h1>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
