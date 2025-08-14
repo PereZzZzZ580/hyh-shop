@@ -1,26 +1,76 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bg: #000000;
+  --surface: #0A0A0A;
+  --surface-2: #1A1A1A;
+  --text: #FFFFFF;
+  --muted: #BFBFBF;
+  --gold: #FFD700;
+  --gold-600: #C6A700;
+  --border: #2E2E2E;
+  --shadow-gold: 0 0 8px rgba(255, 215, 0, 0.25);
+  --radius: 14px;
+  --shadow-base: 0 10px 30px rgba(0, 0, 0, .45);
+  --shadow-hover-gold: 0 0 0 1px #FFD700 inset, 0 8px 24px rgba(255, 215, 0, .18);
+  --transition-global: all 0.25s ease;
+}
+html {}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+h1, h2, h3 {
+  font-family: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+*, *::before, *::after {
+  transition: var(--transition-global);
+}
+
+img {
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+img:hover {
+  transform: scale(1.04);
+  filter: brightness(1.06);
+}
+
+section {
+  padding-block: 64px;
+}
+
+@media (min-width: 768px) {
+  section {
+    padding-block: 96px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 }
