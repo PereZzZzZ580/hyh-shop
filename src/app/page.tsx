@@ -1,5 +1,6 @@
-import AboutUs from "@/components/AboutUs";
+import AboutBlock from "@/components/AboutBlock";
 import Hero from "@/components/Hero";
+import SectionTitle from "@/components/SectionTitle";
 import ProductCard from "@/components/product/ProductCard";
 import type { Product } from "@/types/product";
 
@@ -13,11 +14,14 @@ export default async function Home() {
   return (
     <>
       <Hero />
-      <AboutUs />
-      <section className = "py-10 md:py-12"> 
-        <h2 className="text-gold text-[26px] sm:text-[28px] md:text-[36px] font-semibold">
-          Nuestros Productos
-        </h2>
+      <AboutBlock
+        imageUrl="https://images.unsplash.com/photo-1556229010-945ffcb54b17?auto=format&fit=crop&w=1200&q=80"
+        title="Sobre Nosotros"
+        text="En HYH, nos apasiona la barbería y ofrecemos productos de calidad para profesionales exigentes."
+        bullets={["Materiales premium", "Envío rápido y seguro", "Atención personalizada"]}
+      />
+      <section className="py-10 md:py-12">
+        <SectionTitle underline>Nuestros Productos</SectionTitle>
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
