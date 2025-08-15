@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Playfair_Display } from "next/font/google";
 import Header from "../components/Header";
 import "./globals.css";
+import Footer from "../components/Footer";
 
 const display = Playfair_Display({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Header />
         <main className="container py-8">{children}</main>
+        <Footer />
       </body>
     </html>
   );
