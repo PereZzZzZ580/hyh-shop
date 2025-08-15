@@ -9,18 +9,17 @@
   --foreground: #171717;
   --bg: #000000;
   --surface: #0A0A0A;
-  --surface-2: #1A1A1A;
+  --surface2: #1A1A1A;
   --text: #FFFFFF;
   --muted: #BFBFBF;
   --gold: #FFD700;
-  --gold-600: #C6A700;
+  --gold600: #C6A700;
   --border: #2E2E2E;
   --success: #00BFA6;
   --error: #FF4D4D;
-  --shadow-gold: 0 0 8px rgba(255, 215, 0, 0.25);
+  --shadow-gold: 0 0 0 1px #FFD700 inset, 0 8px 24px rgba(255, 215, 0, .18);
   --radius: 14px;
   --shadow-base: 0 10px 30px rgba(0, 0, 0, .45);
-  --shadow-hover-gold: 0 0 0 1px #FFD700 inset, 0 8px 24px rgba(255, 215, 0, .18);
   --transition-global: all 0.25s ease;
 }
 html {}
@@ -42,7 +41,7 @@ h1, h2, h3 {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold-600);
+  outline: 2px solid var(--gold600);
   outline-offset: 2px;
 }
 
@@ -105,7 +104,7 @@ a:hover {
 }
 
 .header-logo img {
-  height: 70px;
+  height: 48px;
   width: auto;
 }
 

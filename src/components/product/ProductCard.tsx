@@ -14,9 +14,9 @@ export default function ProductCard({ product }: { product: Product }) {
     variant && variant.compareAtPrice && variant.compareAtPrice > variant.price;
 
   return (
-    <div className="group bg-surface border border-border rounded-radius p-[18px] md:p-[22px] hover:border-gold hover:shadow-gold">
+    <div className="group bg-surface border border-border rounded-xl p-[18px] md:p-[22px] hover:border-gold hover:shadow-gold">
       <Link href={`/producto/${product.slug}`}>
-        <div className="relative overflow-hidden rounded-radius border border-gold/25 h-[220px] md:h-[300px]">
+          <div className="relative overflow-hidden rounded-xl border border-gold/25 h-[220px] md:h-[300px]">
           {image ? (
             <Image
               src={image}
@@ -53,7 +53,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <button
           onClick={() => addItem(variant.id, 1)}
           disabled={sinStock}
-          className="mt-4 w-full h-9 rounded-radius bg-gold text-black hover:bg-gold-600 hover:shadow-gold disabled:opacity-50"
+          className="mt-4 w-full h-9 rounded-xl bg-gold text-black hover:bg-gold600 hover:shadow-gold disabled:opacity-50"
         >
           {sinStock ? "Sin stock" : "Añadir"}
         </button>

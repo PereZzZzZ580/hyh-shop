@@ -21,16 +21,16 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-20 h-20 backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
       <div className="container h-full flex items-center justify-between">
-        <Link href="/" className="flex items-center header-logo">
-        <Image
-            src="/logo_barberia.png"
-            alt="H&H Shop"
-            width={160}
-            height={70}
-            className="h-10 w-auto md:h-11"
-            priority
-          />
-        </Link>
+          <Link href="/" className="flex items-center header-logo mr-6">
+            <Image
+              src="/logo-hh.svg"
+              alt="H&H Shop"
+              width={112}
+              height={48}
+              className="h-12 w-auto"
+              priority
+            />
+          </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 font-semibold text-[15px] md:text-[16px] text-gold">
@@ -74,13 +74,13 @@ export default function Header() {
           </Link>
           <Link
             href="/ingresar"
-            className="bg-gold text-black px-4 py-2 rounded-radius hover:bg-gold-600 hover:shadow-gold"
+            className="bg-gold text-black px-4 py-2 rounded-x1 hover:bg-gold-600 hover:shadow-gold"
           >
             Login
           </Link>
           <Link
             href="/registrarse"
-            className="border-2 border-gold text-gold px-4 py-2 rounded-radius hover:bg-gold hover:text-black"
+            className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black"
           >
             Registrarse
           </Link>
@@ -143,14 +143,14 @@ export default function Header() {
                 <Link
                   href="/ingresar"
                   onClick={() => setOpen(false)}
-                  className="bg-gold text-black px-4 py-2 rounded-radius text-center hover:bg-gold-600 hover:shadow-gold"
+                  className="bg-gold text-black px-4 py-2 rounded-xl text-center hover:bg-gold600 hover:shadow-gold"
                 >
                   Login
                 </Link>
                 <Link
                   href="/registrarse"
                   onClick={() => setOpen(false)}
-                  className="border-2 border-gold text-gold px-4 py-2 rounded-radius text-center hover:bg-gold hover:text-black"
+                  className="border-2 border-gold text-gold px-4 py-2 rounded-xl text-center hover:bg-gold hover:text-black"
                 >
                   Registrarse
                 </Link>

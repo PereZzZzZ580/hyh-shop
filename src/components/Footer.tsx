@@ -56,7 +56,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="text-gold hover:text-gold-600"
+                  className="text-gold hover:text-gold-600"
               >
                 <Instagram size={24} />
               </Link>
@@ -65,7 +65,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="text-gold hover:text-gold-600"
+                  className="text-gold hover:text-gold-600"
               >
                 <Facebook size={24} />
               </Link>

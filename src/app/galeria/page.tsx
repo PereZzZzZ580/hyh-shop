@@ -26,14 +26,14 @@ export default function Galeria() {
     setIndice((indice! + 1) % imagenes.length);
 
   return (
-    <section className="bg-surface-2">
+    <section className="bg-surface2">
       <h1 className="text-3xl font-bold text-center">Galería</h1>
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
         {imagenes.map((src, i) => (
           <button
             key={src}
             onClick={() => abrir(i)}
-            className="group relative overflow-hidden rounded-radius border border-gold/20 hover:shadow-hover-gold"
+            className="group relative overflow-hidden rounded-xl border border-gold/20 hover:shadow-gold"
           >
             <Image
               src={src}
@@ -67,7 +67,7 @@ export default function Galeria() {
             alt={`Imagen ${indice + 1}`}
             width={1000}
             height={800}
-            className="max-h-[80vh] w-auto rounded-radius"
+            className="max-h-[80vh] w-auto rounded-xl"
           />
           <button
             className="absolute right-4 text-gold"
