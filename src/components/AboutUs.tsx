@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function AboutUs() {
   return (
-    <section className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
+    <section className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center py-10 md:py-12">
       <div className="relative w-full aspect-[4/3] border border-gold">
         <Image
           src="https://images.unsplash.com/photo-1556229010-945ffcb54b17?auto=format&fit=crop&w=1200&q=80"
