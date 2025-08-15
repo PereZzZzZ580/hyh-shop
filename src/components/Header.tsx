@@ -30,6 +30,7 @@ export default function Header() {
           <Link href="/" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Inicio</Link>
           <Link href="/servicios" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Servicios</Link>
           <Link href="/productos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Productos</Link>
+          <Link href="/galeria" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Galería</Link>
           <Link href="/tienda" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Nuestra Tienda</Link>
           <Link href="/contacto" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Contacto</Link>
         </nav>
@@ -101,6 +102,7 @@ export default function Header() {
                 <Link href="/" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">Inicio</Link>
                 <Link href="/servicios" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">Servicios</Link>
                 <Link href="/productos" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">Productos</Link>
+                <Link href="/galeria" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">Galería</Link>
                 <Link href="/tienda" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">Nuestra Tienda</Link>
                 <Link href="/contacto" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">Contacto</Link>
               </nav>
