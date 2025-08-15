@@ -1,3 +1,4 @@
+import AboutUs from "@/components/AboutUs";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/product/ProductCard";
 import type { Product } from "@/types/product";
@@ -12,6 +13,7 @@ export default async function Home() {
   return (
     <>
       <Hero />
+      <AboutUs />
       <section>
         <h2 className="text-gold text-[26px] sm:text-[28px] md:text-[36px] font-semibold">
           Nuestros Productos
