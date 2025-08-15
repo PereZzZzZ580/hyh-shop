@@ -22,7 +22,7 @@ export default function Hero() {
         </h3>
         <Link
           href="/catalogo"
-          className="mt-6 inline-flex items-center justify-center h-[48px] w-full sm:w-auto px-[22px] bg-gold text-black rounded-radius hover:bg-gold-600 hover:shadow-gold"
+          className="mt-6 inline-flex items-center justify-center h-[48px] w-full sm:w-auto px-[22px] bg-gold text-black rounded-xl hover:bg-gold600 hover:shadow-gold"
         >
           Ver catálogo
         </Link>
