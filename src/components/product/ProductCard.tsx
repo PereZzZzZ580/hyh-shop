@@ -45,8 +45,15 @@ export default function ProductCard({ product }: { product: Product }) {
         </h3>
       </Link>
       {variant && (
-        <p className="mt-2 text-gold text-[16px] md:text-[18px]">
-          ${variant.price.toLocaleString("es-CO")}
+        <p className="mt-2 text-[16px] md:text-[18px]">
+          <span className="text-gold">
+            ${variant.price.toLocaleString("es-CO")}
+          </span>
+          {oferta && (
+            <span className="ml-2 text-white/50 line-through">
+              ${variant.compareAtPrice?.toLocaleString("es-CO")}
+            </span>
+          )}
         </p>
       )}
       {variant && (
