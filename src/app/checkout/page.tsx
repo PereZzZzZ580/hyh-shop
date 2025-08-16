@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useCart } from "@/store/cart";
 import { apiFetch } from "@/lib/api";
+import { useCart } from "@/store/cart";
 import type { Address } from "@/types/address";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Preview = {
   totals: {
@@ -59,6 +59,21 @@ export default function CheckoutPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cartId) return;
+    if (direcciones.length > 0 && direccionId === "") {
+      alert("seleciona una direccion");
+      return;
+    }
+    if (
+      (direccionId === "" || direccionId === "nueva") &&
+      (!ciudad.trim() || !linea1.trim())
+    ){
+      alert("ingresa ciudad y telefono");
+      return;
+    }
+    if (!nombre.trim() || !telefono.trim()) {
+      alert("ingresa nombre y telefono");
+      return;
+    }
     setEnviando(true);
     try {
       type OrderBody = {
@@ -110,6 +125,7 @@ export default function CheckoutPage() {
             <select
               value={direccionId}
               onChange={(e) => seleccionarDireccion(e.target.value)}
+              required={direcciones.length > 0}
               className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
             >
               <option value="">Selecciona</option>
@@ -130,6 +146,7 @@ export default function CheckoutPage() {
               <input
                 value={ciudad}
                 onChange={(e) => setCiudad(e.target.value)}
+                required={direccionId === "" || direccionId === "nueva"}
                 className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
               />
             </div>
@@ -138,6 +155,7 @@ export default function CheckoutPage() {
               <input
                 value={linea1}
                 onChange={(e) => setLinea1(e.target.value)}
+                required={direccionId === "" || direccionId === "nueva"}
                 className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
               />
             </div>
@@ -170,6 +188,7 @@ export default function CheckoutPage() {
           <input
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
+            required
             className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
           />
         </div>
@@ -179,6 +198,8 @@ export default function CheckoutPage() {
           <input
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
+            type ="tel"
+            required
             className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
           />
         </div>
