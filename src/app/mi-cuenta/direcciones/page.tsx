@@ -1,11 +1,11 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
+import type { Address } from "@/types/address";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { apiFetch } from "@/lib/api";
-import type { Address } from "@/types/address";
 
 const schema = z.object({
   country: z.string().min(2, "País requerido"),
@@ -133,7 +133,7 @@ export default function DireccionesPage() {
           placeholder="Código postal"
           className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3" />
         <button type="submit" disabled={isSubmitting} className="h-10 px-4 rounded-lg border border-white/20">
-          {editando ? "Guardar" : "Añadir"}
+          {editando ? "Actualizar" : "Guardar"}
         </button>
         {editando && (
           <button type="button" onClick={() => { setEditando(null); reset(); }} className="h-10 px-4 rounded-lg border border-white/20 ml-2">
