@@ -4,12 +4,14 @@ export type CartProduct = {
   brand?: string | null;
 };
 
+export type Atributos = Record<string, string>;
+
 export type CartVariant = {
   id: string;
   price: number;
   compareAtPrice?: number | null;
   stock: number;
-  attributes: Record<string, string>;
+  attributes: Atributos;
   product: CartProduct;
 };
 
