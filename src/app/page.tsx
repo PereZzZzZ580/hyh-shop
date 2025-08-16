@@ -7,10 +7,14 @@ import type { Product } from "@/types/product";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default async function Home() {
-  const res = await fetch(`${API_URL}/products`, { cache: "no-store" });
-  const data = await res.json();
-  const products: Product[] = data.items;
-
+let products: Product[] = [];
+  try {
+    const res = await fetch(`${API_URL}/products`, { cache: "no-store" });
+    const data = await res.json();
+    products = data.items ?? [];
+  } catch {
+    products = [];
+  }
   return (
     <>
       <Hero />
@@ -22,11 +26,17 @@ export default async function Home() {
       />
       <section className="py-10 md:py-12">
         <SectionTitle underline>Nuestros Productos</SectionTitle>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        {products.length > 0 ? (
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-6 text-center text-white/90">
+            No hay productos disponibles.
+          </p>
+        )}
       </section>
     </>
   );
