@@ -1,15 +1,29 @@
 "use client";
 
+import { useAuth } from "@/store/auth";
 import { useCart } from "@/store/cart";
-import { Facebook, Instagram, Menu, ShoppingCart, X } from "lucide-react";
+import { Facebook, Instagram, Menu, ShoppingCart, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
+  const [menuUsuario, setMenuUsuario] = useState(false);
   const fetchCart = useCart((s) => s.fetch);
+  const token = useAuth((s) => s.token);
+  const clear = useAuth((s) => s.clear);
+  const router = useRouter();
+
+  let nombreUsuario = "Usuario";
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      nombreUsuario = payload.name || payload.email || nombreUsuario;
+    } catch {}
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -72,18 +86,49 @@ export default function Header() {
               {mounted ? count : 0}
             </span>
           </Link>
-          <Link
-            href="/ingresar"
-            className="bg-gold text-black px-4 py-2 rounded-x1 hover:bg-gold-600 hover:shadow-gold"
-          >
-            Login
-          </Link>
-          <Link
-            href="/registrarse"
-            className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black"
-          >
-            Registrarse
-          </Link>
+          {token ? (
+            <div className="relative">
+              <button
+                onClick={() => setMenuUsuario((m) => !m)}
+                className="flex items-center gap-2 text-gold hover:shadow-gold"
+                aria-label="Menú usuario"
+              >
+                <User className="h-5 w-5" />
+                <span>{nombreUsuario}</span>
+              </button>
+              {menuUsuario && (
+                <div className="absolute right-0 mt-2 w-40 bg-bg border border-white/10 rounded-lg p-2 flex flex-col">
+                  <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Pedidos</Link>
+                  <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
+                  <button
+                    onClick={() => {
+                      clear();
+                      setMenuUsuario(false);
+                      router.push("/");
+                    }}
+                    className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold"
+                  >
+                    Salir
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/ingresar"
+                className="bg-gold text-black px-4 py-2 rounded-x1 hover:bg-gold-600 hover:shadow-gold"
+              >
+                Login
+              </Link>
+              <Link
+                href="/registrarse"
+                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black"
+              >
+                Registrarse
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -140,20 +185,43 @@ export default function Header() {
                     {mounted ? count : 0}
                   </span>
                 </Link>
-                <Link
-                  href="/ingresar"
-                  onClick={() => setOpen(false)}
-                  className="bg-gold text-black px-4 py-2 rounded-xl text-center hover:bg-gold600 hover:shadow-gold"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/registrarse"
-                  onClick={() => setOpen(false)}
-                  className="border-2 border-gold text-gold px-4 py-2 rounded-xl text-center hover:bg-gold hover:text-black"
-                >
-                  Registrarse
-                </Link>
+                {token ? (
+                  <>
+                    <Link href="/pedidos" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">
+                      Pedidos
+                    </Link>
+                    <Link href="/mi-cuenta/direcciones" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">
+                      Direcciones
+                    </Link>
+                    <button
+                      onClick={() => {
+                        clear();
+                        setOpen(false);
+                        router.push("/");
+                      }}
+                      className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold"
+                    >
+                      Salir
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/ingresar"
+                      onClick={() => setOpen(false)}
+                      className="bg-gold text-black px-4 py-2 rounded-xl text-center hover:bg-gold600 hover:shadow-gold"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/registrarse"
+                      onClick={() => setOpen(false)}
+                      className="border-2 border-gold text-gold px-4 py-2 rounded-xl text-center hover:bg-gold hover:text-black"
+                    >
+                      Registrarse
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -17,7 +17,11 @@ type FormData = z.infer<typeof schema>;
 
 export default function Registrarse() {
   const router = useRouter();
-  const { register, handleSubmit, formState } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState : { errors, isSubmitting },
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
@@ -40,29 +44,39 @@ export default function Registrarse() {
           type="text"
           placeholder="Nombre"
           {...register("name")}
-          className="h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          className={`h-10 rounded-lg bg-transparent px-3 border ${errors.name ? "border-red-500" : "border-white/20"}`}
+          aria-invalid={errors.name ? "true" : "false"}
         />
+        {errors.name && (
+          <p className="text-red-500 text-sm">{errors.name.message}</p>
+        )}
         <input
           type="email"
           placeholder="Email"
           {...register("email")}
-          className="h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          className={`h-10 rounded-lg bg-transparent px-3 border ${errors.email ? "border-red-500" : "border-white/20"}`}
+          aria-invalid={errors.email ? "true" : "false"}
         />
+        {errors.email && (
+          <p className="text-red-500 text-sm">{errors.email.message}</p>
+        )}
         <input
           type="password"
           placeholder="Contraseña"
           {...register("password")}
-          className="h-10 rounded-lg bg-transparent border border-white/20 px-3"
+          className={`h-10 rounded-lg bg-transparent px-3 border ${errors.password ? "border-red-500" : "border-white/20"}`}
+          aria-invalid={errors.password ? "true" : "false"}
         />
+        {errors.password && (
+          <p className="text-red-500 text-sm">{errors.password.message}</p>
+        )}
         <button
           type="submit"
+          disabled={isSubmitting}
           className="h-10 rounded-lg px-4 border border-white/20"
         >
           Registrarse
         </button>
-        {(formState.errors.name || formState.errors.email || formState.errors.password) && (
-          <p className="text-red-500 text-sm">Revisa los campos</p>
-        )}
       </form>
     </section>
   );
