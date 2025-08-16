@@ -1,6 +1,6 @@
 "use client";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch, useApi } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import type { Address } from "@/types/address";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, clear, id: cartId } = useCart();
 
-  const [direcciones, setDirecciones] = useState<Address[]>([]);
+  const { data: direcciones } = useApi<Address[]>("/me/addresses");
   const [direccionId, setDireccionId] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [linea1, setLinea1] = useState("");
@@ -31,11 +31,6 @@ export default function CheckoutPage() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [enviando, setEnviando] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Address[]>("/me/addresses")
-      .then((d) => setDirecciones(d))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!cartId) return;
@@ -59,7 +54,7 @@ export default function CheckoutPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cartId) return;
-    if (direcciones.length > 0 && direccionId === "") {
+    if ((direcciones?.length || 0) > 0 && direccionId === "") {
       alert("seleciona una direccion");
       return;
     }
@@ -107,7 +102,7 @@ export default function CheckoutPage() {
 
   const seleccionarDireccion = (id: string) => {
     setDireccionId(id);
-    const encontrada = direcciones.find((d) => d.id === id);
+    const encontrada = direcciones?.find((d) => d.id === id);
     if (encontrada) {
       setCiudad(encontrada.city);
       setLinea1(encontrada.line1);
@@ -119,7 +114,7 @@ export default function CheckoutPage() {
       <form onSubmit={onSubmit} className="space-y-4">
         <h1 className="text-3xl font-bold">Checkout</h1>
 
-        {direcciones.length > 0 && (
+        {(direcciones?.length || 0) > 0 && (
           <div>
             <label className="block mb-1 text-sm opacity-80">Dirección</label>
             <select
@@ -129,7 +124,7 @@ export default function CheckoutPage() {
               className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
             >
               <option value="">Selecciona</option>
-              {direcciones.map((d) => (
+              {direcciones?.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.line1} - {d.city}
                 </option>
