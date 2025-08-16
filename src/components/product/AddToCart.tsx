@@ -15,7 +15,9 @@ export default function AddToCart({ variantId, stock }: { variantId: string; sto
         min={1}
         max={stock}
         value={qty}
-        onChange={(e) => setQty(Math.min(Number(e.target.value), max))}
+        onChange={(e) =>
+          setQty(Math.max(1, Math.min(Number(e.target.value), max)))
+        }
         className="w-20 h-10 rounded-lg bg-transparent border border-white/20 text-center"
         disabled={stock < 1}
       />
