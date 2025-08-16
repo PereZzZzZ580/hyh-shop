@@ -13,17 +13,11 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [menuUsuario, setMenuUsuario] = useState(false);
   const fetchCart = useCart((s) => s.fetch);
-  const token = useAuth((s) => s.token);
-  const clear = useAuth((s) => s.clear);
+  const autenticado = useAuth((s) => s.autenticado);
+  const setAutenticado = useAuth((s) => s.setAutenticado);
   const router = useRouter();
 
-  let nombreUsuario = "Usuario";
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      nombreUsuario = payload.name || payload.email || nombreUsuario;
-    } catch {}
-  }
+  const nombreUsuario = "Usuario";
 
   useEffect(() => {
     setMounted(true);
@@ -86,7 +80,7 @@ export default function Header() {
               {mounted ? count : 0}
             </span>
           </Link>
-          {token ? (
+          {autenticado ? (
             <div className="relative">
               <button
                 onClick={() => setMenuUsuario((m) => !m)}
@@ -102,7 +96,8 @@ export default function Header() {
                   <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
                   <button
                     onClick={() => {
-                      clear();
+                      fetch("/api/logout", { method: "POST" });
+                      setAutenticado(false);
                       setMenuUsuario(false);
                       router.push("/");
                     }}
@@ -185,7 +180,7 @@ export default function Header() {
                     {mounted ? count : 0}
                   </span>
                 </Link>
-                {token ? (
+                {autenticado ? (
                   <>
                     <Link href="/pedidos" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">
                       Pedidos
@@ -195,7 +190,8 @@ export default function Header() {
                     </Link>
                     <button
                       onClick={() => {
-                        clear();
+                        fetch("/api/logout", { method: "POST" });
+                        setAutenticado(false);
                         setOpen(false);
                         router.push("/");
                       }}

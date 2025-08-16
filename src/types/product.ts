@@ -7,12 +7,14 @@ export type Media = {
   isCover?: boolean | null;
 };
 
+export type Atributos = Record<string, string>;
+
 export type Variant = {
   id: string;
   price: number;
   compareAtPrice?: number | null;
   stock: number;
-  attributes: Record<string, string>;
+  attributes: Atributos;
   media?: Media[];
 };
 

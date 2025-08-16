@@ -1,6 +1,5 @@
 "use client";
 
-import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -17,7 +16,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function Ingresar() {
   const router = useRouter();
-  const { setToken } = useAuth();
+  const { setAutenticado } = useAuth();
   const {
     register,
     handleSubmit,
@@ -27,11 +26,11 @@ export default function Ingresar() {
   });
 
   const onSubmit = async (data: FormData) => {
-    const res = await apiFetch<{ accessToken: string }>("/auth/login", {
+    await fetch("/api/login", {
       method: "POST",
       body: JSON.stringify(data),
     });
-    setToken(res.accessToken);
+    setAutenticado(true);
     router.push("/");
   };
 

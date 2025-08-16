@@ -1,9 +1,9 @@
 "use client";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetch, useApi } from "@/lib/api";
 import type { Address } from "@/types/address";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -19,18 +19,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function DireccionesPage() {
-  const [direcciones, setDirecciones] = useState<Address[]>([]);
+  const { data: direcciones, isLoading, mutate } = useApi<Address[]>("/me/addresses");
   const [editando, setEditando] = useState<Address | null>(null);
-
-  const cargar = async () => {
-    try {
-      const data = await apiFetch<Address[]>("/me/addresses");
-      setDirecciones(data);
-    } catch {}
-  };
-  useEffect(() => {
-    cargar();
-  }, []);
 
   const {
     register,
@@ -54,7 +44,7 @@ export default function DireccionesPage() {
       }
       reset();
       setEditando(null);
-      cargar();
+      mutate();
     } catch {}
   };
 
@@ -73,7 +63,7 @@ export default function DireccionesPage() {
   const eliminar = async (id: string) => {
     try {
       await apiFetch(`/me/addresses/${id}`, { method: "DELETE" });
-      cargar();
+      mutate();
     } catch {}
   };
 
@@ -83,7 +73,7 @@ export default function DireccionesPage() {
         method: "POST",
         body: JSON.stringify({ id }),
       });
-      cargar();
+      mutate();
     } catch {}
   };
 
@@ -91,7 +81,8 @@ export default function DireccionesPage() {
     <section className="max-w-xl space-y-6">
       <h1 className="text-2xl font-bold">Mis direcciones</h1>
       <div className="space-y-4">
-        {direcciones.map((d) => (
+        {isLoading && <p className="opacity-80">Cargando...</p>}
+        {direcciones?.map((d) => (
           <div key={d.id} className="border border-white/10 rounded-lg p-4">
             <p className="font-medium">{d.line1}</p>
             <p className="opacity-80 text-sm">{d.city}, {d.country}</p>
@@ -106,7 +97,9 @@ export default function DireccionesPage() {
             </div>
           </div>
         ))}
-        {direcciones.length === 0 && <p className="opacity-80">No tienes direcciones guardadas.</p>}
+        {!isLoading && !direcciones?.length && (
+          <p className="opacity-80">No tienes direcciones guardadas.</p>
+        )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
