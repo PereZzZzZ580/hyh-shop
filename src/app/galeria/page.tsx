@@ -1,5 +1,10 @@
 'use client';
 
+export const metadata = {
+  title: 'Galería',
+  description: 'Galería de fotos del barbero',
+};
+
 import Image from 'next/image';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
