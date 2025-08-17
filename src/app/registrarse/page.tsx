@@ -34,8 +34,8 @@ export default function Registrarse() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen justify-center bg-neutral-50 px-4 py-24">
+      <div className="w-full max-w-[400px] space-y-6 rounded-lg bg-white p-8 text-gray-900 shadow">
         <h1 className="text-3xl font-bold">Registrarse</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
@@ -43,8 +43,7 @@ export default function Registrarse() {
               type="text"
               placeholder="Nombre"
               {...register("name")}
-              className={`w-full rounded-md border p-3 focus:border-primary focus:ring-2 focus:ring-primary ${
-                errors.name ? "border-red-600" : "border-gray-300"
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${ errors.name ? "border-red-600" : ""
               }`}
               aria-invalid={errors.name ? "true" : "false"}
             />
@@ -57,8 +56,8 @@ export default function Registrarse() {
               type="email"
               placeholder="Email"
               {...register("email")}
-              className={`w-full rounded-md border p-3 focus:border-primary focus:ring-2 focus:ring-primary ${
-                errors.email ? "border-red-600" : "border-gray-300"
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.email ? "border-red-600" : ""
               }`}
               aria-invalid={errors.email ? "true" : "false"}
             />
@@ -71,8 +70,8 @@ export default function Registrarse() {
               type="password"
               placeholder="Contraseña"
               {...register("password")}
-              className={`w-full rounded-md border p-3 focus:border-primary focus:ring-2 focus:ring-primary ${
-                errors.password ? "border-red-600" : "border-gray-300"
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.password ? "border-red-600" : ""
               }`}
               aria-invalid={errors.password ? "true" : "false"}
             />
@@ -85,7 +84,7 @@ export default function Registrarse() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-md bg-primary p-3 text-white hover:bg-primary-dark disabled:opacity-50"
+            className="w-full rounded-md bg-black p-3 text-gold hover:bg-gold hover:text-black disabled:opacity-50"
           >
             Registrarse
           </button>
