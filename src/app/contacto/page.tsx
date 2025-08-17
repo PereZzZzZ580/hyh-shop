@@ -1,13 +1,8 @@
 "use client";
 
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-export const metadata = {
-  title: "Contacto",
-  description: "Envíanos tus consultas y comentarios",
-};
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const schema = z.object({
   nombre: z.string().min(1, "Nombre requerido"),
