@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -81,7 +82,8 @@ export default function Ingresar() {
         </form>
         <button
           type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white p-3 text-gray-700 hover:bg-gray-50"
+          onClick={() => signIn("google")}
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-black p-3 text-white hover:bg-gray-900"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +108,7 @@ export default function Ingresar() {
               d="M12 5.5c1.2 0 2.2.4 3 1.1l2.3-2.3C15.9 3 14.1 2.2 12 2.2 8.5 2.2 5.4 4.2 3.7 7.1l2.8 2.2c.6-1.9 2.4-3.3 4.5-3.3z"
             />
           </svg>
-          Iniciar con Google
+          Continuar con Google
         </button>
       </div>
     </div>

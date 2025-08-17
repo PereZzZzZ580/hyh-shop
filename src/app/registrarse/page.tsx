@@ -7,11 +7,27 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 
-const schema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(6),
-});
+const schema = z
+  .object({
+    name: z.string().min(1),
+    email: z.string().email(),
+    password: z.string().min(6),
+    confirmPassword: z.string().min(6),
+    phone: z
+      .string()
+      .regex(/^[0-9]{7,15}$/, { message: "Teléfono inválido" }),
+    city: z.string().min(1),
+    address: z.string().min(1),
+    birthdate: z.string().optional(),
+    terms: z.literal(true, {
+      errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
+    }),
+    newsletter: z.boolean().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
 
 type FormData = z.infer<typeof schema>;
 
@@ -67,6 +83,62 @@ export default function Registrarse() {
           </div>
           <div>
             <input
+              type="tel"
+              placeholder="Teléfono"
+              {...register("phone")}
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.phone ? "border-red-600" : ""
+              }`}
+              aria-invalid={errors.phone ? "true" : "false"}
+            />
+            {errors.phone && (
+              <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Ciudad"
+              {...register("city")}
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.city ? "border-red-600" : ""
+              }`}
+              aria-invalid={errors.city ? "true" : "false"}
+            />
+            {errors.city && (
+              <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Dirección"
+              {...register("address")}
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.address ? "border-red-600" : ""
+              }`}
+              aria-invalid={errors.address ? "true" : "false"}
+            />
+            {errors.address && (
+              <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="date"
+              placeholder="Fecha de nacimiento"
+              {...register("birthdate")}
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.birthdate ? "border-red-600" : ""
+              }`}
+              aria-invalid={errors.birthdate ? "true" : "false"}
+            />
+            {errors.birthdate && (
+              <p className="mt-1 text-sm text-red-600">{errors.birthdate.message}</p>
+            )}
+          </div>
+          <div>
+            <input
               type="password"
               placeholder="Contraseña"
               {...register("password")}
@@ -80,6 +152,33 @@ export default function Registrarse() {
                 {errors.password.message}
               </p>
             )}
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Confirmar contraseña"
+              {...register("confirmPassword")}
+              className={`w-full rounded-md border border-gray-300 p-3 placeholder-gray-400 focus:border-gold focus:ring-1 focus:ring-gold ${
+                errors.confirmPassword ? "border-red-600" : ""
+              }`}
+              aria-invalid={errors.confirmPassword ? "true" : "false"}
+            />
+            {errors.confirmPassword && (
+              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" {...register("terms")}/>
+            <span className="text-sm">
+              Acepto los términos y condiciones y la política de privacidad
+            </span>
+          </div>
+          {errors.terms && (
+            <p className="mt-1 text-sm text-red-600">{errors.terms.message}</p>
+          )}
+          <div className="flex items-center gap-2">
+            <input type="checkbox" {...register("newsletter")}/>
+            <span className="text-sm">Deseo recibir noticias y promociones</span>
           </div>
           <button
             type="submit"
