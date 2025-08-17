@@ -75,7 +75,7 @@ export default function Ingresar() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-md bg-black p-3 text-gold hover:bg-gold hover:text-black disabled:opacity-50"
+            className="w-full rounded-md bg-black p-3 text-gold hover:bg-gold text-white hover:bg-gray-900 disabled:opacity-50"
           >
             Ingresar
           </button>

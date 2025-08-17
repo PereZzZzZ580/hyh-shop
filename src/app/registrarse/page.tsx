@@ -19,9 +19,11 @@ const schema = z
     city: z.string().min(1),
     address: z.string().min(1),
     birthdate: z.string().optional(),
-    terms: z.literal(true, {
-      errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
-    }),
+    terms: z
+      .boolean()
+      .refine((value) => value === true, {
+        message: "Debes aceptar los términos y condiciones",
+      }),
     newsletter: z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
