@@ -34,50 +34,63 @@ export default function Registrarse() {
   };
 
   return (
-    <section>
-      <h1 className="text-3xl font-bold">Registrarse</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="mt-6 flex flex-col gap-4 max-w-sm"
-      >
-        <input
-          type="text"
-          placeholder="Nombre"
-          {...register("name")}
-          className={`h-10 rounded-lg bg-transparent px-3 border ${errors.name ? "border-red-500" : "border-white/20"}`}
-          aria-invalid={errors.name ? "true" : "false"}
-        />
-        {errors.name && (
-          <p className="text-red-500 text-sm">{errors.name.message}</p>
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          {...register("email")}
-          className={`h-10 rounded-lg bg-transparent px-3 border ${errors.email ? "border-red-500" : "border-white/20"}`}
-          aria-invalid={errors.email ? "true" : "false"}
-        />
-        {errors.email && (
-          <p className="text-red-500 text-sm">{errors.email.message}</p>
-        )}
-        <input
-          type="password"
-          placeholder="Contraseña"
-          {...register("password")}
-          className={`h-10 rounded-lg bg-transparent px-3 border ${errors.password ? "border-red-500" : "border-white/20"}`}
-          aria-invalid={errors.password ? "true" : "false"}
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm">{errors.password.message}</p>
-        )}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="h-10 rounded-lg px-4 border border-white/20"
-        >
-          Registrarse
-        </button>
-      </form>
-    </section>
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+      <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
+        <h1 className="text-3xl font-bold">Registrarse</h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div>
+            <input
+              type="text"
+              placeholder="Nombre"
+              {...register("name")}
+              className={`w-full rounded-md border p-3 focus:border-primary focus:ring-2 focus:ring-primary ${
+                errors.name ? "border-red-600" : "border-gray-300"
+              }`}
+              aria-invalid={errors.name ? "true" : "false"}
+            />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className={`w-full rounded-md border p-3 focus:border-primary focus:ring-2 focus:ring-primary ${
+                errors.email ? "border-red-600" : "border-gray-300"
+              }`}
+              aria-invalid={errors.email ? "true" : "false"}
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              {...register("password")}
+              className={`w-full rounded-md border p-3 focus:border-primary focus:ring-2 focus:ring-primary ${
+                errors.password ? "border-red-600" : "border-gray-300"
+              }`}
+              aria-invalid={errors.password ? "true" : "false"}
+            />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full rounded-md bg-primary p-3 text-white hover:bg-primary-dark disabled:opacity-50"
+          >
+            Registrarse
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
