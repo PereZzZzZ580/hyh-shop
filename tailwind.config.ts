@@ -24,6 +24,8 @@ const config: Config = {
           gold: "#FFD700",
           gold600: "#C6A700",
           border: "#2E2E2E",
+          primary: "#FFD700",
+          "primary-dark": "#C6A700",
         },
         borderRadius: {
           xl: "14px",
