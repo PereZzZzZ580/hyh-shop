@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +16,7 @@ export class AuthService {
     const hashed = await bcrypt.hash(password, 10);
     try {
       const user = await this.prisma.user.create({
-        data: { email: emailNorm, password: hashed, name },
+        data: { email: emailNorm, password: hashed, name, role: Role.CUSTOMER },
       });
       return this.generateToken(user);
     } catch (err: any) {
@@ -41,12 +41,12 @@ export class AuthService {
   async me(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, createdAt: true },
+      select: { id: true, email: true, name: true, role:true, createdAt: true },
     });
   }
 
   private generateToken(user: any) {
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role:user.role };
     return {
       access_token: this.jwtService.sign(payload),
     };

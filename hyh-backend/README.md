@@ -15,3 +15,8 @@ npm run seed
 npm run dev
 # -> API http://localhost:4000
 # -> Docs http://localhost:4000/docs
+
+```
+
+## Roles de usuario
+Los usuarios registrados se crean con el rol `CUSTOMER` por defecto. El primer usuario con rol `ADMIN` debe crearse manualmente o mediante un endpoint restringido.
