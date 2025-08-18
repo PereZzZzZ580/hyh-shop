@@ -4,6 +4,7 @@ import {
     Param,
     Patch,
     Post,
+    Req,
     UploadedFiles,
     UseGuards,
     UseInterceptors,
@@ -29,10 +30,11 @@ export class AdminProductsController {
   @Post()
   @UseInterceptors(FilesInterceptor('images'))
   async create(
+    @Req() req: any,
     @Body() dto: CreateProductDto,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
-    const product = await this.products.create(dto);
+    const product = await this.products.create(dto, req.user.sub);
     if (images?.length) {
       await this.media.uploadMany(images, { productId: product.id });
     }
@@ -43,10 +45,11 @@ export class AdminProductsController {
   @UseInterceptors(FilesInterceptor('images'))
   async update(
     @Param('id') id: string,
+    @Req() req: any,
     @Body() dto: UpdateProductDto,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
-    const product = await this.products.update(id, dto);
+    const product = await this.products.update(id, dto, req.user.sub);
     if (images?.length) {
       await this.media.uploadMany(images, { productId: id });
     }
