@@ -1,6 +1,7 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import sanitizeFilename from "sanitize-filename";
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 
@@ -26,15 +27,24 @@ export class MediaService {
     });
   }
 
+  private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; //5MB
+  private readonly ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  
   async uploadOne(file: Express.Multer.File, dto: CreateMediaDto) {
     this.ensureLinkTarget(dto);
     if (!file) throw new BadRequestException('No se recibió archivo');
-    if (!file.mimetype.startsWith('image/')) throw new BadRequestException('Solo imágenes');
+    if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype))
+      throw new BadRequestException('Formato de imagen no permitido');
+    if (file.size > this.MAX_FILE_SIZE)
+      throw new BadRequestException('La imagen supera el tamaño permitido');
+
+    const baseName = sanitizeFilename(file.originalname.replace(/\.[^/.]+$/, ''));
 
     const uploaded = await this.cloudinary.uploadBuffer(file.buffer, {
       folder: dto.productId ? `hyh/products/${dto.productId}` : `hyh/variants/${dto.variantId}`,
       resource_type: 'image',
       overwrite: false,
+      public_id: baseName || undefined,
     });
 
     const media = await this.prisma.media.create({

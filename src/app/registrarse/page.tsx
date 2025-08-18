@@ -185,7 +185,7 @@ export default function Registrarse() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-md bg-black p-3 text-gold hover:bg-gold hover:text-black disabled:opacity-50"
+            className="w-full rounded-md bg-black p-3 text-gold hover:bg-gold text-white disabled:opacity-50"
           >
             Registrarse
           </button>
