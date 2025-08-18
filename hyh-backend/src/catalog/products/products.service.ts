@@ -137,12 +137,20 @@ export class ProductsService {
     return p;
   }
 
-  async create(dto: CreateProductDto) {
-      return this.prisma.product.create({ data: dto });
-    }
+  async create(dto: CreateProductDto, userId: string) {
+    const product = await this.prisma.product.create({ data: dto });
+    await this.prisma.productLog.create({
+      data: { productId: product.id, userId, action: 'CREATE' },
+    });
+    return product;
+  }
 
-    async update(id: string, dto: UpdateProductDto) {
-      return this.prisma.product.update({ where: { id }, data: dto });
-    }
+  async update(id: string, dto: UpdateProductDto, userId: string) {
+    const product = await this.prisma.product.update({ where: { id }, data: dto });
+    await this.prisma.productLog.create({
+      data: { productId: id, userId, action: 'UPDATE' },
+    });
+    return product;
+  }
 
 }
