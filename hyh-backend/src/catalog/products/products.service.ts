@@ -158,10 +158,11 @@ export class ProductsService {
     return product;
   }
 
-  async remove (id: string, userId: string){
-    await this.prisma.product.delete({ where: { id }});
+  async delete(id: string, userId: string) {
+    await this.prisma.media.deleteMany({ where: { productId: id } });
+    await this.prisma.product.delete({ where: { id } });
     await this.prisma.productLog.create({
-      data: { productId: id, userId, action:'DELETE'},
+      data: { productId: id, userId, action: 'DELETE' },
     });
     return { id };
   }

@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseGuards,
@@ -27,6 +29,11 @@ export class AdminProductsController {
     private products: ProductsService,
     private media: MediaService,
   ) {}
+
+  @Get()
+  list(@Query() q: any) {
+    return this.products.list(q);
+  }
 
   @Post()
   @UseInterceptors(FilesInterceptor('images'))
@@ -58,7 +65,7 @@ export class AdminProductsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: any) {
-    return this.products.remove(id, req.user.sub);
+  async delete(@Param('id') id: string, @Req() req: any) {
+    return this.products.delete(id, req.user.sub);
   }
 }
