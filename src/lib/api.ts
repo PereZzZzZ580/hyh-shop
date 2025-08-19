@@ -5,8 +5,9 @@ import useSWR from "swr";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}) {
+  const isFormData = options.body instanceof FormData;
   const headers: HeadersInit = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {}),
   };
   const res = await fetch(`${BASE_URL}${path}`, {

@@ -69,8 +69,23 @@ async function main() {
   const adminName = process.env.ADMIN_NAME ?? 'Admin';
 
   if (adminEmail && adminPassword) {
-    const emailNorm = adminEmail.trim().toLowerCase();
-    const hashed = await bcrypt.hash(adminPassword, 10);
+    const _emailNorm = adminEmail.trim().toLowerCase();
+    const _hashed = await bcrypt.hash(adminPassword, 10);
+
+    await prisma.user.upsert({
+      where: {email: _emailNorm},
+      update: { role: 'ADMIN', name: adminName, password: _hashed},
+      create: {
+        email: _emailNorm,
+        password: _hashed,
+        name: adminName,
+        role: 'ADMIN',
+      },
+    });
+
+    console.log(`Admin user seeded: ${_emailNorm}`);
+  } else{
+    console.warn('Admin user not seeded because ADMIN_EMAIL or ADMIN_PASSWORD is not set');
   }
 }
 

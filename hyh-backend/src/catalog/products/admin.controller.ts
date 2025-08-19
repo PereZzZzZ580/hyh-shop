@@ -1,13 +1,14 @@
 import {
-    Body,
-    Controller,
-    Param,
-    Patch,
-    Post,
-    Req,
-    UploadedFiles,
-    UseGuards,
-    UseInterceptors,
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../auth/jwt.guard';
@@ -54,5 +55,10 @@ export class AdminProductsController {
       await this.media.uploadMany(images, { productId: id });
     }
     return product;
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Req() req: any) {
+    return this.products.remove(id, req.user.sub);
   }
 }

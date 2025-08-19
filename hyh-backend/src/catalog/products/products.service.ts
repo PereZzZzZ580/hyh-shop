@@ -138,7 +138,9 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto, userId: string) {
-    const product = await this.prisma.product.create({ data: dto });
+    const product = await this.prisma.product.create({
+      data: dto as Prisma.ProductUncheckedCreateInput,
+    });
     await this.prisma.productLog.create({
       data: { productId: product.id, userId, action: 'CREATE' },
     });
@@ -146,11 +148,21 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto, userId: string) {
-    const product = await this.prisma.product.update({ where: { id }, data: dto });
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: dto as Prisma.ProductUncheckedUpdateInput,
+    });
     await this.prisma.productLog.create({
       data: { productId: id, userId, action: 'UPDATE' },
     });
     return product;
   }
 
+  async remove (id: string, userId: string){
+    await this.prisma.product.delete({ where: { id }});
+    await this.prisma.productLog.create({
+      data: { productId: id, userId, action:'DELETE'},
+    });
+    return { id };
+  }
 }
