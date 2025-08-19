@@ -14,15 +14,25 @@ export default function Header() {
   const [menuUsuario, setMenuUsuario] = useState(false);
   const fetchCart = useCart((s) => s.fetch);
   const autenticado = useAuth((s) => s.autenticado);
+  const usuario = useAuth((s) => s.usuario);
   const setAutenticado = useAuth((s) => s.setAutenticado);
+  const setUsuario = useAuth((s) => s.setUsuario);
   const router = useRouter();
 
-  const nombreUsuario = "Usuario";
+  const nombreUsuario = usuario?.name || "Usuario";
 
   useEffect(() => {
     setMounted(true);
     fetchCart();
-  }, [fetchCart]);
+    if (autenticado && !usuario) {
+      fetch("/api/me")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data) setUsuario(data);
+        })
+        .catch(() => {});
+    }
+  }, [fetchCart, autenticado, usuario, setUsuario]);
 
   const count = useCart((s) => s.count());
 
@@ -91,13 +101,17 @@ export default function Header() {
                 <span>{nombreUsuario}</span>
               </button>
               {menuUsuario && (
-                <div className="absolute right-0 mt-2 w-40 bg-bg border border-white/10 rounded-lg p-2 flex flex-col">
+                <div className="absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col">
                   <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Pedidos</Link>
                   <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
+                  {usuario?.role === "ADMIN" && (
+                    <Link href="/admin" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Panel de Administración</Link>
+                  )}
                   <button
                     onClick={() => {
                       fetch("/api/logout", { method: "POST" });
                       setAutenticado(false);
+                      setUsuario(null);
                       setMenuUsuario(false);
                       router.push("/");
                     }}
@@ -188,10 +202,16 @@ export default function Header() {
                     <Link href="/mi-cuenta/direcciones" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">
                       Direcciones
                     </Link>
+                    {usuario?.role === "ADMIN" && (
+                      <Link href="/admin" onClick={() => setOpen(false)} className="hover:underline hover:underline-offset-4 hover:shadow-gold">
+                        Panel de Administración
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
                         fetch("/api/logout", { method: "POST" });
                         setAutenticado(false);
+                        setUsuario(null);
                         setOpen(false);
                         router.push("/");
                       }}

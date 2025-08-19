@@ -18,7 +18,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function Ingresar() {
   const router = useRouter();
-  const { setAutenticado } = useAuth();
+  const { setAutenticado, setUsuario } = useAuth();
   const [error, setError] = useState<string | null >(null);
   const {
     register,
@@ -36,11 +36,25 @@ export default function Ingresar() {
       body: JSON.stringify(data),
     });
     if (res.ok) {
-      setAutenticado(true);
-      router.push("/");
+      try {
+        const meRes = await fetch("/api/me");
+        if (meRes.ok) {
+          const user = await meRes.json();
+          setUsuario(user);
+          setAutenticado(true);
+          router.push("/");
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      setAutenticado(false);
+      setUsuario(null);
+      setError("Error de autenticación");
     } else {
       const err = await res.json().catch(() => ({}));
       setAutenticado(false);
+      setUsuario(null);
       setError(err?.error || "Error de autenticación");
     }
   };
