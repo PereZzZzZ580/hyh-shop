@@ -1,5 +1,7 @@
-import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import 'dotenv/config';
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -61,6 +63,15 @@ async function main() {
   });
 
   console.log('Seed OK');
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminName = process.env.ADMIN_NAME ?? 'Admin';
+
+  if (adminEmail && adminPassword) {
+    const emailNorm = adminEmail.trim().toLowerCase();
+    const hashed = await bcrypt.hash(adminPassword, 10);
+  }
 }
 
 main().catch((e) => {
