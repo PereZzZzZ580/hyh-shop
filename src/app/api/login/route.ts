@@ -7,13 +7,22 @@ export async function POST(req: NextRequest) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const msg = await res.text();
-    return NextResponse.json({ error: msg || "Error" }, { status: res.status });
+    return NextResponse.json(
+      { error: data?.message || "Error de autenticación" },
+      { status: res.status }
+    );
   }
-  const data = await res.json();
+  const token = data.access_token ?? data.accessToken;
+  if (!token) {
+    return NextResponse.json(
+      { error: "Token de acceso no recibido" },
+      { status: 500 }
+    );
+  }
   const response = NextResponse.json({ ok: true });
-  response.cookies.set("token", data.accessToken, {
+  response.cookies.set("token", token, {
     httpOnly: true,
     path: "/",
   });

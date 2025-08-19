@@ -31,10 +31,13 @@ export class AuthService {
   async login(email: string, password: string) {
     const emailNorm = email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email: emailNorm } });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user)
+      throw new UnauthorizedException(
+        'No existe una cuenta registrada con ese correo.'
+      );
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
+    if (!valid) throw new UnauthorizedException('Contraseña incorrecta.');
 
     return this.generateToken(user);
   }

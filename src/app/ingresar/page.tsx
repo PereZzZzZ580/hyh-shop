@@ -4,6 +4,7 @@ import { useAuth } from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -18,6 +19,7 @@ type FormData = z.infer<typeof schema>;
 export default function Ingresar() {
   const router = useRouter();
   const { setAutenticado } = useAuth();
+  const [error, setError] = useState<string | null >(null);
   const {
     register,
     handleSubmit,
@@ -27,18 +29,27 @@ export default function Ingresar() {
   });
 
   const onSubmit = async (data: FormData) => {
-    await fetch("/api/login", {
+    setError(null);
+    const res = await fetch("/api/login", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    setAutenticado(true);
-    router.push("/");
+    if (res.ok) {
+      setAutenticado(true);
+      router.push("/");
+    } else {
+      const err = await res.json().catch(() => ({}));
+      setAutenticado(false);
+      setError(err?.error || "Error de autenticación");
+    }
   };
 
   return (
     <div className="flex min-h-screen justify-center bg-neutral-50 px-4 py-24">
       <div className="w-full max-w-[400px] space-y-6 rounded-lg bg-white p-8 text-gray-900 shadow">
         <h1 className="text-3xl font-bold">Ingresar</h1>
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <input
