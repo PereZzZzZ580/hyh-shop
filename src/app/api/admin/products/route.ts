@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
 const res = await fetch(`${API_URL}/admin/products`, {
-    headers: { cookie: `token=${token}` },
+    headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
   const data = await res.json().catch(() => []);
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const res = await fetch(`${API_URL}/admin/products`, {
     method: "POST",
     body: formData,
-    headers: { cookie: `token=${token}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });

@@ -11,7 +11,7 @@ const token = req.cookies.get("token")?.value;
     }
     try {
       const res = await fetch(`${API_URL}/auth/me`, {
-        headers: { cookie: `token=${token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("no auth");
       const me = await res.json();

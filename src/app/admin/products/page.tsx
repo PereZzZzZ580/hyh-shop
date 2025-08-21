@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { Product } from "@/types/product";
+import { useEffect, useState } from "react";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,10 +19,13 @@ export default function AdminProductsPage() {
 
   async function load() {
     const res = await fetch("/api/products");
-    if (res.ok) {
-      const data = await res.json();
-      setProducts(data);
+    if (!res.ok) {
+      setProducts([]);
+      return;
     }
+    const data = await res.json().catch(() => ({}));
+    const items = Array.isArray(data) ? data : data.items;
+    setProducts(items ?? []);
   }
 
   useEffect(() => {
