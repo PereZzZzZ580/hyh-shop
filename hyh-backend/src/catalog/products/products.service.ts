@@ -158,12 +158,25 @@ export class ProductsService {
     return product;
   }
 
-  async delete(id: string, userId: string) {
-    await this.prisma.media.deleteMany({ where: { productId: id } });
-    await this.prisma.product.delete({ where: { id } });
-    await this.prisma.productLog.create({
-      data: { productId: id, userId, action: 'DELETE' },
-    });
-    return { id };
-  }
+  // services/products.service.ts
+async delete(id: string, userId: string) {
+
+  await this.prisma.productLog.deleteMany({ where: { productId: id}});
+  // Borrar variantes primero para no violar la FK
+  await this.prisma.variant.deleteMany({ where: { productId: id } });
+
+  // Borrar medios asociados (opcional si usas onDelete en Media)
+  await this.prisma.media.deleteMany({ where: { productId: id } });
+
+  // Registrar la operación antes de eliminar (evita FK a productLog)
+  await this.prisma.productLog.create({
+    data: { productId: id, userId, action: 'DELETE' },
+  });
+
+  // Eliminar el producto
+  await this.prisma.product.delete({ where: { id } });
+
+  return { id };
+}
+
 }

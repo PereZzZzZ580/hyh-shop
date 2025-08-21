@@ -7,10 +7,14 @@ export async function GET(
   { params }: { params: { id: string } }
   ) {
     const token = req.cookies.get("token")?.value;
+    const { id } = params;
+
     const res = await fetch(`${API_URL}/admin/products/${params.id}`, {
+      method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
+
     const data = await res.json().catch(() => ({}));
     return NextResponse.json(data, { status: res.status });
   }
@@ -32,13 +36,15 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } },
 ) {
-const token = req.cookies.get("token")?.value;
-    const res = await fetch(`${API_URL}/admin/products/${params.id}`, {
+  const { id } = context.params;
+  const token = req.cookies.get("token")?.value;
+
+  const res = await fetch(`${API_URL}/admin/products/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
-    const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch(() => ({}));
     return NextResponse.json(data, { status: res.status });
   }

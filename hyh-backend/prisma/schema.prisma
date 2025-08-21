@@ -131,11 +131,11 @@ model Variant {
 
 model ProductLog {
   id        String   @id @default(cuid())
-  productId String
+  productId String?
   userId    String
   action    String
   createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([productId])
