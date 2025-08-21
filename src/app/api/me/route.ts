@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const res = await fetch(`${API_URL}/auth/me`, {
     headers: {
-      cookie: `token=${token}`,
+      Authorization: `Bearer ${token}`,
     },
     cache: "no-store",
   });
