@@ -5,20 +5,16 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
-  ) {
-    const token = req.cookies.get("token")?.value;
-    const { id } = params;
-
-    const res = await fetch(`${API_URL}/admin/products/${params.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-
-    const data = await res.json().catch(() => ({}));
-    return NextResponse.json(data, { status: res.status });
-  }
-
+) {
+  const token = req.cookies.get("token")?.value;
+  const { id } = params;
+  const res = await fetch(`${API_URL}/admin/products/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  const data = await res.json().catch(() => ({}));
+  return NextResponse.json(data, { status: res.status });
+}
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }

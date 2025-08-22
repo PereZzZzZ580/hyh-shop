@@ -12,17 +12,14 @@ export class MediaService {
     private readonly cloudinary: CloudinaryService,
   ) {}
 
-  private ensureLinkTarget(dto: CreateMediaDto | UpdateMediaDto) {
-    if (!dto.productId && !dto.variantId) {
-      throw new BadRequestException('Debes enviar productId o variantId');
-    }
-  }
-
   async list(params: { productId?: string; variantId?: string }) {
     const { productId, variantId } = params;
-    if (!productId && !variantId) throw new BadRequestException('Falta productId o variantId');
+    const where =
+      productId || variantId
+        ? { productId, variantId }
+        : { productId: null, variantId: null };
     return this.prisma.media.findMany({
-      where: { productId, variantId },
+      where,
       orderBy: [{ isCover: 'desc' }, { position: 'asc' }, { sort: 'asc' }, { createdAt: 'asc' }],
     });
   }
@@ -31,7 +28,6 @@ export class MediaService {
   private readonly ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   
   async uploadOne(file: Express.Multer.File, dto: CreateMediaDto) {
-    this.ensureLinkTarget(dto);
     if (!file) throw new BadRequestException('No se recibió archivo');
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype))
       throw new BadRequestException('Formato de imagen no permitido');
@@ -40,8 +36,14 @@ export class MediaService {
 
     const baseName = sanitizeFilename(file.originalname.replace(/\.[^/.]+$/, ''));
 
+     const folder = dto.productId
+      ? `hyh/products/${dto.productId}`
+      : dto.variantId
+        ? `hyh/variants/${dto.variantId}`
+        : 'hyh/gallery';
+
     const uploaded = await this.cloudinary.uploadBuffer(file.buffer, {
-      folder: dto.productId ? `hyh/products/${dto.productId}` : `hyh/variants/${dto.variantId}`,
+      folder,
       resource_type: 'image',
       overwrite: false,
       public_id: baseName || undefined,
@@ -69,8 +71,8 @@ export class MediaService {
       await this.prisma.media.updateMany({
         where: {
           id: { not: media.id },
-          productId: media.productId ?? undefined,
-          variantId: media.variantId ?? undefined,
+          productId: media.productId,
+          variantId: media.variantId,
         },
         data: { isCover: false },
       });
@@ -98,8 +100,8 @@ export class MediaService {
         await tx.media.updateMany({
           where: {
             id: { not: id },
-            productId: res.productId ?? undefined,
-            variantId: res.variantId ?? undefined,
+            productId: res.productId,
+            variantId: res.variantId,
           },
           data: { isCover: false },
         });

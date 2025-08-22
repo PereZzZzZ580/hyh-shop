@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsBoolean, IsInt, Min, ValidateIf } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 export class CreateMediaDto {
   @IsOptional()
   @IsString()
@@ -13,12 +13,12 @@ export class CreateMediaDto {
   @IsBoolean()
   isCover?: boolean;
 
-  @ValidateIf((o) => !o.variantId)
+  
   @IsOptional()
   @IsString()
   productId?: string;
 
-  @ValidateIf((o) => !o.productId)
+  
   @IsOptional()
   @IsString()
   variantId?: string;

@@ -29,7 +29,7 @@ export default function AdminGalleryPage() {
     e.preventDefault();
     if (!files) return;
     const formData = new FormData();
-    Array.from(files).forEach((f) => formData.append("images", f));
+    Array.from(files).forEach((f) => formData.append("files", f));
     await fetch("/api/media/upload", { method: "POST", body: formData });
     setFiles(null);
     (e.target as HTMLFormElement).reset();
@@ -47,6 +47,7 @@ export default function AdminGalleryPage() {
       <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <input
           type="file"
+          name="files"
           multiple
           onChange={(e) => setFiles(e.target.files)}
           className="w-full"
