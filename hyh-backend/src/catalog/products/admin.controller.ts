@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -13,6 +14,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
 import { JwtAuthGuard } from '../../auth/jwt.guard';
 import { Roles } from '../../auth/roles.decorator';
 import { RolesGuard } from '../../auth/roles.guard';
@@ -39,9 +42,16 @@ export class AdminProductsController {
   @UseInterceptors(FilesInterceptor('images'))
   async create(
     @Req() req: any,
-    @Body() dto: CreateProductDto,
+    @Body() body: any,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
+    const raw = typeof body?.dto === 'string' ? JSON.parse(body.dto) : body;
+    raw.variants = raw.variants?.map((v: any) => ({ attributes: {}, ...v }));
+    const dto = plainToInstance(CreateProductDto, raw);
+    const errors = validateSync(dto, { whitelist: true });
+    if (errors.length) {
+      throw new BadRequestException(errors);
+    }
     const product = await this.products.create(dto, req.user.sub);
     if (images?.length) {
       await this.media.uploadMany(images, { productId: product.id });
@@ -54,9 +64,16 @@ export class AdminProductsController {
   async update(
     @Param('id') id: string,
     @Req() req: any,
-    @Body() dto: UpdateProductDto,
+    @Body() body: any,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
+    const raw = typeof body?.dto === 'string' ? JSON.parse(body.dto) : body;
+    raw.variants = raw.variants?.map((v: any) => ({ attributes: {}, ...v }));
+    const dto = plainToInstance(UpdateProductDto, raw);
+    const errors = validateSync(dto, { whitelist: true, skipMissingProperties: true });
+    if (errors.length) {
+      throw new BadRequestException(errors);
+    }
     const product = await this.products.update(id, dto, req.user.sub);
     if (images?.length) {
       await this.media.uploadMany(images, { productId: id });

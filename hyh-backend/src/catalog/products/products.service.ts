@@ -138,8 +138,24 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto, userId: string) {
+    const { variants, ...productData } = dto;
+
     const product = await this.prisma.product.create({
-      data: dto as Prisma.ProductUncheckedCreateInput,
+      data: {
+        ...(productData as Prisma.ProductUncheckedCreateInput),
+        ...(variants?.length
+          ?{
+            variants: {
+              create: variants.map((v) => ({
+                attributes: v.attributes,
+                price: v.price,
+                compareAtPrice: v.compareAtPrice ?? undefined,
+                stock: v.stock ?? undefined,
+              })),
+            },
+          }
+          : {}),
+      },
     });
     await this.prisma.productLog.create({
       data: { productId: product.id, userId, action: 'CREATE' },
