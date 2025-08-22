@@ -1,0 +1,367 @@
+[33mcommit 39816c00b6b74f75cadb7fbe6cb23ebfc311b4a7[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Fri Aug 22 11:39:34 2025 -0500
+
+    se alade pagina galeria al rol de administrador para que pueda gestionar la subida o eliminarlas
+
+[33mcommit 8305facac772e9beb923c70e50c8bb044b0cebbd[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Fri Aug 22 10:13:02 2025 -0500
+
+    se arregla bug en pagina productos para el admin
+
+[33mcommit 963df6288ac877e9c10e01fa843c2b871cad7385[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Fri Aug 22 09:37:22 2025 -0500
+
+    se arregla la subida de fotos desde el panel de administrador
+
+[33mcommit 3f713f3d1ac97dbbb2e9b4ff0361d885f9be951f[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Thu Aug 21 21:22:44 2025 -0500
+
+    arreglando bugs
+
+[33mcommit 93dcd4152d39ad5dd245da02d556b7e34bdbd410[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Thu Aug 21 16:36:34 2025 -0500
+
+    bug de eliminar productos desde admin arreglado
+
+[33mcommit 04a6151d846a71fa91bcafa81c3399b6bd4e828a[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Thu Aug 21 14:36:23 2025 -0500
+
+    se habilita la pagina de administrar productos  - error a la hora de eliminar, editar o agregar productos -
+
+[33mcommit 2c2b9fa88b026bd3012f2233f3f2ed4f518ebd2d[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Thu Aug 21 10:14:27 2025 -0500
+
+    se arregla el ingreso de administrador a la pagina - hay errores en el panel de administrador-
+
+[33mcommit cf5b3ecf9c4a62b2470e00194e5a1d91f94f33b0[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 18:08:39 2025 -0500
+
+    arreglando rutas de cookies para autorizacion de administrador
+
+[33mcommit b07272cc000103e8e4e5177562c65bd46e3fc94c[m
+Merge: b868abe 9da6e7b
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 16:47:56 2025 -0500
+
+    panel de administrador con manejo de productos
+    
+    feat: admin panel with user roles and gallery management
+
+[33mcommit 9da6e7bef8c52196fb3eb56ed12877a65fd565ba[m[33m ([m[1;31morigin/codex/implementar-cambios-en-el-front-end[m[33m)[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 16:47:10 2025 -0500
+
+    feat: add admin panel with user roles
+
+[33mcommit b868abe84046c5a25f7669f0b70ed55b6dfc3755[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 16:32:23 2025 -0500
+
+    se añade soporte para listar productos desde el panel admin , se añade endpoint de eliminacion
+
+[33mcommit 66140a7b6f776fd9745bf5c2a30c28f36f521ba5[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 15:54:06 2025 -0500
+
+    se arreglan bugs y drift con migraciones de la base de datos
+
+[33mcommit 1287ef1f667daf24fefe651f33a8a7aaeeff7b47[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 12:06:11 2025 -0500
+
+    se agrega validaciones mas rigurosas para la entrada del asministrador y configura partes de paginas para el admin
+
+[33mcommit 42a07cb6fcd6792f71e20c3ebe803ce55dcccf62[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Tue Aug 19 07:45:12 2025 -0500
+
+    se arreglo errores de login y registro
+
+[33mcommit 827a6c30d2f720c95bf9b8334883290cacee4842[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 21:29:58 2025 -0500
+
+    se agregan las credenciales de administrador
+
+[33mcommit 8a3246303ba0ddb0fd483c2873458fb1647c8fa2[m
+Merge: 213a723 bb5c070
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 17:32:56 2025 -0500
+
+    Merge branch 'main' of https://github.com/PereZzZzZ580/hyh-shop
+
+[33mcommit 213a72308991f6338cdc83ff2df83c0b0c84e605[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 17:32:42 2025 -0500
+
+    se agrega bibliotecas de seguridad para el administrador
+
+[33mcommit bb5c07024ab55438a268d83ebab6ce8f6da9b397[m
+Merge: a0a7f31 df9d5d0
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 17:31:21 2025 -0500
+
+    implementa seguridad y auditorias en rutas de administrador
+    
+    feat: add product validation and audit logs
+
+[33mcommit df9d5d0a5b15ea1abadb327827e6f5d63b3edefe[m[33m ([m[1;31morigin/codex/implementar-seguridad-y-auditoria-en-rutas-de-admin[m[33m)[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 17:28:03 2025 -0500
+
+    feat: add product validation and audit logs
+
+[33mcommit a0a7f314b78607f67889f1cfdbb18c6683a28ee6[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 14:27:04 2025 -0500
+
+    se implementa guardia de roles y controlador de productos
+
+[33mcommit b789a8b85bfae6ed24dda96838c4f5e6c0237279[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Mon Aug 18 12:06:57 2025 -0500
+
+    se añadio el campo role en el modelo de usuario con el valor por defecto CUSTOMER y se redefinió el enmu role como ADMIN y CUSTOMER . el servicio de autenticacion adigna rol a CUSTOMER . JWT expone el rol en la validacion y se agrego una migracion para renombrar el valor antiguo . se documentó que los usuarios se crean como CUSTOMER
+
+[33mcommit dd3103514fbf24fe645e9b2f2cfa0de825fa339f[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 21:49:46 2025 -0500
+
+    se arregla el inicio de sesion con google, completamente funcional y se renueva y ocultan las rutas .env, gracias Dios toda la gloria y honra para el
+
+[33mcommit 7e764dc9c479de0c0ee27c94150e620004af9a42[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 17:53:57 2025 -0500
+
+    added passwords,txt for OAuth ids and secrets
+
+[33mcommit 5f79d36b43622edaf7b5f4ce11f53ec637bd3c5f[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 17:31:22 2025 -0500
+
+    Stop tracking env files and ignore all .env* variants
+
+[33mcommit f8ad256d138663a36ba72377d27d02a2a20d0e0b[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 14:58:09 2025 -0500
+
+    arreglo de bugs y archivos .env
+
+[33mcommit dc51068811397eaa6833986ec6ba7b8059411f9c[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 14:48:53 2025 -0500
+
+    se añaden valores .env que estaban mal definidos y se configura el page.tsx de la pagina registrarse para arreglar el error con el z
+
+[33mcommit ce270c22b4c54f67db52096c9f59692b827dcab0[m
+Merge: 2d0fd13 a6a4ea0
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 13:49:17 2025 -0500
+
+    se implementa autenticacion con google OAuth, modificaciones en el registro para pedir mas datos
+
+[33mcommit a6a4ea06d8e8334d36bd86be2ca9a6a4f2d870ea[m[33m ([m[1;31morigin/codex/implementar-autenticacion-con-google-oauth-y-nextauth[m[33m, [m[1;32mcodex/implementar-autenticacion-con-google-oauth-y-nextauth[m[33m)[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 13:47:49 2025 -0500
+
+    feat: configure google login
+
+[33mcommit 2d0fd13e2ce7f76cc861e09459fd207eeca15540[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 13:19:22 2025 -0500
+
+    se arreglaron las cajas de estilos de registrar y iniciar sesion, falta arreglar el inicio de sesion con google
+
+[33mcommit 6e6f2e2fd511f743711fece2db94ecad4e3d5cf1[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 11:41:21 2025 -0500
+
+    se agregaron estilos al login y al register, falta darle mas detalles y agregar el inicio de sesion con google
+
+[33mcommit 0d2bf75adbcdd22f3b5b6870b89d9d60b39134fe[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 10:57:57 2025 -0500
+
+    se arregla error de metada con use client en la pagina de contacto, se crea un haeader para manejar la metadata
+
+[33mcommit d87096ab900629c9562ee3fb697e2699484ce4b3[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 10:41:21 2025 -0500
+
+    se arregla al page.tsx de galeria a la hora de importar Galeria como un objeto
+
+[33mcommit 9108732b6f76b6d70bda5893cc609e7a506ba855[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sun Aug 17 10:20:11 2025 -0500
+
+     se dejo la pagina galeria como componente de servidor para poder exportar metadata y renderizar el componente de cliente correspondiente . se movio toda la logica interactiva de la galeria a un nuevo archivo de cliente con use client
+
+[33mcommit e8c7fb503046671a7cc6e649419be6c2cb0b1e2c[m
+Merge: 4f15ee2 213925e
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 14:48:43 2025 -0500
+
+    mejoras en layout y funcionalidades con inclusión de metadata
+    
+    Add public pages and secure auth
+
+[33mcommit 213925ec481da1a60da162821947e243ef5400be[m[33m ([m[1;31morigin/codex/implementar-mejoras-en-layout-y-funcionalidades[m[33m, [m[1;32mcodex/implementar-mejoras-en-layout-y-funcionalidades[m[33m)[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 14:47:22 2025 -0500
+
+    feat: add public pages and secure auth
+
+[33mcommit 4f15ee2e742c41e7f8f22ff6f2e345c8e581d629[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 13:39:52 2025 -0500
+
+    en el footer ya se incluye la seccion de empresa, soporte, legal, contacto y redes sociales con los enlaces a cada uno de los componentes. se añade nueva seccion de contacto con direccion, correo y telefono, se crearon paginas de terminos y condiciones, politica de provacidad y politica de cookies con contenido inicial
+
+[33mcommit 61f7f8e647d1373c79ab85eee637f96e9abec6ac[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 12:55:05 2025 -0500
+
+    se añadio validacion por campo en el formulario de registro . el header ahora identifica al usuario a partir del token almacenado . En moviles el menu lateral tambien refleja el estado de autenticacion y permite acceder a pedidos, direcciones o cerrar sesion
+
+[33mcommit 54e113d31662bf6dce877396b0b6293e21d227f7[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 12:28:14 2025 -0500
+
+    se ajustó el formulario de direccion para alternar su botón de envío entre guardar para nuevas entradas y actualziar
+
+[33mcommit 863767c0cdd8586e720c2f7b54d36fbca42fe8da[m
+Merge: 4edb9d7 8fd0843
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 11:57:35 2025 -0500
+
+    Merge branch 'main' of https://github.com/PereZzZzZ580/hyh-shop
+
+[33mcommit 4edb9d7a18fc1ec9c9fe527aa9347271d4b20189[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Sat Aug 16 11:57:18 2025 -0500
+
+    se añadieron validaciones previas al envio para exigir una direccion validad, ciudad, direccion , nombre y telefono antes de confirmar el pedido. Se marcaron los campos de direccion, ciudad y direccion manual como obligatorios, ademas de requerir nombre y telefono con tip (tel) para reforzar la validacion del fomrulario
+
+[33mcommit 8fd0843e7b68430945dd2a8dba12be487993769a[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Sat Aug 16 00:32:02 2025 -0500
+
+    se añade control de input a la cantidad de componentes del carrito para garantizar que el valor sea entre 1 y el stock disponible, la pagina del carrito ahora muestra cada articulo con su precio unitarop, subtotañ, selector de cantidad y opcion para quitarlo, ademas del total general y las acciones vaciar e ir a pagar
+
+[33mcommit 2c38d9ccc97048c7e520fd8ac380a1e8097d9696[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Sat Aug 16 00:10:51 2025 -0500
+
+    se añadio una galeria de imagenes con miniaturas, la pagina de catalogo obtiene las categorias desde la api dinamicamente
+
+[33mcommit 94d36de62684ad23c66913a9b992aadef7201041[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Fri Aug 15 23:54:10 2025 -0500
+
+    se arregla el sectionTitle y la estructura del card para mostrar la imagen del producto
+
+[33mcommit 440f346e57c0e896e99fe59f54e33bf8112c6d8b[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Fri Aug 15 20:55:19 2025 -0500
+
+    se ajusta el home para que renderize la seccion de productos, el componente AutoBlock se ajusta para mostrar la imagen bien
+
+[33mcommit b829462397050987751011bf8c4d559f01f7c9af[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Fri Aug 15 10:44:39 2025 -0500
+
+    se ajustan los componentes (headre, hero, productCard product, sectionTitle,gallery images, foooter, AboutBlock
+
+[33mcommit f8d8dc6736075a88e7ee88533a69467ab1876586[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Fri Aug 15 10:24:38 2025 -0500
+
+    se actualizan ubicaciones de logo y los favicon
+
+[33mcommit a13539b37faad423122adbca81725fcdc6e1a29f[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Fri Aug 15 08:37:02 2025 -0500
+
+    se congfiguro el modelo responsive para el header, hero, cars, spacings (en movil)
+
+[33mcommit 7c51408ec37dae79717927a61dcd726af6c33e11[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Fri Aug 15 08:19:13 2025 -0500
+
+    se añaden estados de interaccion toasts/alerts
+
+[33mcommit 933a3d09b3eba8967303bfc4efb9f5042b65c59c[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Thu Aug 14 22:19:12 2025 -0500
+
+    se agrega el footer a la pagina
+
+[33mcommit 4bee17f028020f0450778585b68763307dea4705[m
+Author: PereZzZzZ580 <juandras2004perez@gmail.com>
+Date:   Thu Aug 14 22:08:27 2025 -0500
+
+    se agrega la pestaña de galeria donde estan todos los cortes
+
+[33mcommit 4350b23fb1c0dee61a694233f99712b05c6afab9[m
+Merge: 8e67eaa 4780be7
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Thu Aug 14 21:40:39 2025 -0500
+
+    Merge branch 'main' of https://github.com/PereZzZzZ580/hyh-shop
+
+[33mcommit 8e67eaaaba144405c4231800214c52e7d4eb1960[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Thu Aug 14 21:39:47 2025 -0500
+
+    se agrego layout de 2 columnas la cual habla sobre la barberia
+
+[33mcommit 4780be7d73089600aebd448ca5879b41d7ba9a69[m
+Merge: 3f266da bce01f2
+Author: Juan Cayon <jecm0468@gmail.com>
+Date:   Wed Aug 13 22:19:15 2025 -0500
+
+    Merge branch 'main' of https://github.com/PereZzZzZ580/hyh-shop
+
+[33mcommit bce01f2686c5f6320b4529338b68613b632b6988[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Wed Aug 13 22:04:16 2025 -0500
+
+    se agrega titulo de seleccion, grid, card de producto, el badge de nueva oferta y el hover card
+
+[33mcommit 9db55699255cd429b1cf306787408a37651ba6ec[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Wed Aug 13 21:09:45 2025 -0500
+
+    se agrega el hero/banner , altos - fondos - contenido
+
+[33mcommit bf48277299cc6919bad05c90f1300d7da8b43bfd[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Wed Aug 13 20:33:57 2025 -0500
+
+    el logo ya se ve ya en la pagina pero muy mal, hay que acomodarlo
+
+[33mcommit 1d6476578b50ddcd3441bddd09484a0ddcd47859[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Wed Aug 13 17:23:28 2025 -0500
+
+    se agrega logo funcional, el logo pasado tiene un error a la hora de cargar la imagen
+
+[33mcommit e0ea5b770fdee64ac57dbc8ee3f029cbf6e19693[m
+Author: PereZzZzZ580 <114631210+PereZzZzZ580@users.noreply.github.com>
+Date:   Wed Aug 13 17:17:30 2025 -0500
+
+    se agregan simbolos de navbar para redes sociales y iniciar sesion
+
+[33mcommit 3f266da728e85e67d5a71659244df0e90323dc82[m
+Author: Juan Cayon <jecm0468@gmail.com>
+Date:   Wed Aug 13 13:07:44 2025 -0500
+
+    Solucion de problemas en codigo, exactamente en archivos page.tsx,cart.ts, etc.

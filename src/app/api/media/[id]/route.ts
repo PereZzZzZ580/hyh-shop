@@ -9,7 +9,7 @@ export async function DELETE(
   const token = req.cookies.get("token")?.value;
   const res = await fetch(`${API_URL}/media/${params.id}`, {
     method: "DELETE",
-    headers: { cookie: `token=${token}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });

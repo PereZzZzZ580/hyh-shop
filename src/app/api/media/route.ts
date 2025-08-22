@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const search = req.nextUrl.searchParams.toString();
   const res = await fetch(`${API_URL}/media${search ? `?${search}` : ""}`, {
     cache: "no-store",
-    headers: token ? { cookie: `token=${token}` } : undefined,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   const data = await res.json().catch(() => []);
   return NextResponse.json(data, { status: res.status });
