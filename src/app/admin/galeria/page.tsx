@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface Media {
   id: string;
@@ -42,7 +42,7 @@ export default function AdminGalleryPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <>
       <h1 className="text-2xl font-bold mb-4">Galería</h1>
       <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <input
@@ -61,7 +61,12 @@ export default function AdminGalleryPage() {
       <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {images.map((img) => (
           <li key={img.id} className="relative">
-            <Image src={img.url} alt="" width={200} height={200} className="w-full h-auto" />
+            <Image src={img.url}
+             alt=""
+             width={200} 
+             height={200} 
+             className="w-full h-auto" 
+             />
             <button
               onClick={() => handleDelete(img.id)}
               className="absolute top-1 right-1 bg-red-600 text-white px-2 py-1 text-xs"
@@ -71,6 +76,6 @@ export default function AdminGalleryPage() {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }
