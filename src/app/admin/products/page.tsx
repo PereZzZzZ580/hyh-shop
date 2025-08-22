@@ -1,10 +1,11 @@
 "use client";
 
-import type { Product } from "@/types/product";
+import type { Category, Product } from "@/types/product";
 import { useEffect, useState } from "react";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -18,14 +19,25 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
 
   async function load() {
-    const res = await fetch("/api/products");
-    if (!res.ok) {
+    const [productsRes, categoriesRes] = await Promise.all([
+      fetch("/api/products"),
+      fetch("/api/categories"),
+    ]);
+
+    if (productsRes.ok) {
+      const data = await productsRes.json().catch(() => ({}));
+      const items = Array.isArray(data) ? data : data.items;
+      setProducts(items ?? []);
+    } else {
       setProducts([]);
-      return;
     }
-    const data = await res.json().catch(() => ({}));
-    const items = Array.isArray(data) ? data : data.items;
-    setProducts(items ?? []);
+
+    if (categoriesRes.ok) {
+      const data = await categoriesRes.json().catch(() => []);
+      setCategories(Array.isArray(data) ? data : []);
+    } else {
+      setCategories([]);
+    }
   }
 
   useEffect(() => {
@@ -121,15 +133,21 @@ export default function AdminProductsPage() {
           className="border p-2 w-full"
           required
         />
-        <input
+        <select
           value={form.categoryId}
           onChange={(e) =>
             setForm({ ...form, categoryId: e.target.value })
           }
-          placeholder="ID de categoría"
           className="border p-2 w-full"
           required
-        />
+        >
+          <option value="">Selecciona categoría</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
         <textarea
           value={form.description}
           onChange={(e) =>

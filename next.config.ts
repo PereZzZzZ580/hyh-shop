@@ -8,9 +8,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com"
+      },
     ],
-    // Alternativa simple (usa una, no ambas):
-    // domains: ["images.unsplash.com"],
   },
   webpack: (config) => {
     config.resolve.alias["@"] = path.resolve(__dirname, "src");

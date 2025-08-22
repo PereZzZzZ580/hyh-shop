@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -140,6 +140,13 @@ export class ProductsService {
   async create(dto: CreateProductDto, userId: string) {
     const { variants, ...productData } = dto;
 
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
+      select: { id: true },
+    });
+    if (!category)
+      throw new BadRequestException('La categoría no existe');
+
     const product = await this.prisma.product.create({
       data: {
         ...(productData as Prisma.ProductUncheckedCreateInput),
@@ -164,6 +171,15 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto, userId: string) {
+    if (dto.categoryId) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: dto.categoryId },
+        select: { id: true },
+      });
+      if (!category)
+        throw new BadRequestException('La categoría no existe');
+    }
+    
     const product = await this.prisma.product.update({
       where: { id },
       data: dto as Prisma.ProductUncheckedUpdateInput,
