@@ -1,16 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero() {
   return (
     <section className="relative p-0 h-[60vh] min-h-[400px] max-h-[650px] flex items-center">
-      <Image
-        src="https://images.unsplash.com/photo-1512698459101-2e1ac9b6f3ce?auto=format&fit=crop&w=1200&q=80"
-        alt="Barbero"
-        fill
-        priority
-        className="object-cover"
-      />
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative z-10">
         <h1 className="text-gold text-[26px] sm:text-[38px] md:text-[64px] font-semibold">

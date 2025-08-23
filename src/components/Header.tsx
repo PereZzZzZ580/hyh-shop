@@ -39,13 +39,16 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-20 h-20 backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
       <div className="container h-full flex items-center justify-between">
-          <Link href="/" className="flex items-center header-logo mr-6">
+          <Link href="/" className="relative flex items-center mr-6">
             <Image
-              src="/logo-hh.svg"
+              src="/logo_barberia.png"
               alt="H&H Shop"
-              width={112}
-              height={48}
-              className="h-12 w-auto"
+              width={800}
+              height={320}
+              className="
+              h-14 sm:h-16 md:h-20 lg:h-24
+              w-auto
+              translate-x-6 sm:translate-x-8 md:translate-x-10 lg:translate-x-12"
               priority
             />
           </Link>

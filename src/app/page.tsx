@@ -19,7 +19,7 @@ let products: Product[] = [];
     <>
       <Hero />
       <AboutBlock
-        imageUrl="https://images.unsplash.com/photo-1556229010-945ffcb54b17?auto=format&fit=crop&w=1200&q=80"
+        imageUrl="/foto_holman.png"
         title="Sobre Nosotros"
         text="En HYH, nos apasiona la barbería y ofrecemos productos de calidad para profesionales exigentes."
         bullets={["Materiales premium", "Envío rápido y seguro", "Atención personalizada"]}

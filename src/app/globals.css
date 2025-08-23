@@ -103,10 +103,6 @@ a:hover {
   text-underline-offset: 4px;
 }
 
-.header-logo img {
-  height: 48px;
-  width: auto;
-}
 
 .toast {
   background: var(--bg);
