@@ -130,10 +130,20 @@ export default function Terminos() {
       <div>
         <h2 className="text-xl font-semibold">12. Contacto</h2>
         <p className="mt-2">
-          Si tienes dudas sobre estos términos, contáctanos en
-          <span className="ml-1">hyhbarbershop@gmail.com</span> o
-          <span className="ml-1">3146905870 - 3138907119</span>, de lunes a viernes
-          entre 7 am - 9 pm, sábados domingos y festivos 9 am - 4 pm.
+          Si tienes dudas sobre estos términos, contáctanos en{" "}
+          <a
+            href="mailto:hyhbarbershop@gmail.com"
+            className="text-blue-600 hover:underline"
+          >
+            hyhbarbershop@gmail.com
+          </a>{" "}o{" "}
+          <a href="https://wa.me/3146905870" className="text-blue-600 hover:underline">
+            3146905870
+          </a>{" "}-{" "}
+          <a href="https://wa.me/3138907119" className="text-blue-600 hover:underline">
+            3138907119
+          </a>
+          , de lunes a viernes entre 7 am - 9 pm, sábados domingos y festivos 9 am - 4 pm.
         </p>
       </div>
     </section>

@@ -1,10 +1,13 @@
-import Servicios from "./Servicios";
+"use client";
 
-export const metadata = {
-  title: "Servicios",
-  description: "Servicios de barbería ofrecidos por H&H Shop",
-};
+import { useState } from "react";
 
+export default function Servicios() {
+  const servicios = [
+    { nombre: "Corte de cabello", descripcion: "Estilos modernos y clásicos." },
+    { nombre: "Arreglo de barba", descripcion: "Perfilado y afeitado tradicional." },
+    { nombre: "Tintura", descripcion: "Color para cabello y barba." },
+  ];
   const [servicioSeleccionado, setServicioSeleccionado] = useState<
     (typeof servicios)[number] | null
   >(null);
@@ -17,7 +20,7 @@ export const metadata = {
     const mensaje = encodeURIComponent(
       `Hola, deseo agendar ${servicioSeleccionado.nombre} en ${direccion} a las ${hora}.`
     );
-    window.open(`https://wa.me/573146905870?text=${mensaje}`);
+    window.open(`https://wa.me/573138907119?text=${mensaje}`);
     setServicioSeleccionado(null);
     setDireccion("");
     setHora("");

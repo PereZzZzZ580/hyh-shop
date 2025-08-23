@@ -119,8 +119,30 @@ export default function Privacidad() {
           <p>
             Si tienes preguntas o deseas ejercer tus derechos, nos encuentras en:
           </p>
-          <p>Correo: [hyhbarbershop@gmail.com]</p>
-          <p>WhatsApp: [3146905870 - 3138907119]</p>
+          <p>
+            Correo:{" "}
+            <a
+              href="mailto:hyhbarbershop@gmail.com"
+              className="text-blue-600 hover:underline"
+            >
+              hyhbarbershop@gmail.com
+            </a>
+          </p>
+          <p>
+            WhatsApp:{" "}
+            <a
+              href="https://wa.me/3146905870"
+              className="text-blue-600 hover:underline"
+            >
+              3146905870
+            </a>{" "}-{" "}
+            <a
+              href="https://wa.me/3138907119"
+              className="text-blue-600 hover:underline"
+            >
+              3138907119
+            </a>
+          </p>
           <p>
             Horario: lunes a viernes entre 7 am - 9 pm, sábados domingos y festivos 9 am -
             4 pm.
