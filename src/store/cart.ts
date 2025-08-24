@@ -1,6 +1,6 @@
 "use client";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetchAuth } from "@/lib/api";
 import type { Cart, CartItem } from "@/types/cart";
 import { create } from "zustand";
 
@@ -22,27 +22,27 @@ export const useCart = create<CartState>()((set, get) => ({
   items: [],
   fetch: async () => {
     try {
-      const cart = await apiFetch<Cart>("/cart");
+      const cart = await apiFetchAuth<Cart>("/cart");
       set({ id: cart.id, items: cart.items });
     } catch {
       set({ id: null, items: [] });
     }
   },
   addItem: async (variantId, qty = 1) => {
-    const cart = await apiFetch<Cart>("/cart/items", {
+    const cart = await apiFetchAuth<Cart>("/cart/items", {
       method: "POST",
       body: JSON.stringify({ variantId, qty }),
     });
     set({ id: cart.id, items: cart.items });
   },
   removeItem: async (itemId) => {
-    const cart = await apiFetch<Cart>(`/cart/items/${itemId}`, {
+    const cart = await apiFetchAuth<Cart>(`/cart/items/${itemId}`, {
       method: "DELETE",
     });
     set({ id: cart.id, items: cart.items });
   },
   updateQty: async (itemId, qty) => {
-    const cart = await apiFetch<Cart>(`/cart/items/${itemId}`, {
+    const cart = await apiFetchAuth<Cart>(`/cart/items/${itemId}`, {
       method: "PUT",
       body: JSON.stringify({ qty }),
     });
