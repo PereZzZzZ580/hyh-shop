@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const API_URL = process.env.API_URL || "http://localhost:4000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -4,24 +4,23 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { itemId: string } }
+  { params }: { params: { id: string } }
 ) {
   const token = req.cookies.get("token")?.value;
-  const res = await fetch(`${API_URL}/cart/items/${params.itemId}`, {
+  const res = await fetch(`${API_URL}/cart/items/${params.id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
 }
-
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { itemId: string } }
+  { params }: { params: { id: string } }
 ) {
   const token = req.cookies.get("token")?.value;
   const body = await req.json();
-  const res = await fetch(`${API_URL}/cart/items/${params.itemId}`, {
+  const res = await fetch(`${API_URL}/cart/items/${params.id}`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
