@@ -9,17 +9,17 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String?
-  role      Role      @default(CUSTOMER)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  addresses Address[]
-  orders    Order[]
-  reviews   Review[]
+  id          String       @id @default(cuid())
+  email       String       @unique
+  password    String
+  name        String?
+  role        Role         @default(CUSTOMER)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  addresses   Address[]
+  orders      Order[]
   productLogs ProductLog[]
+  reviews     Review[]
 }
 
 model Address {
@@ -60,14 +60,14 @@ model Media {
   bytes     Int?
   createdAt DateTime @default(now())
   height    Int?
+  isCover   Boolean? @default(false)
   mimeType  String?
+  position  Int?
   provider  String?
   publicId  String?
   updatedAt DateTime @default(now()) @updatedAt
   variantId String?
   width     Int?
-  position  Int?
-  isCover   Boolean? @default(false)
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   variant   Variant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
@@ -94,10 +94,10 @@ model Product {
   updatedAt      DateTime       @updatedAt
   images         Media[]
   category       Category       @relation(fields: [categoryId], references: [id])
+  logs           ProductLog[]
   reviews        Review[]
   tags           TagOnProduct[]
   variants       Variant[]
-  logs           ProductLog[]
 
   @@index([categoryId])
   @@index([brand])
@@ -135,7 +135,7 @@ model ProductLog {
   userId    String
   action    String
   createdAt DateTime @default(now())
-  product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  product   Product? @relation(fields: [productId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([productId])
@@ -189,10 +189,10 @@ model Order {
   paymentRef     String?
   contactName    String?
   contactPhone   String?
-  phone          String?
+  paymentMethod  PaymentMethod  @default(COD)
   city           String?
   note           String?
-  paymentMethod  PaymentMethod  @default(COD)
+  phone          String?
   address        Address?       @relation(fields: [addressId], references: [id])
   user           User?          @relation(fields: [userId], references: [id])
   items          OrderItem[]
@@ -256,8 +256,8 @@ model ShippingZone {
 }
 
 enum Role {
-  ADMIN
   CUSTOMER
+  ADMIN
 }
 
 enum PaymentMethod {

@@ -5,6 +5,7 @@ import 'dotenv/config';
 const prisma = new PrismaClient();
 
 async function main() {
+  // Categorías
   const hair = await prisma.category.upsert({
     where: { slug: 'cuidado-capilar' },
     update: {},
@@ -21,8 +22,9 @@ async function main() {
     create: { name: 'Ropa', slug: 'ropa' },
   });
 
+  // Productos
   await prisma.product.upsert({
-    where: { slug : 'pomada-mate-100ml'},
+    where: { slug: 'pomada-mate-100ml' },
     update: {},
     create: {
       name: 'Pomada Mate 100ml',
@@ -36,7 +38,7 @@ async function main() {
   });
 
   await prisma.product.upsert({
-    where: { slug : 'Wahl Magic Clip Cordless'},
+    where: { slug: 'wahl-magic-clip-cordless' },
     update: {},
     create: {
       name: 'Wahl Magic Clip Cordless',
@@ -50,7 +52,7 @@ async function main() {
   });
 
   await prisma.product.upsert({
-    where: { slug : 'Camiseta HYH Logo'},
+    where: { slug: 'camiseta-hyh-logo' },
     update: {},
     create: {
       name: 'Camiseta HYH Logo',
@@ -68,36 +70,38 @@ async function main() {
     },
   });
 
-  console.log('Seed OK');
-
-  const adminEmail = process.env.ADMIN_EMAIL;
+  // Usuario admin
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD;
   const adminName = process.env.ADMIN_NAME ?? 'Admin';
 
   if (adminEmail && adminPassword) {
-    const emailNorm = adminEmail.trim().toLowerCase();
     const hashed = await bcrypt.hash(adminPassword, 10);
 
     await prisma.user.upsert({
-      where: {email: emailNorm},
-      update: { role: 'ADMIN', name: adminName, password: hashed},
+      where: { email: adminEmail },
+      update: { role: 'ADMIN', name: adminName, password: hashed },
       create: {
-        email: emailNorm,
+        email: adminEmail,
         password: hashed,
         name: adminName,
         role: 'ADMIN',
       },
     });
 
-    console.log(`Admin user seeded: ${emailNorm}`);
-  } else{
+    console.log(`Admin user seeded: ${adminEmail}`);
+  } else {
     console.warn('Admin user not seeded because ADMIN_EMAIL or ADMIN_PASSWORD is not set');
   }
+
+  console.log('Seed OK');
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-}).finally(async () => {
-  await prisma.$disconnect();
-});
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
