@@ -1,48 +1,111 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 export default function Servicios() {
   const servicios = [
-    { nombre: "Corte de cabello", descripcion: "Estilos modernos y clásicos." },
-    { nombre: "Arreglo de barba", descripcion: "Perfilado y afeitado tradicional." },
-    { nombre: "Tintura", descripcion: "Color para cabello y barba." },
+    { nombre: "Corte clásico", precio: 25000, duracion: "45 min", img: "/img/corte.jpg" },
+    { nombre: "Arreglo de barba", precio: 20000, duracion: "30 min", img: "/img/barba.jpg" },
+    { nombre: "Corte + Barba", precio: 40000, duracion: "70 min", img: "/img/pack.jpg" },
   ];
-  const [servicioSeleccionado, setServicioSeleccionado] = useState<
-    (typeof servicios)[number] | null
-  >(null);
+  type Servicio = (typeof servicios)[number];
+  const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(
+    null,
+  );
   const [direccion, setDireccion] = useState("");
+  const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
+  const [notas, setNotas] = useState("");
 
   const enviarWhatsApp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!servicioSeleccionado) return;
     const mensaje = encodeURIComponent(
-      `Hola, deseo agendar ${servicioSeleccionado.nombre} en ${direccion} a las ${hora}.`
+      `Hola, deseo agendar ${servicioSeleccionado.nombre} el ${fecha} a las ${hora} en ${direccion}. ${
+        notas ? `Notas: ${notas}` : ""
+      }`
     );
     window.open(`https://wa.me/573138907119?text=${mensaje}`);
     setServicioSeleccionado(null);
     setDireccion("");
+    setFecha("");
     setHora("");
+    setNotas("");
   };
 
   return (
     <section>
-      <h1 className="text-3xl font-bold text-center">Servicios</h1>
-      <ul className="mt-8 grid gap-6 md:grid-cols-3">
+      <section className="text-center space-y-3">
+        <h1 className="text-4xl font-bold">Barbería a Domicilio</h1>
+        <p className="opacity-80">
+          Profesionales a tu puerta, puntuales y con higiene certificada.
+        </p>
+        <div className="flex justify-center gap-3">
+          <a
+            href="#servicios"
+            className="border border-gold rounded-xl px-4 py-2 hover:bg-gold hover:text-black"
+          >
+            Ver servicios
+          </a>
+          <a
+            href="https://wa.me/573138907119"
+            className="bg-gold text-black rounded-xl px-4 py-2"
+          >
+            Agendar por WhatsApp
+          </a>
+        </div>
+      </section>
+
+      <div id="servicios" className="mt-10 grid gap-6 md:grid-cols-3">
         {servicios.map((s) => (
-          <li key={s.nombre} className="p-4 border border-white/10 rounded-lg">
-            <h2 className="text-xl font-semibold">{s.nombre}</h2>
-            <p className="mt-2 opacity-80">{s.descripcion}</p>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={() => setServicioSeleccionado(s)}
-            >
-              Agendar
-            </button>
-          </li>
+          <article
+            key={s.nombre}
+            className="rounded-2xl overflow-hidden border border-white/10 hover:border-gold/40 transition"
+          >
+            <div className="relative h-44">
+              <Image src={s.img} alt={s.nombre} fill className="object-cover" />
+            </div>
+            <div className="p-4">
+              <h3 className="text-xl font-semibold">{s.nombre}</h3>
+              <p className="opacity-80 text-sm">{s.duracion}</p>
+              <p className="text-lg font-semibold">
+                ${s.precio.toLocaleString("es-CO")}
+              </p>
+              <button
+                onClick={() => setServicioSeleccionado(s)}
+                className="mt-2 w-full rounded-xl border border-gold px-4 py-2 hover:bg-gold hover:text-black"
+              >
+                Agendar
+              </button>
+            </div>
+          </article>
         ))}
-      </ul>
+      </div>
+
+      <details className="p-4 border-t border-white/10 mt-10">
+        <summary className="cursor-pointer font-medium">
+          Higiene y bioseguridad
+        </summary>
+        <p className="mt-2 opacity-80 text-sm">
+          Utensilios esterilizados y desinfección constante.
+        </p>
+      </details>
+      <details className="p-4 border-t border-white/10">
+        <summary className="cursor-pointer font-medium">
+          Cobertura y horarios
+        </summary>
+        <p className="mt-2 opacity-80 text-sm">
+          Armenia y Calarcá de 8am a 8pm.
+        </p>
+      </details>
+      <details className="p-4 border-t border-white/10">
+        <summary className="cursor-pointer font-medium">
+          Métodos de pago
+        </summary>
+        <p className="mt-2 opacity-80 text-sm">Efectivo o transferencia.</p>
+      </details>
+
       {servicioSeleccionado && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-neutral-900 p-6 text-white">
@@ -73,12 +136,29 @@ export default function Servicios() {
                 className="w-full rounded border border-white/10 bg-neutral-800 p-2"
               />
               <input
+                type="date"
+                required
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+              />
+              <input
                 type="time"
                 required
                 value={hora}
                 onChange={(e) => setHora(e.target.value)}
                 className="w-full rounded border border-white/10 bg-neutral-800 p-2"
               />
+              <textarea
+                placeholder="Notas"
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
+                className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+              />
+              <p className="text-xs opacity-80">
+                Atención en Armenia y Calarcá. Cancelaciones con 2h de
+                anticipación.
+              </p>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
@@ -89,7 +169,7 @@ export default function Servicios() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded bg-blue-600 px-4 py-2 text-white"
+                  className="rounded bg-gold text-black px-4 py-2"
                 >
                   Agendar
                 </button>
@@ -98,6 +178,13 @@ export default function Servicios() {
           </div>
         </div>
       )}
+
+      <a
+        href="https://wa.me/573138907119"
+        className="fixed bottom-4 right-4 z-50 bg-gold text-black rounded-xl px-4 py-2 md:hidden"
+      >
+        Agendar ahora
+      </a>
     </section>
   );
 }
