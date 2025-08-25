@@ -1,8 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata = {
   title: "Nuestra tienda",
-  description: "Conoce nuestra barbería física y dónde encontrarnos",
+  description:
+    "No tenemos sede física, pero llevamos el estilo y la barbería hasta tu casa.",
 };
 
 export default function Tienda() {
@@ -17,10 +19,28 @@ export default function Tienda() {
           height={400}
           className="rounded-xl object-cover"
         />
-        <p className="opacity-80">
-          Visítanos en nuestra sede principal. Ofrecemos un ambiente cómodo y
-          profesionales listos para atenderte.
-        </p>
+        <div>
+          <p className="opacity-80">
+            No tenemos sede física, pero llevamos el estilo y la barbería hasta
+            tu casa. Ropa urbana y accesorios a domicilio. Servicio de corte de
+            cabello en el lugar y horario que elijas. Haz tu pedido o agenda tu
+            cita ahora.
+          </p>
+          <div className="mt-6 flex gap-4">
+            <Link
+              href="/productos"
+              className="px-6 py-3 rounded-full bg-yellow-400 text-black font-medium hover:brightness-110 transition"
+            >
+              Ver Catálogo
+            </Link>
+            <Link
+              href="/servicios"
+              className="px-6 py-3 rounded-full border border-yellow-400/40 text-yellow-200 hover:border-yellow-300 hover:text-yellow-100 transition"
+            >
+              Agendar por WhatsApp
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   );

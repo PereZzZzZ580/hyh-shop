@@ -52,7 +52,7 @@ export const useCart = create<CartState>()((set, get) => ({
   count: () => get().items.reduce((acc, i) => acc + i.qty, 0),
   total: () =>
      get().items.reduce(
-      (acc, i) => acc + i.qty * (i.product.price || i.product.variant.price),
+      (acc, i) => acc + i.qty * (i.variant?.price?? i.priceSnapshot),
        0
       ),
 }));

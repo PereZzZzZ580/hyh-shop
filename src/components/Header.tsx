@@ -40,7 +40,7 @@ export default function Header() {
   <header className="fixed top-0 left-0 right-0 z-50 h-20 w-full backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
   <div className="container overflow-visible h-full flex items-center justify-between">
     <Link href="/" className="flex items-center mr-4 pl-4 md:pl-6">
-      <div className="relative h-25 md:h-20 w-[140px] md:w-[160px] overflow-hidden shrink-0">
+      <div className="relative h-26 md:h-20 w-[140px] md:w-[160px] overflow-hidden shrink-0 lg:-translate-y-3">
       <Image
         src="/HYH_Nuevo.png"
         alt="H&H Shop"
