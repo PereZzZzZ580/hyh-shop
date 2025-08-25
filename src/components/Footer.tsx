@@ -1,94 +1,42 @@
-import { Facebook, Instagram } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-bg">
-      <div className="container py-10 md:py-14 lg:py-18">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 text-white/85">
-          <div className="min-w-[220px] max-w-[260px]">
-            <h3 className="text-gold text-base md:text-lg font-semibold mb-4">Empresa</h3>
-            <ul className="flex flex-col gap-2">
-              <li>
-                <Link href="/nosotros" className="hover:text-gold">Nosotros</Link>
-              </li>
-              <li>
-                <Link href="/contacto" className="hover:text-gold">Contacto</Link>
-              </li>
-              <li>
-                <Link href="/galeria" className="hover:text-gold">Galería</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="min-w-[220px] max-w-[260px]">
-            <h3 className="text-gold text-base md:text-lg font-semibold mb-4">Soporte</h3>
-            <ul className="flex flex-col gap-2">
-              <li>
-                <Link href="/ayuda" className="hover:text-gold">Ayuda</Link>
-              </li>
-              <li>
-                <Link href="/envios" className="hover:text-gold">Envíos</Link>
-              </li>
-              <li>
-                <Link href="/devoluciones" className="hover:text-gold">Devoluciones</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="min-w-[220px] max-w-[260px]">
-            <h3 className="text-gold text-base md:text-lg font-semibold mb-4">Legal</h3>
-            <ul className="flex flex-col gap-2">
-              <li>
-                <Link href="/terminos" className="hover:text-gold">Términos</Link>
-              </li>
-              <li>
-                <Link href="/privacidad" className="hover:text-gold">Privacidad</Link>
-              </li>
-              <li>
-                <Link href="/cookies" className="hover:text-gold">Cookies</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="min-w-[220px] max-w-[260px]">
-            <h3 className="text-gold text-base md:text-lg font-semibold mb-4">Contacto</h3>
-            <ul className="flex flex-col gap-2">
-              <li>Calle 63 #17-45, Bogotá, Colombia</li>
-              <li>
-                <a href="mailto:contacto@hhbarberhome.com" className="hover:text-gold">
-                  contacto@hhbarberhome.com
-                </a>
-              </li>
-              <li>
-                <a href="tel:3138907119" className="hover:text-gold">3138907119</a>
-              </li>
-            </ul>
-          </div>
-          <div className="min-w-[220px] max-w-[260px]">
-            <h3 className="text-gold text-base md:text-lg font-semibold mb-4">Síguenos</h3>
-            <div className="flex gap-4">
-              <Link
-                href="https://www.instagram.com/hhbarberhome/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                  className="text-gold hover:text-gold-600"
-              >
-                <Instagram size={24} />
-              </Link>
-              <Link
-                href="https://www.facebook.com/hhbarberhome"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="text-gold hover:text-gold-600"
-              >
-                <Facebook size={24} />
-              </Link>
-            </div>
+    <footer className="mt-20 border-t border-yellow-400/15 bg-black/60">
+      <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <h4 className="font-serif text-yellow-200 text-lg">HYH Shop</h4>
+          <p className="mt-3 text-neutral-400/90 max-w-xs">Elegancia diaria sin exceso.</p>
+        </div>
+        <div>
+          <h5 className="text-yellow-100 font-medium">Tienda</h5>
+          <ul className="mt-3 space-y-2 text-neutral-300">
+            <li>Hombre</li>
+            <li>Mujer</li>
+            <li>Accesorios</li>
+          </ul>
+        </div>
+        <div>
+          <h5 className="text-yellow-100 font-medium">Soporte</h5>
+          <ul className="mt-3 space-y-2 text-neutral-300">
+            <li><Link href="/envios">Envíos</Link></li>
+            <li><Link href="/devoluciones">Devoluciones</Link></li>
+            <li><Link href="/contacto">Contacto</Link></li>
+          </ul>
+        </div>
+        <div className="space-y-3">
+          <h5 className="text-yellow-100 font-medium">Suscríbete</h5>
+          <div className="flex gap-2">
+            <input
+              className="flex-1 rounded-full bg-black/40 border border-yellow-400/25 px-4 py-2 placeholder:text-neutral-500 focus:outline-none focus:border-yellow-300"
+              placeholder="tu@email.com"
+            />
+            <button className="px-4 rounded-full bg-yellow-400 text-black">Unirme</button>
           </div>
         </div>
-        <div className="mt-12 border-t border-border pt-4 text-muted text-xs">
-          <p>© {new Date().getFullYear()} HYH Shop. Todos los derechos reservados.</p>
-        </div>
+      </div>
+      <div className="py-6 text-center text-neutral-500 text-sm">
+        © {new Date().getFullYear()} HYH Shop
       </div>
     </footer>
   );

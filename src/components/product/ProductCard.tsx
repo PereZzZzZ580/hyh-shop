@@ -14,57 +14,58 @@ export default function ProductCard({ product }: { product: Product }) {
     variant && variant.compareAtPrice && variant.compareAtPrice > variant.price;
 
   return (
-    <div className="group bg-surface border border-border rounded-xl p-[18px] md:p-[22px] hover:border-gold hover:shadow-gold">
+    <article className="group rounded-2xl border border-yellow-400/15 bg-black/40 shadow-[0_0_30px_-10px_rgba(212,175,55,0.25)] overflow-hidden transition">
       <Link href={`/producto/${product.slug}`}>
-          <div className="relative overflow-hidden rounded-xl border border-gold/25 h-[220px] md:h-[300px]">
+        <div className="relative">
           {image ? (
             <Image
               src={image}
               alt={product.name}
-              fill
-              className="object-cover group-hover:scale-[1.04]"
+              width={400}
+              height={300}
+              className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <Image
               src="/file.svg"
               alt="Sin imagen"
-              fill
-              className="object-contain p-8 opacity-50 group-hover:scale-[1.04]"
+              width={400}
+              height={300}
+              className="aspect-[4/3] w-full object-contain p-8 opacity-50 transition-transform duration-500 group-hover:scale-105"
             />
           )}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
           {oferta && (
-            <span className="absolute top-2 left-2 bg-gold text-black text-[11px] font-medium px-2 py-[2px] rounded-full">
+            <span className="absolute top-2 left-2 bg-yellow-400 text-black text-[11px] font-medium px-2 py-[2px] rounded-full">
               Oferta
             </span>
           )}
         </div>
-        </Link>
-      <Link href={`/producto/${product.slug}`} className="block mt-4">
-        <h3 className="text-white text-[16px] md:text-[18px] font-medium">
-          {product.name}
-        </h3>
       </Link>
-      {variant && (
-        <p className="mt-2 text-[16px] md:text-[18px]">
-          <span className="text-gold">
+      <div className="p-5">
+        <Link href={`/producto/${product.slug}`} className="block">
+          <h3 className="font-serif text-xl text-yellow-100">{product.name}</h3>
+        </Link>
+        {variant && (
+          <p className="mt-1 text-neutral-300">
             ${variant.price.toLocaleString("es-CO")}
-          </span>
-          {oferta && (
-            <span className="ml-2 text-white/50 line-through">
-              ${variant.compareAtPrice?.toLocaleString("es-CO")}
-            </span>
-          )}
-        </p>
-      )}
-      {variant && (
-        <button
-          onClick={() => addItem(variant.id, 1)}
-          disabled={sinStock}
-          className="mt-4 w-full h-9 rounded-xl bg-gold text-black hover:bg-gold600 hover:shadow-gold disabled:opacity-50"
-        >
-          {sinStock ? "Sin stock" : "Añadir"}
-        </button>
-      )}
-    </div>
+            {oferta && (
+              <span className="ml-2 text-neutral-500 line-through">
+                ${variant.compareAtPrice?.toLocaleString("es-CO")}
+              </span>
+            )}
+          </p>
+        )}
+        {variant && (
+          <button
+            onClick={() => addItem(variant.id, 1)}
+            disabled={sinStock}
+            className="mt-4 w-full rounded-full border border-yellow-400/50 py-2 text-yellow-100 hover:bg-yellow-400 hover:text-black transition disabled:opacity-50"
+          >
+            {sinStock ? "Sin stock" : "Añadir al carrito"}
+          </button>
+        )}
+      </div>
+    </article>
   );
 }
