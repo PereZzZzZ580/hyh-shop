@@ -38,7 +38,7 @@ export default function Header() {
 
   return (
   <header className="sticky top-0 z-50 h-20 backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
-  <div className="container h-full flex items-center justify-between">
+  <div className="container overflow-visible h-full flex items-center justify-between">
     <Link href="/" className="flex items-center mr-4 pl-4 md:pl-6">
       <Image
         src="/logo_barberia.png"
@@ -96,14 +96,14 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setMenuUsuario((m) => !m)}
-                className="flex items-center gap-2 text-gold hover:shadow-gold"
+                className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80"
                 aria-label="Menú usuario"
               >
                 <User className="h-5 w-5" />
                 <span>{nombreUsuario}</span>
               </button>
               {menuUsuario && (
-                <div className="absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col">
+                <div className="absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50">
                   <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Pedidos</Link>
                   <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
                   {usuario?.role === "ADMIN" && (
