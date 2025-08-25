@@ -33,7 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className={`${sans.variable} ${display.variable} bg-bg text-text`}>
       <body>
         <Header />
-        <main className="container py-10 md:py-12">{children}</main>
+        <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

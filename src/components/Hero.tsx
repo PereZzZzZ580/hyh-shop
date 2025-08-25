@@ -2,22 +2,29 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative p-0 h-[60vh] min-h-[400px] max-h-[650px] flex items-center">
-      <div className="absolute inset-0 bg-black/70" />
-      <div className="relative z-10">
-        <h1 className="text-gold text-[26px] sm:text-[38px] md:text-[64px] font-semibold">
-          Corta con estilo
+    <section className="relative overflow-hidden py-24 md:py-32">
+      <div className="pointer-events-none absolute inset-0 [background:radial-gradient(600px_circle_at_30%_20%,rgba(212,175,55,0.15),transparent_60%),radial-gradient(400px_circle_at_80%_10%,rgba(212,175,55,0.08),transparent_50%)]" />
+      <div className="relative mx-auto max-w-5xl text-center px-6">
+        <h1 className="font-serif text-5xl md:text-6xl text-yellow-200 tracking-tight">
+          Elegancia que se nota
         </h1>
-        <div className="mt-2 w-16 h-[2px] bg-gold" />
-        <h3 className="mt-4 font-sans text-[#EAEAEA] text-[14px] sm:text-[16px] md:text-[20px]">
-          Productos y servicios para tu barbería.
-        </h3>
-        <Link
-          href="/catalogo"
-          className="mt-6 inline-flex items-center justify-center h-[48px] w-full sm:w-auto px-[22px] bg-gold text-black rounded-xl hover:bg-gold600 hover:shadow-gold"
-        >
-          Ver catálogo
-        </Link>
+        <p className="mt-5 text-lg md:text-xl text-neutral-300/90">
+          Negro profundo. Detalles dorados. Piezas que hablan por ti.
+        </p>
+        <div className="mt-8 flex items-center justify-center gap-4">
+          <Link
+            href="/tienda"
+            className="px-6 py-3 rounded-full bg-yellow-400 text-black font-medium hover:brightness-110 transition"
+          >
+            Ver tienda
+          </Link>
+          <Link
+            href="/nosotros"
+            className="px-6 py-3 rounded-full border border-yellow-400/40 text-yellow-200 hover:border-yellow-300 hover:text-yellow-100 transition"
+          >
+            Más info
+          </Link>
+        </div>
       </div>
     </section>
   );
