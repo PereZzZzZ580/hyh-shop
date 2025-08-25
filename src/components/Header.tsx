@@ -38,7 +38,7 @@ export default function Header() {
 
   return (
   <header className="sticky top-0 z-50 h-20 backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
-  <div className="container h-full flex items-center justify-between overflow-hidden">
+  <div className="container h-full flex items-center justify-between">
     <Link href="/" className="flex items-center mr-4 pl-4 md:pl-6">
       <Image
         src="/logo_barberia.png"
