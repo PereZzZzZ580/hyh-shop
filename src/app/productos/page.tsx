@@ -25,19 +25,25 @@ export default async function Productos({ searchParams }: Props) {
   if (min) params.set("minPrice", min);
   if (max) params.set("maxPrice", max);
 
-  const [catsRes, prodRes] = await Promise.all([
+  const [catsRes, prodRes] = await Promise.allSettled([
     fetch(`${API_URL}/categories`, { cache: "no-store" }),
     fetch(`${API_URL}/products?${params.toString()}`, {
       cache: "no-store",
     }),
   ]);
 
-  const categoriasData: CategoriaConHijos[] = await catsRes.json();
-  const categorias: Category[] = categoriasData.flatMap((c) => [c, ...(c.children ?? [])]);
+  let categorias: Category[] = [];
+  if (catsRes.status === "fulfilled") {
+    const categoriasData: CategoriaConHijos[] = await catsRes.value.json();
+    categorias = categoriasData.flatMap((c) => [c, ...(c.children ?? [])]);
+  }
 
-  const data = await prodRes.json();
-  const products: Product[] = data.items;
-
+  let products: Product[] = [];
+  if (prodRes.status === "fulfilled"){
+    const data = await prodRes.value.json();
+    products = data.items;
+  }
+  
   return (
     <section>
       <h1 className="text-3xl font-bold">Productos</h1>
