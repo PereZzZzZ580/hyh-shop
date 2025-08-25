@@ -91,11 +91,12 @@ textarea::placeholder {
   color: var(--muted);
 }
 
-a {
-  color: var(--gold);
-  text-decoration: none;
+@layer base{
+  a {
+    color: var(--gold);
+    text-decoration: none;
+  }
 }
-
 a:hover {
   text-decoration: underline;
   text-decoration-color: var(--gold);
@@ -120,4 +121,14 @@ a:hover {
 .toast.error {
   border-color: var(--error);
   color: var(--error);
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+img, video, canvas, svg{
+  max-width: 100%;
+  height:auto;
+  display: block;
 }
