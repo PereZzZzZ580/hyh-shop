@@ -129,7 +129,7 @@ export default function Header() {
             <>
               <Link
                 href="/ingresar"
-                className="bg-gold text-black px-4 py-2 rounded-x1 hover:bg-gold-600 hover:shadow-gold"
+                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black"
               >
                 Login
               </Link>
