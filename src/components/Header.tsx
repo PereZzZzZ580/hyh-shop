@@ -37,20 +37,21 @@ export default function Header() {
   const count = useCart((s) => s.count());
 
   return (
-  <header className="sticky top-0 z-50 h-20 backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
+  <header className="fixed top-0 left-0 right-0 z-50 h-20 w-full backdrop-blur bg-[rgba(0,0,0,0.65)] border-b border-[rgba(255,215,0,0.08)]">
   <div className="container overflow-visible h-full flex items-center justify-between">
     <Link href="/" className="flex items-center mr-4 pl-4 md:pl-6">
+      <div className="relative h-12 md:h-14 w-[140px] md:w-[160px] overflow-hidden shrink-0">
       <Image
         src="/logo_barberia.png"
         alt="H&H Shop"
         width={180}
         height={72}
         sizes="(min-width: 1024px) 160px, 120px"
-        className="h-10 md:h-12 lg:h-14 w-auto object-contain"
+        className="h-full w-auto object-contain"
         priority
       />
-
-          </Link>
+      </div>
+    </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 font-semibold text-[15px] md:text-[16px] text-gold">
