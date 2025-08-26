@@ -174,8 +174,14 @@ export default function Header() {
         </button>
 
         {open && (
-          <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm">
-            <div className="fixed top-0 right-0 z-50 h-full w-64 bg-bg/95 p-6 flex flex-col gap-6 text-gold border-l border-white/10 shadow-lg">
+          <div
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          >
+            <div
+              className="fixed top-0 right-0 z-[60] h-full w-64 bg-bg/95 p-6 flex flex-col gap-6 text-gold border-l border-white/20 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 ref={closeButtonRef}
                 className="self-end text-gold"
