@@ -165,14 +165,53 @@ export default function Header() {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-gold"
-          onClick={() => setOpen(true)}
-          aria-label="Abrir menú"
-        >
-          <Menu size={24} />
-        </button>
+        {/* Mobile Actions */}
+        <div className="md:hidden flex items-center gap-4">
+          {autenticado ? (
+            <div className="relative">
+              <button
+                onClick={() => setMenuUsuario((m) => !m)}
+                className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80"
+                aria-label="Menú usuario"
+              >
+                <User className="h-5 w-5" />
+                <span className="text-sm">{nombreUsuario}</span>
+              </button>
+              {menuUsuario && (
+                <div className="absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50">
+                  <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Pedidos</Link>
+                  <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
+                  {usuario?.role === "ADMIN" && (
+                    <Link href="/admin" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Panel de Administración</Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      fetch("/api/logout", { method: "POST" });
+                      setAutenticado(false);
+                      setUsuario(null);
+                      setMenuUsuario(false);
+                      router.push("/");
+                    }}
+                    className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold"
+                  >
+                    Salir
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/ingresar" aria-label="Ingresar" className="text-gold hover:shadow-gold">
+              <User className="h-5 w-5" />
+            </Link>
+          )}
+          <button
+            className="text-gold"
+            onClick={() => setOpen(true)}
+            aria-label="Abrir menú"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
       </div>
     </header>
     {open && (
