@@ -59,13 +59,13 @@ export default function Servicios() {
         <div className="flex justify-center gap-3">
           <a
             href="#servicios"
-            className="border border-gold rounded-xl px-4 py-2 hover:bg-gold hover:text-black transition-colors"
+            className="border border-gold rounded-xl px-4 py-2 hover:bg-gold hover:text-black transition-colors cursor-pointer"
           >
             Ver servicios
           </a>
           <a
             href="https://wa.me/573138907119"
-            className="border border-gold rounded px-4 py-2 hover:bg-gold hover:text-black transition-colors"
+            className="border border-gold rounded px-4 py-2 hover:bg-gold hover:text-black transition-colors cursor-pointer"
           >
             Agendar por WhatsApp
           </a>
@@ -89,7 +89,7 @@ export default function Servicios() {
               </p>
               <button
                 onClick={() => setServicioSeleccionado(s)}
-                className="mt-2 w-full rounded-xl border border-gold px-4 py-2 hover:bg-gold hover:text-black transition-colors"
+                className="mt-2 w-full rounded-xl border border-gold px-4 py-2 hover:bg-gold hover:text-black transition-colors cursor-pointer"
               >
                 Agendar
               </button>
@@ -100,19 +100,19 @@ export default function Servicios() {
 
       <details className="p-4 border-t border-white/10 mt-10 group">
         <summary className="cursor-pointer font-medium transition-colors">Higiene y bioseguridad</summary>
-        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:slide-in-from-top-2">
+        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:zoom-in-95">
           Utensilios esterilizados y desinfección constante.
         </p>
       </details>
       <details className="p-4 border-t border-white/10 group">
         <summary className="cursor-pointer font-medium transition-colors">Cobertura y horarios</summary>
-        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:slide-in-from-top-2">
+        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:zoom-in-95">
           Armenia y Calarcá de 8am a 8pm.
         </p>
       </details>
       <details className="p-4 border-t border-white/10 group">
         <summary className="cursor-pointer font-medium transition-colors">Métodos de pago</summary>
-        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:slide-in-from-top-2">
+        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:zoom-in-95">
           Efectivo o transferencia.
         </p>
       </details>
@@ -132,7 +132,7 @@ export default function Servicios() {
                 href="https://wa.me/573138907119"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-green-500 underline"
+                className="text-green-500 underline cursor-pointer"
               >
                 Contactar por WhatsApp
               </a>
@@ -174,13 +174,13 @@ export default function Servicios() {
                 <button
                   type="button"
                   onClick={() => setServicioSeleccionado(null)}
-                  className="rounded border border-white/10 px-4 py-2 transition-colors hover:bg-white/10"
+                  className="rounded border border-white/10 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="rounded bg-gold text-black px-4 py-2 transition-colors hover:bg-gold/80"
+                  className="rounded bg-gold text-black px-4 py-2 transition-colors hover:bg-gold/80 cursor-pointer"
                 >
                   Agendar
                 </button>
@@ -192,7 +192,7 @@ export default function Servicios() {
 
       <a
         href="https://wa.me/573138907119"
-        className="fixed bottom-4 right-4 z-50 bg-gold text-black rounded-xl px-4 py-2 md:hidden transition-colors hover:bg-gold/80"
+        className="fixed bottom-4 right-4 z-50 bg-gold text-black rounded-xl px-4 py-2 md:hidden transition-colors hover:bg-gold/80 cursor-pointer"
       >
         Agendar ahora
       </a>
