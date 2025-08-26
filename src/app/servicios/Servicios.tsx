@@ -5,9 +5,24 @@ import { useState } from "react";
 
 export default function Servicios() {
   const servicios = [
-    { nombre: "Corte clásico", precio: 25000, duracion: "45 min", img: "/img/corte.jpg" },
-    { nombre: "Arreglo de barba", precio: 20000, duracion: "30 min", img: "/img/barba.jpg" },
-    { nombre: "Corte + Barba", precio: 40000, duracion: "70 min", img: "/img/pack.jpg" },
+    {
+      nombre: "Corte clásico",
+      precio: 25000,
+      duracion: "45 min",
+      img: "/corteClasico.png",
+    },
+    {
+      nombre: "Arreglo de barba",
+      precio: 20000,
+      duracion: "30 min",
+      img: "/corteBarba.png",
+    },
+    {
+      nombre: "Corte + Barba",
+      precio: 40000,
+      duracion: "70 min",
+      img: "/Barbar_y_pelo.png",
+    },
   ];
   type Servicio = (typeof servicios)[number];
   const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(
@@ -50,7 +65,7 @@ export default function Servicios() {
           </a>
           <a
             href="https://wa.me/573138907119"
-            className="bg-gold text-black rounded-xl px-4 py-2"
+            className="border border-gold rounded px-4 py-2 hover:bg-gold hover:text-black"
           >
             Agendar por WhatsApp
           </a>
@@ -63,7 +78,7 @@ export default function Servicios() {
             key={s.nombre}
             className="rounded-2xl overflow-hidden border border-white/10 hover:border-gold/40 transition"
           >
-            <div className="relative h-44">
+            <div className="relative h-90">
               <Image src={s.img} alt={s.nombre} fill className="object-cover" />
             </div>
             <div className="p-4">

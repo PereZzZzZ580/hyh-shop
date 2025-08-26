@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
 import AddToCart from "@/components/product/AddToCart";
 import ProductCard from "@/components/product/ProductCard";
 import type { Product, Variant } from "@/types/product";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 function atributosStr(attrs: Variant["attributes"]) {
   return Object.entries(attrs)
@@ -53,19 +53,19 @@ export default function ProductDetail({ product }: { product: Product }) {
 
   const imagen = imagenes[indiceImg]?.url;
   return (
-    <section>
+    <div className="container mx-auto px-4">
       <nav className="mb-4 text-sm opacity-80">
         Inicio / Productos / {product.category.name} / {product.name}
       </nav>
-      <div className="grid lg:grid-cols-2 gap-10">
+      <section className="grid md:grid-cols-2 gap-8">
         <div className="grid grid-cols-[96px_1fr] gap-4">
           <div className="flex lg:flex-col gap-3">
             {imagenes.map((img, idx) => (
               <button
                 key={img.id ?? idx}
                 onClick={() => setIndiceImg(idx)}
-                className={`h-20 w-20 rounded-xl overflow-hidden ring-1 ${
-                  idx === indiceImg ? "ring-gold/60" : "ring-white/10"
+                className={`relative w-16 h-16 rounded-md overflow-hidden ring-1 ${
+                  idx === indiceImg ? "ring-yellow-400" : "ring-white/15"
                 }`}
               >
                 <Image
@@ -77,19 +77,16 @@ export default function ProductDetail({ product }: { product: Product }) {
               </button>
             ))}
           </div>
-          <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 group">
+          <div className="relative aspect-[4/3] max-h-[70vh] rounded-2xl overflow-hidden border border-white/10">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-black/30 md:hidden" />
             {imagen && (
-              <Image
-                src={imagen}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-              />
+              <Image src={imagen} alt={product.name} fill className="object-cover" />
             )}
           </div>
         </div>
 
-        <div className="lg:sticky lg:top-24 space-y-4">
+        <div className="lg:sticky lg:top-24 rounded-2xl border border-white/10 bg-black/55 backdrop-blur-md p-6 space-y-4">
           <h1 className="text-3xl font-bold">{product.name}</h1>
           <p className="opacity-80">Categoría: {product.category.name}</p>
           {product.description && (
@@ -146,7 +143,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             </p>
           </details>
         </div>
-      </div>
+      </section>
       {related.length > 0 && (
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">
@@ -161,6 +158,6 @@ export default function ProductDetail({ product }: { product: Product }) {
           </div>
         </section>
       )}
-    </section>
+    </div>
   );
 }
