@@ -119,45 +119,45 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setMenuUsuario((m) => !m)}
-                className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80"
+                className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80 transition-colors"
                 aria-label="Menú usuario"
               >
                 <User className="h-5 w-5" />
                 <span>{nombreUsuario}</span>
               </button>
-              {menuUsuario && (
-                <div className="absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50">
-                  <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Pedidos</Link>
-                  <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
-                  {usuario?.role === "ADMIN" && (
-                    <Link href="/admin" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Panel de Administración</Link>
-                  )}
-                  <button
-                    onClick={() => {
-                      fetch("/api/logout", { method: "POST" });
-                      setAutenticado(false);
-                      setUsuario(null);
-                      setMenuUsuario(false);
-                      router.push("/");
-                    }}
-                    className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold"
-                  >
-                    Salir
-                  </button>
-                </div>
-              )}
+              <div
+                className={`absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50 transform transition-all duration-200 origin-top-right ${menuUsuario ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+              >
+                <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Pedidos</Link>
+                <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Direcciones</Link>
+                {usuario?.role === "ADMIN" && (
+                  <Link href="/admin" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Panel de Administración</Link>
+                )}
+                <button
+                  onClick={() => {
+                    fetch("/api/logout", { method: "POST" });
+                    setAutenticado(false);
+                    setUsuario(null);
+                    setMenuUsuario(false);
+                    router.push("/");
+                  }}
+                  className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors"
+                >
+                  Salir
+                </button>
+              </div>
             </div>
           ) : (
             <>
               <Link
                 href="/ingresar"
-                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black"
+                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black transition-colors"
               >
                 Login
               </Link>
               <Link
                 href="/registrarse"
-                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black"
+                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black transition-colors"
               >
                 Registrarse
               </Link>
@@ -171,33 +171,33 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setMenuUsuario((m) => !m)}
-                className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80"
+                className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80 transition-colors"
                 aria-label="Menú usuario"
               >
                 <User className="h-5 w-5" />
                 <span className="text-sm">{nombreUsuario}</span>
               </button>
-              {menuUsuario && (
-                <div className="absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50">
-                  <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Pedidos</Link>
-                  <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Direcciones</Link>
-                  {usuario?.role === "ADMIN" && (
-                    <Link href="/admin" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Panel de Administración</Link>
-                  )}
-                  <button
-                    onClick={() => {
-                      fetch("/api/logout", { method: "POST" });
-                      setAutenticado(false);
-                      setUsuario(null);
-                      setMenuUsuario(false);
-                      router.push("/");
-                    }}
-                    className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold"
-                  >
-                    Salir
-                  </button>
-                </div>
-              )}
+              <div
+                className={`absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50 transform transition-all duration-200 origin-top-right ${menuUsuario ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+              >
+                <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Pedidos</Link>
+                <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Direcciones</Link>
+                {usuario?.role === "ADMIN" && (
+                  <Link href="/admin" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Panel de Administración</Link>
+                )}
+                <button
+                  onClick={() => {
+                    fetch("/api/logout", { method: "POST" });
+                    setAutenticado(false);
+                    setUsuario(null);
+                    setMenuUsuario(false);
+                    router.push("/");
+                  }}
+                  className="text-left hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors"
+                >
+                  Salir
+                </button>
+              </div>
             </div>
           ) : (
             <Link href="/ingresar" aria-label="Ingresar" className="text-gold hover:shadow-gold">
@@ -205,7 +205,7 @@ export default function Header() {
             </Link>
           )}
           <button
-            className="text-gold"
+            className="text-gold transition-transform"
             onClick={() => setOpen(true)}
             aria-label="Abrir menú"
           >
@@ -214,51 +214,50 @@ export default function Header() {
         </div>
       </div>
     </header>
-    {open && (
+    <div
+      className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+      onClick={() => setOpen(false)}
+    >
       <div
-        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-        onClick={() => setOpen(false)}
+        className={`fixed top-0 right-0 z-[60] h-full w-3/4 max-w-xs bg-black p-6 flex flex-col gap-6 text-gold rounded-l-xl shadow-xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="fixed top-0 right-0 z-[60] h-full w-3/4 max-w-xs bg-black p-6 flex flex-col gap-6 text-gold rounded-l-xl shadow-xl"
-          onClick={(e) => e.stopPropagation()}
+        <button
+          ref={closeButtonRef}
+          className="self-end text-gold transition-colors"
+          onClick={() => setOpen(false)}
+          arial-label="Cerrar menú"
         >
-          <button
-            ref={closeButtonRef}
-            className="self-end text-gold"
+          <X size={24} />
+        </button>
+          <nav className="flex flex-col gap-6 font-semibold text-gold text-[16px]">
+          <Link href="/" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Inicio</Link>
+          <Link href="/servicios" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Servicios</Link>
+          <Link href="/productos" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Productos</Link>
+          <Link href="/galeria" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Galería</Link>
+          <Link href="/tienda" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Nuestra Tienda</Link>
+          <Link href="/contacto" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Contacto</Link>
+        </nav>
+        <div className="mt-auto flex flex-col gap-5 text-gold">
+          <Link
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={() => setOpen(false)}
-            arial-label="Cerrar menú"
+            className="py-2 transition-colors"
           >
-            <X size={24} />
-          </button>
-            <nav className="flex flex-col gap-6 font-semibold text-gold text-[16px]">
-            <Link href="/" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">Inicio</Link>
-            <Link href="/servicios" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">Servicios</Link>
-            <Link href="/productos" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">Productos</Link>
-            <Link href="/galeria" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">Galería</Link>
-            <Link href="/tienda" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">Nuestra Tienda</Link>
-            <Link href="/contacto" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">Contacto</Link>
-          </nav>
-          <div className="mt-auto flex flex-col gap-5 text-gold">
-            <Link
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="py-2"
-            >
-              Instagram
-            </Link>
-            <Link
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="py-2"
-            >
-              Facebook
-            </Link>
-            <Link href="/carrito" onClick={() => setOpen(false)} className="relative py-2">
+            Instagram
+          </Link>
+          <Link
+            href="https://facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="py-2 transition-colors"
+          >
+            Facebook
+          </Link>
+            <Link href="/carrito" onClick={() => setOpen(false)} className="relative py-2 transition-colors">
               <span>Carrito</span>
               <span
                 className="absolute -top-2 -right-4 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gold text-black text-xs"
@@ -270,14 +269,14 @@ export default function Header() {
             </Link>
             {autenticado ? (
               <>
-                <Link href="/pedidos" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">
+                <Link href="/pedidos" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">
                   Pedidos
                 </Link>
-                <Link href="/mi-cuenta/direcciones" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">
+                <Link href="/mi-cuenta/direcciones" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">
                   Direcciones
                 </Link>
                 {usuario?.role === "ADMIN" && (
-                  <Link href="/admin" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold">
+                  <Link href="/admin" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">
                     Panel de Administración
                   </Link>
                 )}
@@ -289,7 +288,7 @@ export default function Header() {
                     setOpen(false);
                     router.push("/");
                   }}
-                  className="text-left py-2 hover:underline hover:underline-offset-4 hover:shadow-gold"
+                  className="text-left py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors"
                 >
                   Salir
                 </button>
@@ -299,23 +298,22 @@ export default function Header() {
                 <Link
                   href="/ingresar"
                   onClick={() => setOpen(false)}
-                  className="bg-gold text-black px-4 py-2 rounded-xl text-center hover:bg-gold600 hover:shadow-gold"
+                  className="bg-gold text-black px-4 py-2 rounded-xl text-center hover:bg-gold600 hover:shadow-gold transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   href="/registrarse"
                   onClick={() => setOpen(false)}
-                  className="border-2 border-gold text-gold px-4 py-2 rounded-xl text-center hover:bg-gold hover:text-black"
+                  className="border-2 border-gold text-gold px-4 py-2 rounded-xl text-center hover:bg-gold hover:text-black transition-colors"
                 >
                   Registrarse
                 </Link>
-                </>
+              </>
             )}
-          </div>
         </div>
       </div>
-    )}
+    </div>
   </>
   );
 }
