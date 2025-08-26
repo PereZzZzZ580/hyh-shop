@@ -1,6 +1,5 @@
-import ProductCard from "@/components/product/ProductCard";
+import ProductsClient from "@/components/product/ProductsClient";
 import type { Category, Product } from "@/types/product";
-import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -47,55 +46,7 @@ export default async function Productos({ searchParams }: Props) {
   return (
     <section>
       <h1 className="text-3xl font-bold">Productos</h1>
-      <form
-        className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3"
-        action="/productos"
-        method="get"
-      >
-        {/* Filtros (método GET) */}
-        <select
-          name="categoria"
-          defaultValue={categoria ?? ""}
-          className="h-10 rounded-lg bg-transparent border border-white/20 px-3"
-        >
-          <option value="">Todas las categorías</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.slug}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          name="min"
-          type="number"
-          placeholder="Precio mín."
-          defaultValue={min ?? ""}
-          className="h-10 rounded-lg bg-transparent border border-white/20 px-3"
-        />
-        <input
-          name="max"
-          type="number"
-          placeholder="Precio máx."
-          defaultValue={max ?? ""}
-          className="h-10 rounded-lg bg-transparent border border-white/20 px-3"
-        />
-
-        <div className="flex gap-3">
-          <button className="h-10 rounded-lg px-4 border border-white/20">Filtrar</button>
-          <Link href="/productos" className="h-10 rounded-lg px-4 border border-white/20 inline-flex items-center">
-            Limpiar
-          </Link>
-        </div>
-      </form>
-
-      <p className="mt-3 opacity-80 text-sm">{products.length} producto(s)</p>
-
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
+      <ProductsClient categories={categorias} initialProducts={products} />
     </section>
   );
 }
