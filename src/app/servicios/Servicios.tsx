@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -118,8 +119,9 @@ export default function Servicios() {
       </details>
 
       {servicioSeleccionado && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 pt-0">
           <div className="w-full max-w-md rounded-lg bg-neutral-900 p-6 text-white">
+            <div className="w-full max-w-md rounded-lg bg-neutral-900 p-6 text-white"></div>
             <h3 className="text-xl font-semibold">
               Agendar {servicioSeleccionado.nombre}
             </h3>
@@ -138,34 +140,57 @@ export default function Servicios() {
               </a>
             </div>
             <form onSubmit={enviarWhatsApp} className="mt-4 space-y-4">
-              <input
-                type="text"
-                required
-                placeholder="Dirección"
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                className="w-full rounded border border-white/10 bg-neutral-800 p-2"
-              />
-              <input
-                type="date"
-                required
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                className="w-full rounded border border-white/10 bg-neutral-800 p-2"
-              />
-              <input
-                type="time"
-                required
-                value={hora}
-                onChange={(e) => setHora(e.target.value)}
-                className="w-full rounded border border-white/10 bg-neutral-800 p-2"
-              />
-              <textarea
-                placeholder="Notas"
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
-                className="w-full rounded border border-white/10 bg-neutral-800 p-2"
-              />
+              <label className="block text-sm">
+                <span className="mb-1 block">Dirección</span>
+                <input
+                  type="text"
+                  required
+                  placeholder="Dirección"
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
+                  className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block">Fecha</span>
+                <input
+                  type="date"
+                  required
+                  placeholder="Selecciona la fecha"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                  className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block">Hora</span>
+                <div className="relative">
+                  <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
+                  {!hora && (
+                    <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-white/60">
+                      Selecciona la hora
+                    </span>
+                  )}
+                  <input
+                    type="time"
+                    required
+                    value={hora}
+                    onChange={(e) => setHora(e.target.value)}
+                    className={`w-full rounded border border-white/10 bg-neutral-800 p-2 pl-10 ${
+                      hora ? "text-white" : "text-transparent"
+                    }`}
+                  />
+                </div>
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block">Notas</span>
+                <textarea
+                  placeholder="Notas"
+                  value={notas}
+                  onChange={(e) => setNotas(e.target.value)}
+                  className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+                />
+              </label>
               <p className="text-xs opacity-80">
                 Atención en Armenia y Calarcá. Cancelaciones con 2h de
                 anticipación.
