@@ -1,6 +1,6 @@
 "use client";
 
-import { apiFetch, useApi } from "@/lib/api";
+import { apiFetchAuth, useApiAuth } from "@/lib/api";
 import type { Address } from "@/types/address";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -19,7 +19,9 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function DireccionesPage() {
-  const { data: direcciones, isLoading, mutate } = useApi<Address[]>("/me/addresses");
+  const { data: direcciones, isLoading, mutate } = useApiAuth<Address[]>(
+    "/me/addresses",
+  );
   const [editando, setEditando] = useState<Address | null>(null);
 
   const {
@@ -32,12 +34,12 @@ export default function DireccionesPage() {
   const onSubmit = async (data: FormData) => {
     try {
       if (editando) {
-        await apiFetch(`/me/addresses/${editando.id}`, {
+        await apiFetchAuth(`/me/addresses/${editando.id}`, {
           method: "PATCH",
           body: JSON.stringify(data),
         });
       } else {
-        await apiFetch("/me/addresses", {
+        await apiFetchAuth("/me/addresses", {
           method: "POST",
           body: JSON.stringify(data),
         });
@@ -62,14 +64,14 @@ export default function DireccionesPage() {
 
   const eliminar = async (id: string) => {
     try {
-      await apiFetch(`/me/addresses/${id}`, { method: "DELETE" });
+      await apiFetchAuth(`/me/addresses/${id}`, { method: "DELETE" });
       mutate();
     } catch {}
   };
 
   const porDefecto = async (id: string) => {
     try {
-      await apiFetch("/me/addresses/set-default", {
+      await apiFetchAuth("/me/addresses/set-default", {
         method: "POST",
         body: JSON.stringify({ id }),
       });
