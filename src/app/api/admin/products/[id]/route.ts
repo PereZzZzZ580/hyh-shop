@@ -15,6 +15,7 @@ export async function GET(
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
 }
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -38,9 +39,10 @@ export async function DELETE(
   const token = req.cookies.get("token")?.value;
 
   const res = await fetch(`${API_URL}/admin/products/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
   const data = await res.json().catch(() => ({}));
-    return NextResponse.json(data, { status: res.status });
-  }
+  return NextResponse.json(data, { status: res.status });
+}

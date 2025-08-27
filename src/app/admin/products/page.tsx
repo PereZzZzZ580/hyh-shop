@@ -2,6 +2,7 @@
 
 import type { Category, Product } from "@/types/product";
 import { useEffect, useState } from "react";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +18,10 @@ export default function AdminProductsPage() {
   ]);
   const [images, setImages] = useState<FileList | null>(null);
   const [editing, setEditing] = useState<Product | null>(null);
+
+  // estado para el modal de eliminación
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     const [productsRes, categoriesRes] = await Promise.all([
@@ -88,57 +93,76 @@ export default function AdminProductsPage() {
     setEditing(p);
   };
 
-  const handleDelete = async (id: string) => {
-    await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-    load();
+  // abre el modal
+  const requestDelete = (id: string) => setDeleteId(id);
+
+  // ejecuta la eliminación
+  const doDelete = async () => {
+    if (!deleteId) return;
+    setDeleting(true);
+    const res = await fetch(`/api/admin/products/${deleteId}`, {
+      method: "DELETE",
+    });
+    setDeleting(false);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(`No se pudo eliminar: ${err?.message || res.statusText}`);
+      return;
+    }
+
+    // actualización optimista
+    setProducts((prev) => prev.filter((p) => p.id !== deleteId));
+    setDeleteId(null);
   };
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">Productos</h1>
+      <h1 className="mb-4 text-2xl font-bold">Productos</h1>
+
       <ul className="mb-8 space-y-2">
         {products.map((p) => (
           <li key={p.id} className="flex items-center gap-4">
             <span className="flex-1">{p.name}</span>
             <button
               onClick={() => handleEdit(p)}
-              className="text-blue-600 hover:underline"
+              className="text-yellow-300 hover:underline"
             >
               Editar
             </button>
             <button
-              onClick={() => handleDelete(p.id)}
-              className="text-red-600 hover:underline"
+              onClick={() => requestDelete(p.id)}
+              className="text-red-500 hover:underline"
             >
               Eliminar
             </button>
           </li>
         ))}
       </ul>
-      <h2 className="text-xl font-semibold mb-2">
+
+      <h2 className="mb-2 text-xl font-semibold">
         {editing ? "Editar producto" : "Nuevo producto"}
       </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           placeholder="Nombre"
-          className="border p-2 w-full"
+          className="w-full border p-2"
           required
         />
         <input
           value={form.slug}
           onChange={(e) => setForm({ ...form, slug: e.target.value })}
           placeholder="Slug"
-          className="border p-2 w-full"
+          className="w-full border p-2"
           required
         />
         <select
           value={form.categoryId}
-          onChange={(e) =>
-            setForm({ ...form, categoryId: e.target.value })
-          }
-          className="border p-2 w-full"
+          onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+          className="w-full border p-2"
           required
         >
           <option value="">Selecciona categoría</option>
@@ -150,11 +174,9 @@ export default function AdminProductsPage() {
         </select>
         <textarea
           value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
           placeholder="Descripción"
-          className="border p-2 w-full"
+          className="w-full border p-2"
         />
         {variants.map((v, idx) => (
           <div key={idx} className="flex gap-2">
@@ -166,7 +188,7 @@ export default function AdminProductsPage() {
                 setVariants(arr);
               }}
               placeholder="Precio"
-              className="border p-2 w-full"
+              className="w-full border p-2"
             />
             <input
               value={v.stock}
@@ -176,14 +198,14 @@ export default function AdminProductsPage() {
                 setVariants(arr);
               }}
               placeholder="Stock"
-              className="border p-2 w-full"
+              className="w-full border p-2"
             />
           </div>
         ))}
         <button
           type="button"
           onClick={() => setVariants([...variants, { price: "", stock: "" }])}
-          className="text-sm text-blue-600"
+          className="text-sm text-yellow-300"
         >
           Agregar variante
         </button>
@@ -195,11 +217,23 @@ export default function AdminProductsPage() {
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="rounded border border-yellow-400 px-4 py-2 text-yellow-300 hover:bg-yellow-400/10"
         >
           {editing ? "Actualizar" : "Crear"}
         </button>
       </form>
+
+      {/* Modal de confirmación negro + dorado */}
+      <ConfirmDialog
+        open={!!deleteId}
+        title="Eliminar producto"
+        description="Esta acción es permanente. El producto y sus variantes serán eliminados."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        loading={deleting}
+        onCancel={() => setDeleteId(null)}
+        onConfirm={doDelete}
+      />
     </div>
   );
 }

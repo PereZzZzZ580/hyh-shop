@@ -168,7 +168,7 @@ model CartItem {
   qty           Int
   priceSnapshot Int
   cart          Cart    @relation(fields: [cartId], references: [id])
-  variant       Variant @relation(fields: [variantId], references: [id])
+  variant       Variant     @relation(fields: [variantId], references: [id], onDelete: Cascade)
 }
 
 model Order {
