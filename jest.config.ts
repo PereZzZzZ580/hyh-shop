@@ -8,6 +8,7 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  testPathIgnorePatterns: ['<rootDir>/hyh-backend/'],
 };
 
 export default createJestConfig(customJestConfig);
