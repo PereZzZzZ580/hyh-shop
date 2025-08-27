@@ -4,6 +4,8 @@ import type { Category, Product } from "@/types/product";
 import { useEffect, useState } from "react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
+type UiVariant = { id?: string; price: string; stock: string };
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -13,13 +15,13 @@ export default function AdminProductsPage() {
     categoryId: "",
     description: "",
   });
-  const [variants, setVariants] = useState<{ price: string; stock: string }[]>([
+  const [variants, setVariants] = useState<UiVariant[]>([
     { price: "", stock: "" },
   ]);
   const [images, setImages] = useState<FileList | null>(null);
   const [editing, setEditing] = useState<Product | null>(null);
 
-  // estado para el modal de eliminación
+  // confirmación de borrado de producto
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -51,29 +53,55 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // calcular qué variantes se eliminaron al editar
+    const originalIds = new Set(editing?.variants.map((v) => v.id) ?? []);
+    const currentIds = new Set(variants.map((v) => v.id).filter(Boolean) as string[]);
+    const deletedVariantIds = [...originalIds].filter((id) => !currentIds.has(id));
+
     const dto = {
       ...form,
+      // enviar price/stock como número y el id cuando exista (edición)
       variants: variants.map((v) => ({
+        id: v.id,
         price: Number(v.price),
         stock: Number(v.stock),
       })),
+      // útil para que el backend borre las variantes quitadas en UI
+      deletedVariantIds,
     };
-    const formData = new FormData();
-    formData.append("dto", JSON.stringify(dto));
-    if (images) {
-      Array.from(images).forEach((file) => formData.append("images", file));
-    }
+
     const url = editing
       ? `/api/admin/products/${editing.id}`
       : "/api/admin/products";
     const method = editing ? "PATCH" : "POST";
-    const res = await fetch(url, { method, body: formData });
+
+    let res: Response;
+
+    if (images && images.length > 0) {
+      // multipart cuando adjuntas imágenes
+      const formData = new FormData();
+      formData.append("dto", JSON.stringify(dto));
+      Array.from(images).forEach((file) => formData.append("images", file));
+      res = await fetch(url, { method, body: formData });
+    } else {
+      // JSON puro cuando no hay imágenes (más robusto)
+      res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dto),
+      });
+    }
+
     if (res.ok) {
       setForm({ name: "", slug: "", categoryId: "", description: "" });
       setVariants([{ price: "", stock: "" }]);
       setImages(null);
       setEditing(null);
       load();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(`No se pudo ${editing ? "actualizar" : "crear"}: ${err?.message || res.statusText}`);
     }
   };
 
@@ -84,8 +112,10 @@ export default function AdminProductsPage() {
       categoryId: p.category.id,
       description: p.description || "",
     });
+    // incluir id de cada variante para que el backend identifique cuáles actualizar
     setVariants(
       p.variants.map((v) => ({
+        id: v.id,
         price: String(v.price),
         stock: String(v.stock),
       }))
@@ -93,10 +123,10 @@ export default function AdminProductsPage() {
     setEditing(p);
   };
 
-  // abre el modal
+  // abrir modal de eliminar producto
   const requestDelete = (id: string) => setDeleteId(id);
 
-  // ejecuta la eliminación
+  // ejecutar eliminación de producto
   const doDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
@@ -111,9 +141,18 @@ export default function AdminProductsPage() {
       return;
     }
 
-    // actualización optimista
     setProducts((prev) => prev.filter((p) => p.id !== deleteId));
     setDeleteId(null);
+  };
+
+  // eliminar una fila de variante (por índice)
+  const removeVariantAt = (idx: number) => {
+    setVariants((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  // eliminar la última variante (botón global)
+  const removeLastVariant = () => {
+    setVariants((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
   };
 
   return (
@@ -149,20 +188,20 @@ export default function AdminProductsPage() {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           placeholder="Nombre"
-          className="w-full border p-2"
+          className="w-full rounded-md border border-white/20 bg-transparent p-2 text-white placeholder-white/50"
           required
         />
         <input
           value={form.slug}
           onChange={(e) => setForm({ ...form, slug: e.target.value })}
           placeholder="Slug"
-          className="w-full border p-2"
+          className="w-full rounded-md border border-white/20 bg-transparent p-2 text-white placeholder-white/50"
           required
         />
         <select
           value={form.categoryId}
           onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-          className="w-full border p-2"
+          className="w-full rounded-md border border-white/20 bg-black p-2 text-white"
           required
         >
           <option value="">Selecciona categoría</option>
@@ -176,54 +215,80 @@ export default function AdminProductsPage() {
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           placeholder="Descripción"
-          className="w-full border p-2"
+          className="w-full rounded-md border border-white/20 bg-transparent p-2 text-white placeholder-white/50"
         />
-        {variants.map((v, idx) => (
-          <div key={idx} className="flex gap-2">
-            <input
-              value={v.price}
-              onChange={(e) => {
-                const arr = [...variants];
-                arr[idx].price = e.target.value;
-                setVariants(arr);
-              }}
-              placeholder="Precio"
-              className="w-full border p-2"
-            />
-            <input
-              value={v.stock}
-              onChange={(e) => {
-                const arr = [...variants];
-                arr[idx].stock = e.target.value;
-                setVariants(arr);
-              }}
-              placeholder="Stock"
-              className="w-full border p-2"
-            />
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => setVariants([...variants, { price: "", stock: "" }])}
-          className="text-sm text-yellow-300"
-        >
-          Agregar variante
-        </button>
+
+        {/* Variantes */}
+        <div className="space-y-2">
+          {variants.map((v, idx) => (
+            <div key={v.id ?? idx} className="flex items-center gap-2">
+              <input
+                value={v.price}
+                onChange={(e) => {
+                  const arr = [...variants];
+                  arr[idx].price = e.target.value;
+                  setVariants(arr);
+                }}
+                placeholder="Precio"
+                className="w-full rounded-md border border-white/20 bg-transparent p-2 text-white placeholder-white/50"
+              />
+              <input
+                value={v.stock}
+                onChange={(e) => {
+                  const arr = [...variants];
+                  arr[idx].stock = e.target.value;
+                  setVariants(arr);
+                }}
+                placeholder="Stock"
+                className="w-full rounded-md border border-white/20 bg-transparent p-2 text-white placeholder-white/50"
+              />
+              <button
+                type="button"
+                onClick={() => removeVariantAt(idx)}
+                className="rounded-lg border border-red-500 px-3 py-2 text-red-400 hover:bg-red-500/10"
+                title="Eliminar esta variante"
+              >
+                Eliminar
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setVariants([...variants, { price: "", stock: "" }])}
+            className="text-sm rounded-lg border border-yellow-400 px-3 py-2 text-yellow-300 hover:bg-yellow-400/10"
+          >
+            Agregar variante
+          </button>
+
+          <button
+            type="button"
+            onClick={removeLastVariant}
+            className="text-sm rounded-lg border border-white/20 px-3 py-2 text-white hover:bg-white/10 disabled:opacity-50"
+            disabled={variants.length <= 1}
+          >
+            Eliminar variante
+          </button>
+        </div>
+
         <input
           type="file"
           multiple
           onChange={(e) => setImages(e.target.files)}
-          className="w-full"
+          className="w-full text-sm"
         />
+
         <button
           type="submit"
-          className="rounded border border-yellow-400 px-4 py-2 text-yellow-300 hover:bg-yellow-400/10"
+          className="rounded-lg border border-yellow-400 px-4 py-2 text-yellow-300 hover:bg-yellow-400/10"
         >
           {editing ? "Actualizar" : "Crear"}
         </button>
       </form>
 
-      {/* Modal de confirmación negro + dorado */}
+      {/* Modal de confirmación para borrar producto */}
       <ConfirmDialog
         open={!!deleteId}
         title="Eliminar producto"
