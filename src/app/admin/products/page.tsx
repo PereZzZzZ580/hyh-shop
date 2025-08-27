@@ -25,6 +25,14 @@ export default function AdminProductsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // TOAST de notificaciones
+  const [flash, setFlash] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  useEffect(() => {
+    if (!flash) return;
+    const t = setTimeout(() => setFlash(null), 3000);
+    return () => clearTimeout(t);
+  }, [flash]);
+
   async function load() {
     const [productsRes, categoriesRes] = await Promise.all([
       fetch("/api/products"),
@@ -61,13 +69,11 @@ export default function AdminProductsPage() {
 
     const dto = {
       ...form,
-      // enviar price/stock como número y el id cuando exista (edición)
       variants: variants.map((v) => ({
         id: v.id,
         price: Number(v.price),
         stock: Number(v.stock),
       })),
-      // útil para que el backend borre las variantes quitadas en UI
       deletedVariantIds,
     };
 
@@ -79,13 +85,11 @@ export default function AdminProductsPage() {
     let res: Response;
 
     if (images && images.length > 0) {
-      // multipart cuando adjuntas imágenes
       const formData = new FormData();
       formData.append("dto", JSON.stringify(dto));
       Array.from(images).forEach((file) => formData.append("images", file));
       res = await fetch(url, { method, body: formData });
     } else {
-      // JSON puro cuando no hay imágenes (más robusto)
       res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -97,11 +101,21 @@ export default function AdminProductsPage() {
       setForm({ name: "", slug: "", categoryId: "", description: "" });
       setVariants([{ price: "", stock: "" }]);
       setImages(null);
+
+      // mensaje de éxito (creado/actualizado)
+      setFlash({
+        type: "success",
+        message: editing ? "Producto actualizado con éxito." : "Producto creado con éxito.",
+      });
+
       setEditing(null);
       load();
     } else {
       const err = await res.json().catch(() => ({}));
-      alert(`No se pudo ${editing ? "actualizar" : "crear"}: ${err?.message || res.statusText}`);
+      setFlash({
+        type: "error",
+        message: `No se pudo ${editing ? "actualizar" : "crear"}: ${err?.message || res.statusText}`,
+      });
     }
   };
 
@@ -112,7 +126,6 @@ export default function AdminProductsPage() {
       categoryId: p.category.id,
       description: p.description || "",
     });
-    // incluir id de cada variante para que el backend identifique cuáles actualizar
     setVariants(
       p.variants.map((v) => ({
         id: v.id,
@@ -130,18 +143,17 @@ export default function AdminProductsPage() {
   const doDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
-    const res = await fetch(`/api/admin/products/${deleteId}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(`/api/admin/products/${deleteId}`, { method: "DELETE" });
     setDeleting(false);
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(`No se pudo eliminar: ${err?.message || res.statusText}`);
+      setFlash({ type: "error", message: `No se pudo eliminar: ${err?.message || res.statusText}` });
       return;
     }
 
     setProducts((prev) => prev.filter((p) => p.id !== deleteId));
+    setFlash({ type: "success", message: "Producto eliminado con éxito." });
     setDeleteId(null);
   };
 
@@ -299,6 +311,39 @@ export default function AdminProductsPage() {
         onCancel={() => setDeleteId(null)}
         onConfirm={doDelete}
       />
+
+      {/* TOAST inferior */}
+      {flash && (
+        <div
+          className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform rounded-xl border px-4 py-3 shadow-2xl
+          ${flash.type === "success"
+              ? "border-yellow-400 bg-black/85 text-yellow-300"
+              : "border-red-500 bg-black/85 text-red-300"
+            }`}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-2">
+            {flash.type === "success" ? (
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" fill="none" />
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            )}
+            <span className="text-sm">{flash.message}</span>
+            <button
+              aria-label="Cerrar notificación"
+              className="ml-2 rounded px-2 text-xs text-white/70 hover:bg-white/10"
+              onClick={() => setFlash(null)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
