@@ -1,6 +1,6 @@
 "use client";
 
-import { apiFetch, useApi } from "@/lib/api";
+import { apiFetch, apiFetchAuth, useApiAuth } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import type { Address } from "@/types/address";
 import { useEffect, useState } from "react";
@@ -18,7 +18,7 @@ type Preview = {
 export default function CheckoutPage() {
   const { items, clear, id: cartId } = useCart();
 
-  const { data: direcciones } = useApi<Address[]>("/me/addresses");
+  const { data: direcciones } = useApiAuth<Address[]>("/me/addresses");
   const [direccionId, setDireccionId] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [linea1, setLinea1] = useState("");
@@ -89,7 +89,7 @@ export default function CheckoutPage() {
       } else {
         body.addressRaw = { country: "Colombia", city: ciudad, line1: linea1 };
       }
-      await apiFetch<{ orderId: string }>("/orders", {
+      await apiFetchAuth<{ orderId: string }>("/orders", {
         method: "POST",
         body: JSON.stringify(body),
       });

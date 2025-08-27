@@ -49,3 +49,9 @@ export function useApi<T>(path: string) {
   const { data, error, isLoading, mutate } = useSWR<T>(path, fetcher);
   return { data, error, isLoading, mutate };
 }
+
+export function useApiAuth<T>(path: string) {
+  const fetcher = () => apiFetchAuth<T>(path);
+  const { data, error, isLoading, mutate } = useSWR<T>(path, fetcher);
+  return { data, error, isLoading, mutate };
+}
