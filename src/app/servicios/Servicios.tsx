@@ -165,10 +165,9 @@ export default function Servicios() {
               <label className="block text-sm">
                 <span className="mb-1 block">Hora</span>
                 <div className="relative">
-                  <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
                   {!hora && (
-                    <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-white/60">
-                      Selecciona la hora
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/50 text-white/60">
+                      Selecciona la hora presionando el reloj
                     </span>
                   )}
                   <input
@@ -176,10 +175,11 @@ export default function Servicios() {
                     required
                     value={hora}
                     onChange={(e) => setHora(e.target.value)}
-                    className={`w-full rounded border border-white/10 bg-neutral-800 p-2 pl-10 ${
+                    className={`w-full rounded border border-white/10 bg-neutral-800 p-2 pr-10 ${
                       hora ? "text-white" : "text-transparent"
                     }`}
                   />
+                  <Clock className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
                 </div>
               </label>
               <label className="block text-sm">

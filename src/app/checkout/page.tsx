@@ -3,7 +3,6 @@
 import { apiFetch, useApi } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import type { Address } from "@/types/address";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Preview = {
@@ -17,7 +16,6 @@ type Preview = {
 };
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { items, clear, id: cartId } = useCart();
 
   const { data: direcciones } = useApi<Address[]>("/me/addresses");
@@ -30,6 +28,7 @@ export default function CheckoutPage() {
   const [telefono, setTelefono] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [animandoPago, setAnimandoPago] = useState(false);
 
 
   useEffect(() => {
@@ -90,12 +89,18 @@ export default function CheckoutPage() {
       } else {
         body.addressRaw = { country: "Colombia", city: ciudad, line1: linea1 };
       }
-      const res = await apiFetch<{ orderId: string }>("/orders", {
+      await apiFetch<{ orderId: string }>("/orders", {
         method: "POST",
         body: JSON.stringify(body),
       });
       clear();
-      router.push(`/pedido/${res.orderId}`);
+      const resumenProductos = items
+        .map(({ variant, qty }) => `${variant.product.name} × ${qty}`)
+        .join(", ");
+      const mensaje = `Hola, soy ${nombre} de ${ciudad}. Pedido: ${resumenProductos}. Total: $${total.toLocaleString(
+        "es-CO",
+      )}`;
+      window.location.href = `https://wa.me/3138907119?text=${encodeURIComponent(mensaje)}`;
     } catch {}
     setEnviando(false);
   };
@@ -108,6 +113,15 @@ export default function CheckoutPage() {
       setLinea1(encontrada.line1);
     }
   };
+  const totalProductos = items.reduce(
+    (acc, { variant, qty }) => acc + variant.price * qty,
+    0,
+  );
+  const esLocal = ["armenia", "calarca"].includes(ciudad.trim().toLowerCase());
+  const subtotal = esLocal ? 0 : totalProductos;
+  const envio = esLocal ? 0 : preview?.totals.shippingTotal || 0;
+  const descuento = preview?.totals.discountTotal || 0;
+  const total = esLocal ? totalProductos - descuento : subtotal + envio - descuento;
 
   return (
     <section className="grid gap-8 md:grid-cols-2">
@@ -162,8 +176,12 @@ export default function CheckoutPage() {
           <input
             value={cupon}
             onChange={(e) => setCupon(e.target.value)}
+            placeholder="Opcional: solo para compras anteriores"
             className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
           />
+          <p className="mt-1 text-xs opacity-60">
+            Campo opcional para cupones obtenidos en compras anteriores.
+          </p>
         </div>
 
         <div>
@@ -171,7 +189,13 @@ export default function CheckoutPage() {
           <select
             value={metodoPago}
             onChange={(e) => setMetodoPago(e.target.value as "WHATSAPP" | "COD")}
-            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
+            onClick={() => {
+              setAnimandoPago(true);
+              setTimeout(() => setAnimandoPago(false), 300);
+            }}
+            className={`w-full h-10 rounded-lg bg-transparent border border-white/20 px-3 ${
+              animandoPago ? "animate-pulse" : ""
+            }`}
           >
             <option value="WHATSAPP">WhatsApp</option>
             <option value="COD">Contraentrega</option>
@@ -218,13 +242,13 @@ export default function CheckoutPage() {
             </div>
           ))}
           <hr className="my-2 border-white/10" />
-          <div className="flex justify-between"><span>Subtotal</span><span>${(preview?.totals.subtotal || 0).toLocaleString("es-CO")}</span></div>
-          <div className="flex justify-between"><span>Envío</span><span>${(preview?.totals.shippingTotal || 0).toLocaleString("es-CO")}</span></div>
-          {preview?.totals.discountTotal ? (
-            <div className="flex justify-between"><span>Descuento</span><span>-${preview.totals.discountTotal.toLocaleString("es-CO")}</span></div>
+          <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toLocaleString("es-CO")}</span></div>
+          <div className="flex justify-between"><span>Envío</span><span>${envio.toLocaleString("es-CO")}</span></div>
+          {descuento ? (
+            <div className="flex justify-between"><span>Descuento</span><span>-${descuento.toLocaleString("es-CO")}</span></div>
           ) : null}
           <div className="flex justify-between text-lg font-semibold mt-1">
-            <span>Total</span><span>${(preview?.totals.grandTotal || 0).toLocaleString("es-CO")}</span>
+            <span>Total</span><span>${total.toLocaleString("es-CO")}</span>
           </div>
         </div>
       </aside>
