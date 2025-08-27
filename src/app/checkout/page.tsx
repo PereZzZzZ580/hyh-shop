@@ -211,10 +211,10 @@ export default function CheckoutPage() {
       <aside className="border border-white/10 rounded-2xl p-4 h-fit">
         <h2 className="text-xl font-semibold">Resumen</h2>
         <div className="mt-3 space-y-2 text-sm">
-          {items.map(({ product, qty }) => (
-            <div key={`${product.id}-${product.variant.id}`} className="flex justify-between">
-              <span className="opacity-80">{product.variant.product.name} × {qty}</span>
-              <span>${(product.price * qty).toLocaleString("es-CO")}</span>
+          {items.map(({ variant, qty }) => (
+            <div key={variant.id} className="flex justify-between">
+              <span className="opacity-80">{variant.product.name} × {qty}</span>
+              <span>${(variant.price * qty).toLocaleString("es-CO")}</span>
             </div>
           ))}
           <hr className="my-2 border-white/10" />

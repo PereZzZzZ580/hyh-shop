@@ -1,9 +1,9 @@
 "use client";
 
-import ProductCard from "./ProductCard";
 import type { Category, Product } from "@/types/product";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import ProductCard from "./ProductCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -77,13 +77,13 @@ export default function ProductsClient({ categories, initialProducts }: Props) {
           <button
             type="button"
             onClick={() => setOpenCat((o) => !o)}
-            className="h-10 rounded-lg bg-transparent border border-white/20 px-3 w-full flex items-center justify-between cursor-pointer"
+            className="h-10 rounded-lg bg-transparent border border-white/20 px-3 w-full flex items-center justify-between cursor-pointer text-white"
           >
             {categoriaNombre}
           </button>
           <div
-            className={`absolute left-0 right-0 mt-1 bg-bg border border-white/10 rounded-lg p-2 z-10 transform transition-all duration-200 origin-top ${
-              openCat ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
+          className={`absolute left-0 right-0 mt-1 bg-black text-white border border-white/20 rounded-lg p-2 z-20 shadow-lg transform transition-all duration-200 origin-top ${
+            openCat ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
             }`}
           >
             <button
