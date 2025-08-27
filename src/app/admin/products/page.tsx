@@ -1,7 +1,7 @@
 "use client";
 
 import type { Category, Product } from "@/types/product";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 type UiVariant = { id?: string; price: string; stock: string };
@@ -18,7 +18,11 @@ export default function AdminProductsPage() {
   const [variants, setVariants] = useState<UiVariant[]>([
     { price: "", stock: "" },
   ]);
-  const [images, setImages] = useState<FileList | null>(null);
+
+  // ⬇️ ahora usamos File[] para poder "agregar más"
+  const [images, setImages] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [editing, setEditing] = useState<Product | null>(null);
 
   // confirmación de borrado de producto
@@ -59,6 +63,44 @@ export default function AdminProductsPage() {
     load();
   }, []);
 
+  // merge de archivos seleccionados con los ya existentes (evita duplicados por nombre+size+lastModified)
+  const addFiles = (fl: FileList | null) => {
+    if (!fl) return;
+    const incoming = Array.from(fl);
+    setImages(prev => {
+      const key = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
+      const seen = new Set(prev.map(key));
+      const merged = [...prev];
+      for (const f of incoming) {
+        const k = key(f);
+        if (!seen.has(k)) {
+          seen.add(k);
+          merged.push(f);
+        }
+      }
+      return merged;
+    });
+  };
+
+  const handlePickImages = () => fileInputRef.current?.click();
+
+  const removeImageAt = (idx: number) => {
+    setImages(prev => prev.filter((_, i) => i !== idx));
+  };
+  const clearAllImages = () => setImages([]);
+
+  // previews (se recrean si cambia "images")
+  const previews = useMemo(
+    () => images.map((f) => ({ file: f, url: URL.createObjectURL(f) })),
+    [images]
+  );
+  useEffect(() => {
+    // liberar URLs cuando cambien
+    return () => {
+      previews.forEach(p => URL.revokeObjectURL(p.url));
+    };
+  }, [previews]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -84,12 +126,14 @@ export default function AdminProductsPage() {
 
     let res: Response;
 
-    if (images && images.length > 0) {
+    if (images.length > 0) {
+      // multipart si hay imágenes
       const formData = new FormData();
       formData.append("dto", JSON.stringify(dto));
-      Array.from(images).forEach((file) => formData.append("images", file));
+      images.forEach((file) => formData.append("images", file));
       res = await fetch(url, { method, body: formData });
     } else {
+      // JSON si no adjuntas imágenes
       res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -100,14 +144,11 @@ export default function AdminProductsPage() {
     if (res.ok) {
       setForm({ name: "", slug: "", categoryId: "", description: "" });
       setVariants([{ price: "", stock: "" }]);
-      setImages(null);
-
-      // mensaje de éxito (creado/actualizado)
+      setImages([]); // limpia selección de imágenes
       setFlash({
         type: "success",
         message: editing ? "Producto actualizado con éxito." : "Producto creado con éxito.",
       });
-
       setEditing(null);
       load();
     } else {
@@ -133,6 +174,7 @@ export default function AdminProductsPage() {
         stock: String(v.stock),
       }))
     );
+    setImages([]); // limpiamos selección previa al entrar a editar
     setEditing(p);
   };
 
@@ -155,11 +197,6 @@ export default function AdminProductsPage() {
     setProducts((prev) => prev.filter((p) => p.id !== deleteId));
     setFlash({ type: "success", message: "Producto eliminado con éxito." });
     setDeleteId(null);
-  };
-
-  // eliminar una fila de variante (por índice)
-  const removeVariantAt = (idx: number) => {
-    setVariants((prev) => prev.filter((_, i) => i !== idx));
   };
 
   // eliminar la última variante (botón global)
@@ -256,7 +293,7 @@ export default function AdminProductsPage() {
               />
               <button
                 type="button"
-                onClick={() => removeVariantAt(idx)}
+                onClick={() => setVariants(prev => prev.filter((_, i) => i !== idx))}
                 className="rounded-lg border border-red-500 px-3 py-2 text-red-400 hover:bg-red-500/10"
                 title="Eliminar esta variante"
               >
@@ -285,12 +322,81 @@ export default function AdminProductsPage() {
           </button>
         </div>
 
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setImages(e.target.files)}
-          className="w-full text-sm"
-        />
+        {/* Imágenes: elegir + agregar más + previews */}
+        <div className="space-y-3">
+          {/* input oculto */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              addFiles(e.target.files);
+              // permite volver a seleccionar los mismos archivos si el usuario quiere
+              e.currentTarget.value = "";
+            }}
+          />
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handlePickImages}
+              className="rounded-lg border border-yellow-400 px-3 py-2 text-yellow-300 hover:bg-yellow-400/10"
+            >
+              Elegir imágenes
+            </button>
+            <button
+              type="button"
+              onClick={handlePickImages}
+              className="rounded-lg border border-yellow-400 px-3 py-2 text-yellow-300 hover:bg-yellow-400/10"
+            >
+              Agregar más imágenes
+            </button>
+
+            {images.length > 0 && (
+              <button
+                type="button"
+                onClick={clearAllImages}
+                className="rounded-lg border border-white/20 px-3 py-2 text-white hover:bg-white/10"
+              >
+                Quitar todas
+              </button>
+            )}
+
+            <span className="text-sm text-white/60">
+              {images.length === 0 ? "Ningún archivo seleccionado" : `${images.length} imagen(es) seleccionada(s)`}
+            </span>
+          </div>
+
+          {images.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {previews.map((p, idx) => (
+                <div key={`${p.file.name}-${idx}`} className="group relative overflow-hidden rounded-lg border border-white/15">
+                  {/* preview */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.url}
+                    alt={p.file.name}
+                    className="aspect-square w-full object-cover"
+                  />
+                  {/* remove button */}
+                  <button
+                    type="button"
+                    onClick={() => removeImageAt(idx)}
+                    className="absolute right-2 top-2 rounded-md border border-red-500/70 bg-black/60 px-2 py-1 text-xs text-red-300 opacity-0 transition-opacity group-hover:opacity-100"
+                    title="Quitar imagen"
+                  >
+                    ×
+                  </button>
+                  <div className="truncate px-2 py-1 text-xs text-white/70">
+                    {p.file.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <button
           type="submit"
