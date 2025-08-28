@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { PricingService } from '../common/pricing/pricing.service';
 import { CouponsService } from '../coupons/coupons.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { ShippingService } from '../shipping/shipping.service';
 
 const COD_CITIES = (process.env.COD_CITIES || '')
@@ -61,7 +61,13 @@ export class OrdersService {
     const totals = this.pricing.preview({
       lines,
       shipping: { baseFee: ship.total },
-      coupon: coupon ? { type: coupon.rule.type as any, value: (coupon.rule as any).value } : null,
+      coupon:
+        coupon && coupon.rule && typeof coupon.rule === 'object'
+          ? {
+              type: (coupon.rule as any).type,
+              value: (coupon.rule as any).value,
+            }
+          : null,
       taxRate: 0,
     });
 

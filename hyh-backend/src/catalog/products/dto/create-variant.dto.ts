@@ -2,11 +2,11 @@ import { IsInt, IsObject, IsOptional, Min } from 'class-validator';
 
 export class CreateVariantDto {
   @IsObject()
-  attributes: Record<string, any>;
+  attributes!: Record<string, any>;
 
   @IsInt({ message: 'price must be a number' })
   @Min(0)
-  price: number;
+  price!: number;
 
   @IsOptional()
   @IsInt({ message: 'compareAtPrice must be a number' })
