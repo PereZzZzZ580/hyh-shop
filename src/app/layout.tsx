@@ -1,20 +1,7 @@
 import type { Metadata } from "next";
-import { Montserrat, Playfair_Display } from "next/font/google";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import "./globals.css";
-
-const display = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-display",
-});
-
-const sans = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-sans",
-});
 
 export const metadata: Metadata = {
   title: "HYH Shop",
@@ -30,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${sans.variable} ${display.variable} bg-bg text-text`}>
+      <html lang="es" className="bg-bg text-text">
       <body>
         <Header />
         <main className="pt-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">

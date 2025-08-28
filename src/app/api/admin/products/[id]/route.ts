@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   const token = req.cookies.get("token")?.value;
-  const { id } = params;
+  const { id } = (context.params as { id: string });
   const res = await fetch(`${API_URL}/admin/products/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
@@ -18,11 +19,12 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+    context: any
 ) {
   const token = req.cookies.get("token")?.value;
   const formData = await req.formData();
-    const res = await fetch(`${API_URL}/admin/products/${params.id}`, {
+  const id = (context.params as { id: string }).id;
+    const res = await fetch(`${API_URL}/admin/products/${id}`, {
       method: "PATCH",
       body: formData,
       headers: { Authorization: `Bearer ${token}` },
@@ -33,9 +35,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } },
+    context: any,
 ) {
-  const { id } = context.params;
+  const { id } = (context.params as { id: string });
   const token = req.cookies.get("token")?.value;
 
   const res = await fetch(`${API_URL}/admin/products/${id}`, {

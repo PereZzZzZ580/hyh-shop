@@ -5,15 +5,13 @@ import Link from "next/link";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 type Props = {
-  searchParams: { categoria?: string; min?: string; max?: string };
+  searchParams: Promise<{ categoria?: string; min?: string; max?: string }>;
 };
 
 type CategoriaConHijos = Category & { children?: Category[] };
 
 export default async function Catalogo({ searchParams }: Props) {
-  const categoria = searchParams.categoria;
-  const min = searchParams.min;
-  const max = searchParams.max;
+  const { categoria, min, max } = await searchParams;
 
   const params = new URLSearchParams();
   if (categoria) params.set("categorySlug", categoria);
