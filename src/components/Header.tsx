@@ -226,7 +226,7 @@ export default function Header() {
           ref={closeButtonRef}
           className="self-end text-gold transition-colors"
           onClick={() => setOpen(false)}
-          arial-label="Cerrar menú"
+          aria-label="Cerrar menú"
         >
           <X size={24} />
         </button>
