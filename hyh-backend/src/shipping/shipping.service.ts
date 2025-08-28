@@ -7,6 +7,12 @@ export class ShippingService {
   async quote({ city, weightGr }: { city?: string; weightGr: number }) {
     const weightKg = Math.ceil(weightGr / 1000);
     const zones = await this.prisma.shippingZone.findMany();
+
+    // cuando no hay zonas configuradas devolver envío gratis
+    if (zones.length === 0) {
+      return { total: 0, breakdown: { base: 0, perKg: 0, weightKg } };
+    }
+    
     const cityLc = city?.toLowerCase();
     let zone = cityLc
       ? zones.find((z) => z.cities.some((c) => c.toLowerCase() === cityLc))
