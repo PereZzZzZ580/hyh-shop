@@ -126,7 +126,7 @@ export default function Header() {
                 <span>{nombreUsuario}</span>
               </button>
               <div
-                className={`absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50 transform transition-all duration-200 origin-top-right ${menuUsuario ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+                className={`absolute right-0 mt-2 w-56 rounded-xl p-2 flex flex-col z-50 transform transition-all duration-200 origin-top-right bg-black/90 backdrop-blur-sm shadow-2xl ring-1 ring-white/10 ${menuUsuario ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
               >
                 <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Pedidos</Link>
                 <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Direcciones</Link>
@@ -178,7 +178,7 @@ export default function Header() {
                 <span className="text-sm">{nombreUsuario}</span>
               </button>
               <div
-                className={`absolute right-0 mt-2 w-48 bg-bg border border-white/10 rounded-lg p-2 flex flex-col z-50 transform transition-all duration-200 origin-top-right ${menuUsuario ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+                className={`absolute right-0 mt-2 w-56 rounded-xl p-2 flex flex-col z-50 transform transition-all duration-200 origin-top-right bg-black/90 backdrop-blur-sm shadow-2xl ring-1 ring-white/10 ${menuUsuario ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
               >
                 <Link href="/pedidos" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Pedidos</Link>
                 <Link href="/mi-cuenta/direcciones" className="hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Direcciones</Link>

@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 type Faq = { question: string; answer: string };
 
 const faqs: Faq[] = [
@@ -34,18 +32,19 @@ export default function Ayuda() {
 }
 
 function FaqCard({ question, answer }: Faq) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <div className="border border-white/20 rounded-lg p-4">
-      <button
-        className="w-full text-left font-medium"
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
-      >
-        {question}
-      </button>
-      {open && <p className="mt-2 text-sm text-white/80">{answer}</p>}
-    </div>
+    <details className="border border-white/20 rounded-lg p-4 group">
+      <summary className="w-full list-none cursor-pointer font-medium flex items-center justify-between">
+        <span>{question}</span>
+        <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </summary>
+      <div className="accordion-grid mt-2">
+        <div className="accordion-content">
+          <p className="text-sm text-white/80 py-1">{answer}</p>
+        </div>
+      </div>
+    </details>
   );
 }

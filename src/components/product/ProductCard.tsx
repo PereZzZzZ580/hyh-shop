@@ -13,10 +13,11 @@ export default function ProductCard({ product }: { product: Product }) {
   const sinStock = !variant || variant.stock < 1;
   const oferta =
     variant && variant.compareAtPrice && variant.compareAtPrice > variant.price;
-  const [ showToast, setShowToast] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   return (
-    <article className="relative group rounded-2xl border border-yellow-400/15 bg-black/40 shadow-[0_0_30px_-10px_rgba(212,175,55,0.25)] overflow-hidden transition">
+    <article className="relative group rounded-2xl border border-yellow-400/15 bg-black/40 shadow-[0_0_30px_-10px_rgba(212,175,55,0.25)] hover:shadow-[0_0_40px_-10px_rgba(212,175,55,0.45)] overflow-hidden transition-shadow duration-300 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5">
       <Link href={`/producto/${product.slug}`}>
         <div className="relative">
           {image ? (
@@ -25,7 +26,7 @@ export default function ProductCard({ product }: { product: Product }) {
               alt={product.name}
               width={400}
               height={300}
-              className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="aspect-[4/3] w-full object-cover transition-transform duration-500 will-change-transform group-hover:scale-105"
             />
           ) : (
             <Image
@@ -33,7 +34,7 @@ export default function ProductCard({ product }: { product: Product }) {
               alt="Sin imagen"
               width={400}
               height={300}
-              className="aspect-[4/3] w-full object-contain p-8 opacity-50 transition-transform duration-500 group-hover:scale-105"
+              className="aspect-[4/3] w-full object-contain p-8 opacity-50 transition-transform duration-500 will-change-transform group-hover:scale-105"
             />
           )}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
@@ -60,20 +61,38 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
         {variant && (
           <button
-          onClick={async () => {
-              await addItem(variant.id, 1);
-              setShowToast(true);
-              setTimeout(() => setShowToast(false), 2000);
+            onClick={async () => {
+              if (isAdding) return;
+              setIsAdding(true);
+              try {
+                await addItem(variant.id, 1);
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 1200);
+              } finally {
+                setIsAdding(false);
+              }
             }}
             disabled={sinStock}
-            className="mt-4 w-full rounded-full border border-yellow-400/50 py-2 text-yellow-100 hover:bg-yellow-400 hover:text-black transition disabled:opacity-50"
+            className="mt-4 w-full rounded-full border border-yellow-400/50 py-2 text-yellow-100 hover:bg-yellow-400 hover:text-black transition disabled:opacity-50 motion-safe:transition-transform motion-safe:duration-200 active:scale-[0.98]"
           >
-            {sinStock ? "Sin stock" : "Añadir al carrito"}
+            {sinStock
+              ? "Sin stock"
+              : isAdding
+                ? (
+                  <span className="inline-flex items-center gap-2">
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    Añadiendo...
+                  </span>
+                )
+                : "Añadir al carrito"}
           </button>
         )}
       </div>
       {showToast && (
-        <div className="absolute top-0 right-0 bg-yellow-400 text-black px-4 py-2 rounded shadow-lg font-semibold z-50">
+        <div className="absolute top-0 right-0 bg-yellow-400 text-black px-4 py-2 rounded shadow-lg font-semibold z-50 animate-[pop_.3s_ease-out]">
           ¡Producto agregado con éxito!
         </div>
       )}

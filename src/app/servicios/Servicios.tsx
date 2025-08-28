@@ -99,23 +99,44 @@ export default function Servicios() {
         ))}
       </div>
 
-      <details className="p-4 border-t border-white/10 mt-10 group">
-        <summary className="cursor-pointer font-medium transition-colors">Higiene y bioseguridad</summary>
-        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:zoom-in-95">
-          Utensilios esterilizados y desinfección constante.
-        </p>
+      <details className="p-4 border-t border-white/10 group">
+        <summary className="cursor-pointer font-medium transition-colors flex items-center justify-between">
+          <span>Higiene y bioseguridad</span>
+          <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </summary>
+        <div className="accordion-grid mt-2">
+          <div className="accordion-content">
+            <p className="opacity-80 text-sm py-1">Utensilios esterilizados y desinfección constante.</p>
+          </div>
+        </div>
       </details>
       <details className="p-4 border-t border-white/10 group">
-        <summary className="cursor-pointer font-medium transition-colors">Cobertura y horarios</summary>
-        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:zoom-in-95">
-          Armenia y Calarcá de 8am a 8pm.
-        </p>
+        <summary className="cursor-pointer font-medium transition-colors flex items-center justify-between">
+          <span>Cobertura y horarios</span>
+          <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </summary>
+        <div className="accordion-grid mt-2">
+          <div className="accordion-content">
+            <p className="opacity-80 text-sm py-1">Armenia y Calarcá de 8am a 8pm.</p>
+          </div>
+        </div>
       </details>
       <details className="p-4 border-t border-white/10 group">
-        <summary className="cursor-pointer font-medium transition-colors">Métodos de pago</summary>
-        <p className="mt-2 opacity-80 text-sm hidden group-open:block group-open:animate-in group-open:fade-in group-open:zoom-in-95">
-          Efectivo o transferencia.
-        </p>
+        <summary className="cursor-pointer font-medium transition-colors flex items-center justify-between">
+          <span>Métodos de pago</span>
+          <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </summary>
+        <div className="accordion-grid mt-2">
+          <div className="accordion-content">
+            <p className="opacity-80 text-sm py-1">Efectivo o transferencia.</p>
+          </div>
+        </div>
       </details>
 
       {servicioSeleccionado && (

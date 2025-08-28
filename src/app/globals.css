@@ -134,3 +134,22 @@ img, video, canvas, svg{
   height:auto;
   display: block;
 }
+
+/* Keyframes for subtle animations (used with Tailwind arbitrary animate[]) */
+@keyframes fadeIn { to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(.95); opacity:.8 } 100% { transform: scale(1); opacity:1 } }
+@keyframes shimmer { 0% { background-position: -700px 0 } 100% { background-position: 700px 0 } }
+@keyframes rise { 0% { opacity: 0; transform: translateY(6px) } 100% { opacity:1; transform:none } }
+
+/* Accordion / details smooth open-close */
+.accordion-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms ease;
+}
+details[open] .accordion-grid { grid-template-rows: 1fr; }
+.accordion-content { overflow: hidden; }
+
+/* Summary chevron rotation */
+.summary-chevron { transition: transform .25s ease; }
+details[open] .summary-chevron { transform: rotate(90deg); }

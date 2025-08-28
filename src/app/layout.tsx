@@ -21,7 +21,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Header />
         <main className="pt-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          {children}
+          <div className="motion-safe:opacity-0 motion-safe:translate-y-1 motion-safe:animate-[fadeIn_.5s_ease-out_forwards]">
+            {children}
+          </div>
         </main>
         <Footer />
       </body>
