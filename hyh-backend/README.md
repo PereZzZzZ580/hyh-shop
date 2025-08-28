@@ -18,5 +18,23 @@ npm run dev
 
 ```
 
+## Variables de entorno
+
+El archivo `.env` incluye las variables necesarias:
+
+- `DATABASE_URL` y `DIRECT_URL`: conexión a PostgreSQL.
+- `JWT_SECRET`: clave para firmar los tokens.
+- `CORS_ORIGIN`: URL permitida para CORS.
+- `PORT`: puerto del servidor HTTP.
+
+Copie el archivo y ajuste los valores antes de ejecutar en producción.
+
+## Build de producción
+
+```bash
+npm run build
+npm run start:prod
+```
+
 ## Roles de usuario
 Los usuarios registrados se crean con el rol `CUSTOMER` por defecto. El primer usuario con rol `ADMIN` debe crearse manualmente o mediante un endpoint restringido.

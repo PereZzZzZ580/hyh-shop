@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MediaModule } from './media/media.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HealthModule } from './health/health.module';
+import { ContactModule } from './contact/contact.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
@@ -27,7 +28,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
     CouponsModule,
     ShippingModule,
     AccountModule,
-    HealthModule
+    HealthModule,
+    ContactModule
   ],
 })
 export class AppModule {}

@@ -1,34 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HyH Shop
 
-## Getting Started
+Aplicación full‑stack que combina un front‑end **Next.js** y un backend **NestJS** con **Prisma**.
 
-First, run the development server:
+## Requisitos
+- Node.js 20
+- Docker (para base de datos PostgreSQL y Redis en el backend)
+
+## Variables de entorno
+Copia los archivos de ejemplo y ajusta los valores necesarios:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.production .env.production
+cp hyh-backend/.env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Frontend (`.env`)
+- `NEXT_PUBLIC_API_URL`: URL del backend.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Backend (`hyh-backend/.env`)
+- `DATABASE_URL` / `DIRECT_URL`: conexión a PostgreSQL.
+- `JWT_SECRET`: clave para firmar los JWT.
+- `CORS_ORIGIN`: origen permitido para CORS.
+- `PORT`: puerto HTTP del backend.
 
-## Learn More
+## Desarrollo local
+```bash
+# Backend
+cd hyh-backend
+npm install
+npm run docker:up
+npm run prisma:migrate
+npm run dev
 
-To learn more about Next.js, take a look at the following resources:
+# Frontend
+cd ..
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pruebas
+```bash
+npm test
+cd hyh-backend && npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build de producción
+```bash
+npm run build        # Frontend (incluye prisma generate)
+cd hyh-backend && npm run build
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Despliegue
+```bash
+npm start                           # Frontend
+cd hyh-backend && npm run start:prod
+```
