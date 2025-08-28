@@ -126,17 +126,26 @@ export class ProductsService {
   }
 
   async bySlug(slug: string) {
-    const p = await this.prisma.product.findUnique({
+    return this.prisma.product.findUnique({
       where: { slug },
       include: {
-        images: { orderBy: { sort: 'asc' } },
-        variants: { orderBy: { price: 'asc' } },
+        images: {                         // o cambia a media si tu producto usa "media"
+          select: { id: true, url: true },
+          orderBy: { sort: "asc" },
+        },
+        variants: {
+          orderBy: { price: "asc" },
+          include: {
+            media: {                      // ✅ Media de cada variante
+              select: { id: true, url: true },
+              orderBy: { createdAt: "asc" },
+            },
+          },
+        },
         category: { select: { id: true, name: true, slug: true } },
       },
     });
-    return p;
   }
-
   async create(dto: CreateProductDto, userId: string) {
     const { variants, ...productData } = dto;
 
