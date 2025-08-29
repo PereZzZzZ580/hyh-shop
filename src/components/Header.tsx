@@ -88,7 +88,7 @@ export default function Header() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-6">
           <Link
-            href="https://instagram.com"
+            href="https://www.instagram.com/hhbarberhome/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
@@ -151,13 +151,13 @@ export default function Header() {
             <>
               <Link
                 href="/ingresar"
-                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black transition-colors"
+                className="border-2 border-gold/80 text-gold px-5 py-2.5 rounded-xl hover:bg-gold hover:text-black shadow-[var(--shadow-gold)] hover:shadow-[0_8px_24px_rgba(255,215,0,.35)] transition-colors"
               >
                 Login
               </Link>
               <Link
                 href="/registrarse"
-                className="border-2 border-gold text-gold px-4 py-2 rounded-x1 hover:bg-gold hover:text-black transition-colors"
+                className="border-2 border-gold/80 text-gold px-5 py-2.5 rounded-xl hover:bg-gold hover:text-black shadow-[var(--shadow-gold)] hover:shadow-[0_8px_24px_rgba(255,215,0,.35)] transition-colors"
               >
                 Registrarse
               </Link>

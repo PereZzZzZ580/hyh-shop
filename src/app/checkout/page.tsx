@@ -29,6 +29,7 @@ export default function CheckoutPage() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [animandoPago, setAnimandoPago] = useState(false);
+  const [mostrandoCobertura, setMostrandoCobertura] = useState(false);
 
 
   useEffect(() => {
@@ -49,6 +50,14 @@ export default function CheckoutPage() {
     };
     obtener();
   }, [cartId, ciudad, cupon, metodoPago]);
+
+  // Si la ciudad cambia a fuera de cobertura, evita dejar seleccionado COD
+  useEffect(() => {
+    const local = ["armenia", "calarca"].includes(ciudad.trim().toLowerCase());
+    if (metodoPago === "COD" && !local) {
+      setMetodoPago("WHATSAPP");
+    }
+  }, [ciudad]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,9 +98,11 @@ export default function CheckoutPage() {
       } else {
         body.addressRaw = { country: "Colombia", city: ciudad, line1: linea1 };
       }
+      // Seguridad: si la ciudad no es local, forzamos método WhatsApp
+      const metodoEfectivo = esLocal ? metodoPago : "WHATSAPP";
       await apiFetchAuth<{ orderId: string }>("/orders", {
         method: "POST",
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, paymentMethod: metodoEfectivo }),
       });
       clear();
       const resumenProductos = items
@@ -188,7 +199,16 @@ export default function CheckoutPage() {
           <label className="block mb-1 text-sm opacity-80">Método de pago</label>
           <select
             value={metodoPago}
-            onChange={(e) => setMetodoPago(e.target.value as "WHATSAPP" | "COD")}
+            onChange={(e) => {
+              const val = e.target.value as "WHATSAPP" | "COD";
+              if (val === "COD" && !esLocal) {
+                // Evita seleccionar contraentrega fuera de cobertura
+                setMostrandoCobertura(true);
+                setTimeout(() => setMostrandoCobertura(false), 2000);
+                return;
+              }
+              setMetodoPago(val);
+            }}
             onClick={() => {
               setAnimandoPago(true);
               setTimeout(() => setAnimandoPago(false), 300);
@@ -198,8 +218,15 @@ export default function CheckoutPage() {
             }`}
           >
             <option value="WHATSAPP">WhatsApp</option>
-            <option value="COD">Contraentrega</option>
+            <option value="COD" disabled={!esLocal}>
+              Contraentrega { !esLocal && ciudad ? "(sin cobertura)" : "" }
+            </option>
           </select>
+          {!esLocal && ciudad && (
+            <p className={`mt-2 inline-flex items-center gap-2 text-xs text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 rounded px-2 py-1 ${mostrandoCobertura ? "opacity-100" : "opacity-90"}`}>
+              Zona sin cobertura para contraentrega
+            </p>
+          )}
         </div>
 
         <div>

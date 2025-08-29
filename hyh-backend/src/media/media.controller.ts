@@ -42,7 +42,7 @@ export class MediaController {
   @ApiBody({ type: CreateMediaDto })
   uploadOne(
     @UploadedFile(
-      new ParseFilePipe({ validators: [new FileTypeValidator({ fileType: /^(image\/)\w+/ })] }),
+      new ParseFilePipe({ validators: [new FileTypeValidator({ fileType: /^(image|video)\/\w+/ })] }),
     ) file: Express.Multer.File,
     @Body() dto: CreateMediaDto,
   ) {

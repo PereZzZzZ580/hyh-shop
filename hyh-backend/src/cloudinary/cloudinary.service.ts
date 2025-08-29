@@ -29,8 +29,8 @@ export class CloudinaryService {
     }
   }
 
-  async delete(publicId: string): Promise<{ result: string }> {
-    const res = await cloudinary.uploader.destroy(publicId, { invalidate: true });
+  async delete(publicId: string, resourceType: 'image' | 'video' = 'image'): Promise<{ result: string }> {
+    const res = await cloudinary.uploader.destroy(publicId, { invalidate: true, resource_type: resourceType });
     return { result: res.result };
   }
 }

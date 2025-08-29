@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import sanitizeFilename from "sanitize-filename";
+import sanitizeFilename from 'sanitize-filename';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMediaDto } from './dto/create-media.dto';
@@ -20,49 +20,75 @@ export class MediaService {
         : { productId: null, variantId: null };
     return this.prisma.media.findMany({
       where,
-      orderBy: [{ isCover: 'desc' }, { position: 'asc' }, { sort: 'asc' }, { createdAt: 'asc' }],
+      orderBy: [
+        { isCover: 'desc' },
+        { position: 'asc' },
+        { sort: 'asc' },
+        { createdAt: 'asc' },
+      ],
     });
   }
 
-  private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; //5MB
-  private readonly ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-  
+  private readonly MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+  private readonly MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+  private readonly ALLOWED_IMAGE_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
+  private readonly ALLOWED_VIDEO_MIME_TYPES = [
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+  ];
+
   async uploadOne(file: Express.Multer.File, dto: CreateMediaDto) {
     if (!file) throw new BadRequestException('No se recibió archivo');
-    if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype))
+    const isVideo = file.mimetype.startsWith('video/');
+    const isImage = file.mimetype.startsWith('image/');
+    if (!isImage && !isVideo) {
+      throw new BadRequestException('Tipo de archivo no permitido');
+    }
+    if (isImage && !this.ALLOWED_IMAGE_MIME_TYPES.includes(file.mimetype))
       throw new BadRequestException('Formato de imagen no permitido');
-    if (file.size > this.MAX_FILE_SIZE)
+    if (isVideo && !this.ALLOWED_VIDEO_MIME_TYPES.includes(file.mimetype))
+      throw new BadRequestException('Formato de video no permitido');
+    if (isImage && file.size > this.MAX_IMAGE_SIZE)
       throw new BadRequestException('La imagen supera el tamaño permitido');
+    if (isVideo && file.size > this.MAX_VIDEO_SIZE)
+      throw new BadRequestException('El video supera el tamaño permitido');
 
-    const baseName = sanitizeFilename(file.originalname.replace(/\.[^/.]+$/, ''));
+    const baseName = sanitizeFilename(
+      file.originalname.replace(/\.[^/.]+$/, ''),
+    );
 
-     const folder = dto.productId
+    const folder = dto.productId
       ? `hyh/products/${dto.productId}`
       : dto.variantId
-        ? `hyh/variants/${dto.variantId}`
-        : 'hyh/gallery';
+      ? `hyh/variants/${dto.variantId}`
+      : 'hyh/gallery';
 
     const uploaded = await this.cloudinary.uploadBuffer(file.buffer, {
       folder,
-      resource_type: 'image',
+      resource_type: isVideo ? 'video' : 'image',
       overwrite: false,
       public_id: baseName || undefined,
     });
 
     const media = await this.prisma.media.create({
       data: {
-        url: uploaded.secure_url,
+        url: (uploaded as any).secure_url,
         provider: 'cloudinary',
-        publicId: uploaded.public_id,
+        publicId: (uploaded as any).public_id,
         mimeType: file.mimetype,
-        width: uploaded.width ?? null,
-        height: uploaded.height ?? null,
-        bytes: uploaded.bytes ?? file.size,
-        alt: dto.alt ?? null,
-        position: dto.position ?? null,
-        isCover: dto.isCover ?? false,
-        productId: dto.productId ?? null,
-        variantId: dto.variantId ?? null,
+        width: (uploaded as any).width ?? null,
+        height: (uploaded as any).height ?? null,
+        bytes: (uploaded as any).bytes ?? file.size,
+        alt: (dto as any).alt ?? null,
+        position: (dto as any).position ?? null,
+        isCover: (dto as any).isCover ?? false,
+        productId: (dto as any).productId ?? null,
+        variantId: (dto as any).variantId ?? null,
       },
     });
 
@@ -96,7 +122,7 @@ export class MediaService {
     // si se pasa isCover=true, desmarcar otras
     const updated = await this.prisma.$transaction(async (tx) => {
       const res = await tx.media.update({ where: { id }, data: dto });
-      if (dto.isCover === true) {
+      if ((dto as any).isCover === true) {
         await tx.media.updateMany({
           where: {
             id: { not: id },
@@ -116,8 +142,10 @@ export class MediaService {
     const existing = await this.prisma.media.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Media no encontrada');
 
-    await this.cloudinary.delete(existing.publicId || '');
+    const resourceType = existing.mimeType?.startsWith('video/') ? 'video' : 'image';
+    await this.cloudinary.delete(existing.publicId || '', resourceType as any);
     await this.prisma.media.delete({ where: { id } });
     return { ok: true };
   }
 }
+

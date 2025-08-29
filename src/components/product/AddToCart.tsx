@@ -26,6 +26,10 @@ export default function AddToCart({ variantId, stock }: { variantId: string; sto
     setShowModal(false);
     router.push("/registrarse");
   };
+  const handleLogin = () => {
+    setShowModal(false);
+    router.push("/ingresar");
+  };
 
   return (
     <div className="flex flex-col gap-3 relative">
@@ -59,26 +63,34 @@ export default function AddToCart({ variantId, stock }: { variantId: string; sto
 
       {/* Modal de autenticación */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-[#181818] border border-yellow-400 rounded-xl p-8 text-center shadow-lg">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 animate-[fadeIn_.18s_ease-out_forwards]">
+          <div className="bg-[#181818] border border-yellow-400/70 rounded-2xl p-6 sm:p-7 text-center shadow-[var(--shadow-base)] w-[92vw] max-w-md animate-[pop_.22s_ease-out]">
             <h2 className="text-xl font-bold text-yellow-400 mb-4">
               ¡Regístrate o inicia sesión!
             </h2>
             <p className="text-white mb-6">
               Para poder añadir productos al carrito debes registrarte o iniciar sesión.
             </p>
-            <button
-              onClick={handleRegister}
-              className="bg-yellow-400 text-black font-semibold px-6 py-2 rounded-lg mr-3 hover:bg-yellow-500"
-            >
-              Ir a registrarse
-            </button>
-            <button
-              onClick={() => setShowModal(false)}
-              className="bg-transparent border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg hover:bg-yellow-400 hover:text-black"
-            >
-              Cancelar
-            </button>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={handleLogin}
+                className="inline-flex h-10 px-4 items-center justify-center rounded-lg bg-yellow-400 text-black text-sm font-medium hover:bg-yellow-500 shadow-sm"
+              >
+                Ingresar
+              </button>
+              <button
+                onClick={handleRegister}
+                className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-yellow-400 text-yellow-400 text-sm font-medium hover:bg-yellow-400 hover:text-black"
+              >
+                Registrarse
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-white/20 text-white text-sm hover:bg-white/10"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       )}
