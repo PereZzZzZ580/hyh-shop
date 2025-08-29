@@ -51,7 +51,30 @@ cd hyh-backend && npm run build
 ```
 
 ## Despliegue
+Puedes desplegar con Docker (todo en un servidor) o usar Vercel + Render/Railway.
+
+### Opción A: Docker (frontend + backend)
+
+1) Variables del backend: crea `hyh-backend/.env` a partir de `hyh-backend/.env.example`.
+2) Construir e iniciar en producción:
 ```bash
-npm start                           # Frontend
-cd hyh-backend && npm run start:prod
+docker compose -f docker-compose.prod.yml up -d --build
 ```
+3) Accede a:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000 (docs en /docs)
+
+Para personalizar el API del frontend, exporta `NEXT_PUBLIC_API_URL` antes de construir o edita `docker-compose.prod.yml`.
+
+### Opción B: Vercel (frontend) + Render/Railway (backend)
+
+Backend (Render/Railway):
+- Build: `npm ci && npm run build && npx prisma migrate deploy`
+- Start: `npm run start:prod`
+- Node: 20
+- Variables: ver `hyh-backend/.env.example`
+
+Frontend (Vercel):
+- Framework: Next.js
+- Build Command: `npm run build`
+- Env: `NEXT_PUBLIC_API_URL=https://tu-api`

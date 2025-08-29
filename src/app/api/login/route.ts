@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  // Permite desactivar la cookie "secure" en despliegues sin HTTPS
+  const SECURE_COOKIE = (process.env.COOKIE_SECURE
+    ? process.env.COOKIE_SECURE === "true"
+    : process.env.NODE_ENV === "production");
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -26,7 +30,7 @@ export async function POST(req: NextRequest) {
   response.cookies.set("token", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: SECURE_COOKIE,
     path: "/",
     maxAge: 60 * 60 * 24, // 1 día (coincide con expiresIn del backend)
   });
