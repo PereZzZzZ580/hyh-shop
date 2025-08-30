@@ -1,7 +1,7 @@
-import type { NextConfig } from "next";
 import path from "path";
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -15,9 +15,9 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack: (config) => {
-    config.resolve.alias["@"] = path.resolve(__dirname, "src");
+    // Use project root for alias in ESM config
+    config.resolve.alias["@"] = path.resolve(process.cwd(), "src");
     return config;
   }
 };
-
 export default nextConfig;

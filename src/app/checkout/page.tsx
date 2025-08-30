@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     if (!cartId) return;
     const obtener = async () => {
       try {
-        const p = await apiFetch<Preview>("/checkout/preview", {
+        const p = await apiFetchAuth<Preview>("/checkout/preview", {
           method: "POST",
           body: JSON.stringify({
             cartId,
@@ -112,7 +112,10 @@ export default function CheckoutPage() {
         "es-CO",
       )}`;
       window.location.href = `https://wa.me/3138907119?text=${encodeURIComponent(mensaje)}`;
-    } catch {}
+    } catch (err: any) {
+      const msg = err?.message || "No se pudo confirmar el pedido";
+      alert(msg);
+    }
     setEnviando(false);
   };
 
