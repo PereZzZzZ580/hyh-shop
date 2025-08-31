@@ -16,6 +16,7 @@ cp hyh-backend/.env
 
 ### Frontend (`.env`)
 - `NEXT_PUBLIC_API_URL`: URL del backend.
+- `PEXELS_API_KEY`: clave de Pexels para obtener imágenes de "Ejemplos similares" en el asesor (si no se define, se usarán placeholders locales aleatorios).
 
 ### Backend (`hyh-backend/.env`)
 - `DATABASE_URL` / `DIRECT_URL`: conexión a PostgreSQL.

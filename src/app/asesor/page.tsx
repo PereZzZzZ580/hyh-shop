@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Landmark = { x: number; y: number; z?: number; }; // normalized [0..1]
 
@@ -23,8 +23,8 @@ type AnalyzeResult = {
   tips?: string[];
 };
 
-const CDN_WASM =
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm";
+// Usar WASM local para evitar problemas de MIME/CORS
+const WASM_BASE = "/mediapipe/wasm";
 const LOCAL_MODEL = "/models/face_landmarker.task";
 const CDN_MODEL =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
@@ -74,16 +74,21 @@ const RECOMMENDATIONS: Record<ShapeKey, string[]> = {
   ],
 };
 
-// Galería: si no existen estos archivos en /public/refs, simplemente no se mostrarán (se ocultan onError)
-const GALLERY: Record<ShapeKey, string[]> = {
-  ovalado: ["/refs/ovalado_1.jpg", "/refs/ovalado_2.jpg"],
-  redondo: ["/refs/redondo_1.jpg", "/refs/redondo_2.jpg"],
-  cuadrado: ["/refs/cuadrado_1.jpg", "/refs/cuadrado_2.jpg"],
-  rectangular: ["/refs/rectangular_1.jpg", "/refs/rectangular_2.jpg"],
-  diamante: ["/refs/diamante_1.jpg", "/refs/diamante_2.jpg"],
-  corazon: ["/refs/corazon_1.jpg", "/refs/corazon_2.jpg"],
-  triangulo: ["/refs/triangulo_1.jpg", "/refs/triangulo_2.jpg"],
-};
+// Backend: trae imágenes relevantes (Pexels) con fallback
+async function fetchRefs(shape: ShapeKey, count = 6, styles?: string[]): Promise<string[]> {
+  try {
+    const params = new URLSearchParams({ shape, count: String(count) });
+    if (styles && styles.length) {
+      params.set("styles", styles.join(","));
+    }
+    const res = await fetch(`/api/refs?${params.toString()}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data?.urls as string[]) || [];
+  } catch {
+    return [];
+  }
+}
 
 function dist(a: Landmark, b: Landmark) {
   const dx = a.x - b.x;
@@ -222,10 +227,37 @@ export default function AsesorPage() {
 
   const [landmarks, setLandmarks] = useState<Landmark[] | null>(null);
 
-  const gallery = useMemo(() => {
-    const k: ShapeKey | undefined = result?.shape;
-    return k ? GALLERY[k] : [];
+  // Contador de imágenes de galería visibles (cuando existan en /public/refs)
+  const [visibleGallery, setVisibleGallery] = useState(0);
+
+  const [gallery, setGallery] = useState<string[]>([]);
+  const [loadingGallery, setLoadingGallery] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+
+  // Resetear estilo al cambiar la forma detectada
+  useEffect(() => {
+    setSelectedStyle(null);
   }, [result?.shape]);
+
+  // Cargar galería con forma + estilo seleccionado (si aplica)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const shape = result?.shape;
+      if (!shape) return;
+      setVisibleGallery(0);
+      setLoadingGallery(true);
+      const styles = selectedStyle ? [selectedStyle] : (RECOMMENDATIONS[shape] || []).slice(0, 3);
+      const urls = await fetchRefs(shape, 6, styles);
+      if (!cancelled) {
+        setGallery(urls);
+        setLoadingGallery(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [result?.shape, selectedStyle]);
 
   // MediaPipe instances
   const faceLandmarkerRef = useRef<any>(null);
@@ -239,7 +271,7 @@ export default function AsesorPage() {
         const visionMod = await import("@mediapipe/tasks-vision");
         const { FilesetResolver, FaceLandmarker } = visionMod as any;
 
-        const vision = await FilesetResolver.forVisionTasks(CDN_WASM);
+        const vision = await FilesetResolver.forVisionTasks(WASM_BASE);
         // intentar local, caer a CDN si falla
         try {
           faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
@@ -284,7 +316,7 @@ export default function AsesorPage() {
     if (!lms) {
       setLandmarks(null);
       setResult(null);
-      setError("No se detectó rostro. Intenta con otra foto o más luz.");
+      setError("No se detectó ningún rostro. Prueba otra toma, con luz frontal y el rostro centrado.");
       return;
     }
     setError(null);
@@ -351,6 +383,7 @@ export default function AsesorPage() {
     const bmp = await createImageBitmap(blob);
     const url = URL.createObjectURL(blob);
     setCurrentImgUrl(url);
+    setVisibleGallery(0);
     await analyzeImageBitmap(bmp, bmp.width, bmp.height);
   }
 
@@ -361,130 +394,200 @@ export default function AsesorPage() {
   const canAnalyze = modelReady && !processing;
 
   return (
-    <div className="min-h-screen py-8">
-      <h1 className="text-3xl font-bold text-gold mb-2">Asesor de Corte</h1>
-      <p className="text-sm text-muted-foreground mb-6">
-        Sube una foto o usa la cámara. El análisis se realiza en tu navegador
-        usando MediaPipe (no se envían imágenes al servidor).
-      </p>
+    <div className="min-h-screen py-10">
+      {/* Hero */}
+      <div className="mb-8 rounded-2xl border border-white/10 bg-gradient-to-br from-[rgba(255,215,0,0.12)] via-black/20 to-black/40 p-6">
+        <h1 className="text-3xl md:text-4xl font-bold text-gold">Asesor de Corte</h1>
+        <p className="mt-2 text-sm md:text-base text-white/70">
+          Descubre tu forma de rostro y obtén sugerencias de cortes ideales.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black transition-colors"
+            onClick={() => (usingCamera ? stopCamera() : startCamera())}
+            disabled={loadingModel}
+          >
+            {usingCamera ? "Detener cámara" : "Usar cámara"}
+          </button>
+          <button
+            className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black disabled:opacity-50 transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loadingModel}
+          >
+            Subir foto
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                setVisibleGallery(0);
+                void handleFile(f);
+              }
+            }}
+          />
+          <button
+            className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black disabled:opacity-50 transition-colors"
+            onClick={() => captureFromVideo()}
+            disabled={!usingCamera || !canAnalyze}
+          >
+            Capturar foto
+          </button>
+          {loadingModel && (
+            <span className="text-sm text-white/70">Cargando herramienta…</span>
+          )}
+        </div>
+        <div className="mt-2 text-xs text-white/60">
+          Consejo: usa buena luz frontal y mira de frente a la cámara.
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-red-200">
+          {error}
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Columna izquierda: controles y vista */}
+        {/* Vista */}
         <div className="flex-1 space-y-4">
-          <div className="flex flex-wrap gap-3">
-            <button
-              className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black"
-              onClick={() => (usingCamera ? stopCamera() : startCamera())}
-              disabled={loadingModel}
-            >
-              {usingCamera ? "Detener cámara" : "Usar cámara"}
-            </button>
-            <button
-              className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black disabled:opacity-50"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loadingModel}
-            >
-              Subir foto
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) void handleFile(f);
-              }}
-            />
-            <button
-              className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black disabled:opacity-50"
-              onClick={() => captureFromVideo()}
-              disabled={!usingCamera || !canAnalyze}
-            >
-              Capturar foto
-            </button>
-          </div>
-
-          {loadingModel && (
-            <div className="text-sm text-muted-foreground">Cargando modelo…</div>
-          )}
-          {error && (
-            <div className="text-red-400">{error}</div>
-          )}
-
-          {/* Vista de cámara o imagen */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl overflow-hidden bg-black/40 border border-white/10">
+            <div className="rounded-xl overflow-hidden bg-black/40 border border-white/10 min-h-[240px] flex items-center justify-center">
               {usingCamera ? (
                 <video ref={videoRef} className="w-full h-auto" playsInline muted />
               ) : currentImgUrl ? (
                 <img src={currentImgUrl} alt="captura" className="w-full h-auto object-contain" />
               ) : (
-                <div className="p-6 text-center text-sm text-muted-foreground">Sin vista previa</div>
+                <div className="p-6 text-center text-sm text-white/60">Tu vista previa aparecerá aquí</div>
               )}
             </div>
-            <div className="rounded-xl overflow-hidden bg-black/40 border border-white/10">
+            <div className="rounded-xl overflow-hidden bg-black/40 border border-white/10 min-h-[240px]">
               <canvas ref={canvasRef} className="w-full h-auto" />
             </div>
           </div>
 
-          {/* Resultados */}
+          {/* Resultados bonitos */}
           {result && (
-            <div className="mt-4 p-4 rounded-xl bg-black/40 border border-white/10">
-              <div className="text-lg">
-                Forma detectada: <span className="font-semibold capitalize">{result.shape}</span>
+            <div className="mt-2 p-4 rounded-xl bg-black/40 border border-white/10">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-sm text-white/60">Forma detectada</div>
+                  <div className="text-2xl font-semibold capitalize text-gold">{result.shape}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-white/60">Confianza</div>
+                  <div className="text-lg font-medium">{(result.score * 100).toFixed(0)}%</div>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">Score: {(result.score * 100).toFixed(0)}%</div>
-              <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted-foreground">
-                <div>Frente: {(result.widthForehead).toFixed(3)}</div>
-                <div>Pómulos: {(result.widthCheekbone).toFixed(3)}</div>
-                <div>Mandíbula: {(result.widthJaw).toFixed(3)}</div>
-                <div>Largo: {(result.faceLength).toFixed(3)}</div>
+              <div className="mt-3 h-2 w-full rounded bg-white/10 overflow-hidden">
+                <div
+                  className="h-2 bg-gold"
+                  style={{ width: `${Math.max(8, Math.min(100, Math.round(result.score * 100)))}%` }}
+                />
+              </div>
+
+              {/* Métricas de rostro */}
+              <div className="mt-4">
+                <div className="text-sm text-white/60 mb-2">Mediciones del rostro</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-white/70">
+                  <div className="rounded-lg border border-white/10 p-2">
+                    <div className="text-[11px] uppercase tracking-wide text-white/50">Frente</div>
+                    <div className="font-medium">{result.widthForehead.toFixed(3)}</div>
+                  </div>
+                  <div className="rounded-lg border border-white/10 p-2">
+                    <div className="text-[11px] uppercase tracking-wide text-white/50">Pómulos</div>
+                    <div className="font-medium">{result.widthCheekbone.toFixed(3)}</div>
+                  </div>
+                  <div className="rounded-lg border border-white/10 p-2">
+                    <div className="text-[11px] uppercase tracking-wide text-white/50">Mandíbula</div>
+                    <div className="font-medium">{result.widthJaw.toFixed(3)}</div>
+                  </div>
+                  <div className="rounded-lg border border-white/10 p-2">
+                    <div className="text-[11px] uppercase tracking-wide text-white/50">Largo</div>
+                    <div className="font-medium">{result.faceLength.toFixed(3)}</div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Columna derecha: recomendaciones y galería */}
+        {/* Sugerencias + Galería */}
         <div className="w-full lg:w-[380px] space-y-4">
           <div className="p-4 rounded-xl bg-black/40 border border-white/10">
             <div className="text-xl font-semibold mb-2">Cortes recomendados</div>
-            <ul className="list-disc list-inside text-sm">
-              {(result ? RECOMMENDATIONS[result.shape] : [
-                "Sube o captura una foto para ver sugerencias",
-              ]).map((rec, i) => (
-                <li key={i}>{rec}</li>
-              ))}
-            </ul>
+            <div className="flex flex-wrap gap-2">
+              {!result && (
+                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-sm">
+                  Sube o captura una foto para ver sugerencias
+                </span>
+              )}
+              {result && (
+                <>
+                  <button
+                    type="button"
+                    className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                      selectedStyle === null
+                        ? "bg-gold text-black border-gold"
+                        : "bg-white/10 text-white border-white/10 hover:bg-white/20"
+                    }`}
+                    aria-pressed={selectedStyle === null}
+                    onClick={() => setSelectedStyle(null)}
+                  >
+                    Todos
+                  </button>
+                  {RECOMMENDATIONS[result.shape].map((rec, i) => (
+                    <button
+                      type="button"
+                      key={i}
+                      className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                        selectedStyle === rec
+                          ? "bg-gold text-black border-gold"
+                          : "bg-white/10 text-white border-white/10 hover:bg-white/20"
+                      }`}
+                      aria-pressed={selectedStyle === rec}
+                      onClick={() => setSelectedStyle(rec)}
+                    >
+                      {rec}
+                    </button>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-black/40 border border-white/10">
-            <div className="text-xl font-semibold mb-2">Galería</div>
-            {gallery && gallery.length > 0 ? (
+          {/* Renderizar galería solo si hay al menos 1 imagen visible */}
+          {result && (
+            <div className="p-4 rounded-xl bg-black/40 border border-white/10">
+              <div className="text-xl font-semibold mb-2">
+                Ejemplos {selectedStyle ? `· ${selectedStyle}` : "similares"}
+              </div>
+              {loadingGallery && (
+                <div className="text-sm text-white/60 mb-2">Cargando ejemplos…</div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 {gallery.map((src, i) => (
-                  // Ocultar si la imagen no existe en /public/refs
                   <img
-                    key={i}
+                    key={`${src}-${i}`}
                     src={src}
-                    alt={`ref ${i + 1}`}
+                    alt={`Ejemplo ${i + 1}`}
                     className="w-full h-32 object-cover rounded-lg border border-white/10"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    onLoad={() => setVisibleGallery((n) => n + 1)}
                     onError={(e) => ((e.currentTarget.style.display = "none"))}
                   />
                 ))}
               </div>
-            ) : (
-              <div className="text-sm text-muted-foreground">
-                Agrega imágenes de referencia en <code className="font-mono">/public/refs</code>
-              </div>
-            )}
-          </div>
+              {visibleGallery === 0 && (
+                <div className="text-sm text-white/60">Pronto añadiremos más ejemplos visuales.</div>
+              )}
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Nota sobre el modelo */}
-      <div className="mt-6 text-xs text-muted-foreground">
-        Modelo: se carga desde <code className="font-mono">/models/face_landmarker.task</code> si existe; de lo contrario, se usa un CDN oficial de MediaPipe.
       </div>
     </div>
   );

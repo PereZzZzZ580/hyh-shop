@@ -2,6 +2,7 @@
 
 import { apiFetch } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -39,9 +40,11 @@ export default function Registrarse() {
     register,
     handleSubmit,
     formState : { errors, isSubmitting },
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+  const termsAccepted = watch("terms", false);
 
   const onSubmit = async (data: FormData) => {
     await apiFetch("/auth/register", {
@@ -175,6 +178,10 @@ export default function Registrarse() {
               Acepto los términos y condiciones y la política de privacidad
             </span>
           </div>
+          <div className="text-xs text-gray-600">
+            Leer <Link href="/terminos" target="_blank" className="underline text-black hover:text-gold/80">términos y condiciones</Link> y {" "}
+            <Link href="/privacidad" target="_blank" className="underline text-black hover:text-gold/80">política de privacidad</Link>
+          </div>
           {errors.terms && (
             <p className="mt-1 text-sm text-red-600">{errors.terms.message}</p>
           )}
@@ -184,7 +191,7 @@ export default function Registrarse() {
           </div>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !termsAccepted}
             className="w-full rounded-md bg-black p-3 text-gold hover:bg-gold text-white disabled:opacity-50"
           >
             Registrarse
