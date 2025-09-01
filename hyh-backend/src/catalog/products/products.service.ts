@@ -19,7 +19,7 @@ export class ProductsService {
       search,
     } = q;
 
-    const where: Prisma.ProductWhereInput = {};
+    const where: Prisma.ProductWhereInput = { archivedAt: null };
 
     if (categoryId) where.categoryId = String(categoryId);
     if (categorySlug)
@@ -126,8 +126,8 @@ export class ProductsService {
   }
 
   async bySlug(slug: string) {
-    return this.prisma.product.findUnique({
-      where: { slug },
+    return this.prisma.product.findFirst({
+      where: { slug, archivedAt: null },
       include: {
         images: {                         // o cambia a media si tu producto usa "media"
           select: { id: true, url: true },
@@ -200,24 +200,34 @@ export class ProductsService {
   }
 
   // services/products.service.ts
-async delete(id: string, userId: string) {
+  async delete(id: string, userId: string) {
+    // Siempre archivar para evitar conflictos de FKs con órdenes históricas
+    await this.prisma.$transaction(async (tx) => {
+      const p = await tx.product.findUnique({ where: { id }, select: { slug: true } });
+      const variants = await tx.variant.findMany({ where: { productId: id }, select: { id: true } });
+      const variantIds = variants.map(v => v.id);
 
-  await this.prisma.productLog.deleteMany({ where: { productId: id}});
-  // Borrar variantes primero para no violar la FK
-  await this.prisma.variant.deleteMany({ where: { productId: id } });
+      const newSlug = `${p?.slug ?? 'producto'}--deleted--${Date.now()}`;
 
-  // Borrar medios asociados (opcional si usas onDelete en Media)
-  await this.prisma.media.deleteMany({ where: { productId: id } });
+      await tx.product.update({
+        where: { id },
+        data: { archivedAt: new Date(), slug: newSlug },
+      });
 
-  // Registrar la operación antes de eliminar (evita FK a productLog)
-  await this.prisma.productLog.create({
-    data: { productId: id, userId, action: 'DELETE' },
-  });
+      if (variantIds.length) {
+        await tx.variant.updateMany({ where: { id: { in: variantIds } }, data: { stock: 0 } });
+      }
 
-  // Eliminar el producto
-  await this.prisma.product.delete({ where: { id } });
+      // Limpieza ligera que no viola FKs
+      await tx.productLog.deleteMany({ where: { productId: id, action: 'UPDATE' } });
+      await tx.tagOnProduct.deleteMany({ where: { productId: id } });
+      await tx.review.deleteMany({ where: { productId: id } });
+      await tx.media.deleteMany({ where: { productId: id } });
 
-  return { id };
-}
+      await tx.productLog.create({ data: { productId: id, userId, action: 'ARCHIVE' } });
+    });
+
+    return { id };
+  }
 
 }

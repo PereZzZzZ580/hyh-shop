@@ -92,6 +92,7 @@ model Product {
   seoDescription String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  archivedAt     DateTime?
   images         Media[]
   category       Category       @relation(fields: [categoryId], references: [id])
   logs           ProductLog[]
@@ -104,6 +105,7 @@ model Product {
   @@index([targetGender])
   @@index([name])
   @@index([hairType], type: Gin)
+  @@index([archivedAt])
 }
 
 model Variant {
