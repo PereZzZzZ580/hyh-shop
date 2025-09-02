@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
@@ -22,14 +23,11 @@ export class ProductsService {
     const where: Prisma.ProductWhereInput = { archivedAt: null };
 
     if (categoryId) where.categoryId = String(categoryId);
-    if (categorySlug)
-      where.category = { slug: String(categorySlug) };
+    if (categorySlug) where.category = { slug: String(categorySlug) };
     if (brand) where.brand = String(brand);
     if (targetGender) where.targetGender = String(targetGender);
     if (hairType) {
-      const hair = Array.isArray(hairType)
-        ? hairType
-        : String(hairType).split(',');
+      const hair = Array.isArray(hairType) ? hairType : String(hairType).split(',');
       where.hairType = { hasSome: hair };
     }
     if (search) {
@@ -60,8 +58,7 @@ export class ProductsService {
         categories[id].count++;
       }
       if (r.brand) brands[r.brand] = (brands[r.brand] || 0) + 1;
-      if (r.targetGender)
-        genders[r.targetGender] = (genders[r.targetGender] || 0) + 1;
+      if (r.targetGender) genders[r.targetGender] = (genders[r.targetGender] || 0) + 1;
       if (r.hairType) {
         for (const h of r.hairType) {
           hair[h] = (hair[h] || 0) + 1;
@@ -72,10 +69,7 @@ export class ProductsService {
     return {
       categories: Object.values(categories),
       brands: Object.entries(brands).map(([value, count]) => ({ value, count })),
-      targetGender: Object.entries(genders).map(([value, count]) => ({
-        value,
-        count,
-      })),
+      targetGender: Object.entries(genders).map(([value, count]) => ({ value, count })),
       hairType: Object.entries(hair).map(([value, count]) => ({ value, count })),
     };
   }
@@ -129,16 +123,16 @@ export class ProductsService {
     return this.prisma.product.findFirst({
       where: { slug, archivedAt: null },
       include: {
-        images: {                         // o cambia a media si tu producto usa "media"
+        images: {
           select: { id: true, url: true },
-          orderBy: { sort: "asc" },
+          orderBy: { sort: 'asc' },
         },
         variants: {
-          orderBy: { price: "asc" },
+          orderBy: { price: 'asc' },
           include: {
-            media: {                      // ✅ Media de cada variante
+            media: {
               select: { id: true, url: true },
-              orderBy: { createdAt: "asc" },
+              orderBy: { createdAt: 'asc' },
             },
           },
         },
@@ -146,6 +140,7 @@ export class ProductsService {
       },
     });
   }
+
   async create(dto: CreateProductDto, userId: string) {
     const { variants, ...productData } = dto;
 
@@ -153,23 +148,22 @@ export class ProductsService {
       where: { id: dto.categoryId },
       select: { id: true },
     });
-    if (!category)
-      throw new BadRequestException('La categoría no existe');
+    if (!category) throw new BadRequestException('La categoría no existe');
 
     const product = await this.prisma.product.create({
       data: {
         ...(productData as Prisma.ProductUncheckedCreateInput),
         ...(variants?.length
-          ?{
-            variants: {
-              create: variants.map((v) => ({
-                attributes: v.attributes,
-                price: v.price,
-                compareAtPrice: v.compareAtPrice ?? undefined,
-                stock: v.stock ?? undefined,
-              })),
-            },
-          }
+          ? {
+              variants: {
+                create: variants.map((v) => ({
+                  attributes: v.attributes,
+                  price: v.price,
+                  compareAtPrice: v.compareAtPrice ?? undefined,
+                  stock: v.stock ?? undefined,
+                })),
+              },
+            }
           : {}),
       },
     });
@@ -185,13 +179,53 @@ export class ProductsService {
         where: { id: dto.categoryId },
         select: { id: true },
       });
-      if (!category)
-        throw new BadRequestException('La categoría no existe');
+      if (!category) throw new BadRequestException('La categoría no existe');
     }
-    
+
+    // Separar manejo de variantes del resto de campos
+    const { variants, deletedVariantIds, ...productData } = (dto as any) ?? {};
+
+    const creates: Prisma.VariantUncheckedCreateWithoutProductInput[] = [];
+    const updates: Prisma.VariantUpdateWithWhereUniqueWithoutProductInput[] = [];
+    const deletes: string[] = Array.isArray(deletedVariantIds) ? deletedVariantIds : [];
+
+    if (Array.isArray(variants)) {
+      for (const v of variants) {
+        if (v?.id) {
+          updates.push({
+            where: { id: v.id },
+            data: {
+              ...(v.attributes !== undefined ? { attributes: v.attributes } : {}),
+              ...(v.price !== undefined ? { price: v.price } : {}),
+              ...(v.compareAtPrice !== undefined ? { compareAtPrice: v.compareAtPrice } : {}),
+              ...(v.stock !== undefined ? { stock: v.stock } : {}),
+            },
+          });
+        } else {
+          creates.push({
+            attributes: v?.attributes ?? {},
+            price: v?.price ?? 0,
+            compareAtPrice: v?.compareAtPrice ?? undefined,
+            stock: v?.stock ?? 0,
+          });
+        }
+      }
+    }
+
     const product = await this.prisma.product.update({
       where: { id },
-      data: dto as Prisma.ProductUncheckedUpdateInput,
+      data: {
+        ...(productData as Prisma.ProductUncheckedUpdateInput),
+        ...(creates.length || updates.length || deletes.length
+          ? {
+              variants: {
+                ...(creates.length ? { create: creates } : {}),
+                ...(updates.length ? { update: updates } : {}),
+                ...(deletes.length ? { deleteMany: { id: { in: deletes } } } : {}),
+              },
+            }
+          : {}),
+      },
     });
     await this.prisma.productLog.create({
       data: { productId: id, userId, action: 'UPDATE' },
@@ -205,14 +239,10 @@ export class ProductsService {
     await this.prisma.$transaction(async (tx) => {
       const p = await tx.product.findUnique({ where: { id }, select: { slug: true } });
       const variants = await tx.variant.findMany({ where: { productId: id }, select: { id: true } });
-      const variantIds = variants.map(v => v.id);
+      const variantIds = variants.map((v) => v.id);
 
       const newSlug = `${p?.slug ?? 'producto'}--deleted--${Date.now()}`;
-
-      await tx.product.update({
-        where: { id },
-        data: { archivedAt: new Date(), slug: newSlug },
-      });
+      await tx.product.update({ where: { id }, data: { archivedAt: new Date(), slug: newSlug } });
 
       if (variantIds.length) {
         await tx.variant.updateMany({ where: { id: { in: variantIds } }, data: { stock: 0 } });
@@ -229,5 +259,5 @@ export class ProductsService {
 
     return { id };
   }
-
 }
+

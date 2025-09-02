@@ -19,19 +19,37 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-    context: any
+  context: any
 ) {
   const token = req.cookies.get("token")?.value;
-  const formData = await req.formData();
   const id = (context.params as { id: string }).id;
-    const res = await fetch(`${API_URL}/admin/products/${id}`, {
+
+  const contentType = req.headers.get("content-type") || "";
+
+  let res: Response;
+  if (contentType.includes("application/json")) {
+    const json = await req.json().catch(() => ({}));
+    res = await fetch(`${API_URL}/admin/products/${id}`, {
       method: "PATCH",
-      body: formData,
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json),
     });
-    const data = await res.json().catch(() => ({}));
-    return NextResponse.json(data, { status: res.status });
+  } else {
+    // Assume multipart/form-data or x-www-form-urlencoded
+    const formData = await req.formData();
+    res = await fetch(`${API_URL}/admin/products/${id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
   }
+
+  const data = await res.json().catch(() => ({}));
+  return NextResponse.json(data, { status: res.status });
+}
 
 export async function DELETE(
   req: NextRequest,
