@@ -173,7 +173,13 @@ export default function Servicios() {
             </p>
             <div className="mt-4">
               <a
-                href="https://wa.me/573138907119"
+                href={`https://wa.me/573138907119?text=${encodeURIComponent(
+                  `Hola, deseo agendar ${servicioSeleccionado.nombre}${
+                    fecha ? ` el ${fecha}` : ""
+                  }${hora ? ` a las ${hora}` : ""}${
+                    direccion ? ` en ${direccion}` : ""
+                  }.${notas ? ` Notas: ${notas}` : ""}`
+                )}`}
                 onClick={(e) => {
                   if (!autenticado) {
                     e.preventDefault();
@@ -253,7 +259,7 @@ export default function Servicios() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded bg-gold text-black px-4 py-2 transition-colors hover:bg-gold/80 cursor-pointer"
+                  className="rounded border border-white/10 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
                 >
                   Agendar
                 </button>

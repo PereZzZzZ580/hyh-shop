@@ -37,6 +37,8 @@ export default function Header() {
   const count = useCart((s) => s.count());
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const userMenuDesktopRef = useRef<HTMLDivElement>(null);
+  const userMenuMobileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -56,6 +58,27 @@ export default function Header() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent | TouchEvent) => {
+      if (!menuUsuario) return;
+      const target = e.target as Node | null;
+      const isInsideDesktop = userMenuDesktopRef.current?.contains(target as Node) ?? false;
+      const isInsideMobile = userMenuMobileRef.current?.contains(target as Node) ?? false;
+      if (!isInsideDesktop && !isInsideMobile) setMenuUsuario(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuUsuario(false);
+    };
+    document.addEventListener("mousedown", onDocClick, true);
+    document.addEventListener("touchstart", onDocClick, true);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick, true);
+      document.removeEventListener("touchstart", onDocClick, true);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuUsuario]);
   
   return (
     <>
@@ -108,16 +131,16 @@ export default function Header() {
           </Link>
           <Link href="/carrito" aria-label="Carrito" className="relative text-gold hover:shadow-gold">
             <ShoppingCart className="h-6 w-6" />
-            <span
-              className="absolute -top-1 -right-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gold text-black text-xs"
-              suppressHydrationWarning
-              aria-live="polite"
-            >
-              {mounted ? count : 0}
-            </span>
+            {mounted && count > 0 && (
+              <span
+                className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gray-300 ring-1 ring-black/40"
+                suppressHydrationWarning
+                aria-hidden="true"
+              />
+            )}
           </Link>
           {autenticado ? (
-            <div className="relative">
+            <div className="relative" ref={userMenuDesktopRef}>
               <button
                 onClick={() => setMenuUsuario((m) => !m)}
                 className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80 transition-colors"
@@ -169,7 +192,7 @@ export default function Header() {
         {/* Mobile Actions */}
         <div className="md:hidden flex items-center gap-4">
           {autenticado ? (
-            <div className="relative">
+            <div className="relative" ref={userMenuMobileRef}>
               <button
                 onClick={() => setMenuUsuario((m) => !m)}
                 className="flex items-center gap-2 text-gold hover:shadow-gold cursor-pointer focus:shadow-gold/50 hover:text-gold/80 focus:text-gold/80 transition-colors"
@@ -205,6 +228,16 @@ export default function Header() {
               <User className="h-5 w-5" />
             </Link>
           )}
+          <Link href="/carrito" aria-label="Carrito" className="relative text-gold hover:shadow-gold">
+            <ShoppingCart className="h-6 w-6" />
+            {mounted && count > 0 && (
+              <span
+                className="absolute -top-2 -right-2 h-2.5 w-2.5 rounded-full bg-gray-300 ring-1 ring-black/40"
+                suppressHydrationWarning
+                aria-hidden="true"
+              />
+            )}
+          </Link>
           <button
             className="text-gold transition-transform"
             onClick={() => setOpen(true)}
@@ -261,13 +294,13 @@ export default function Header() {
           </Link>
             <Link href="/carrito" onClick={() => setOpen(false)} className="relative py-2 transition-colors">
               <span>Carrito</span>
-              <span
-                className="absolute -top-2 -right-4 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gold text-black text-xs"
-                suppressHydrationWarning
-                aria-live="polite"
-              >
-                {mounted ? count : 0}
-              </span>
+              {mounted && count > 0 && (
+                <span
+                  className="absolute -top-2 -right-4 h-2.5 w-2.5 rounded-full bg-gray-300 ring-1 ring-black/40"
+                  suppressHydrationWarning
+                  aria-hidden="true"
+                />
+              )}
             </Link>
             {autenticado ? (
               <>
