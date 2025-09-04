@@ -1,17 +1,16 @@
-# ---- Backend (NestJS) production image ----
 FROM node:20-slim AS builder
 WORKDIR /app
 
-# Install deps first
-COPY hyh-backend/package*.json ./
+# Install dependencies first
+COPY package*.json ./
 RUN npm ci
 
-# Copy source
-COPY hyh-backend/tsconfig.json ./
-COPY hyh-backend/src ./src
-COPY hyh-backend/prisma ./prisma
+# Copy sources
+COPY tsconfig.json ./
+COPY src ./src
+COPY prisma ./prisma
 
-# Build + generate Prisma client
+# Build + generate Prisma Client
 RUN npm run build && npx prisma generate
 
 # ---- Runner ----
@@ -19,14 +18,14 @@ FROM node:20-slim AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Copy built app and node_modules (keeps prisma CLI available for migrate deploy)
+# Copy app and node_modules
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY hyh-backend/package*.json ./
+COPY package*.json ./
 
 EXPOSE 4000
 
-# Run DB migrations and start the server
+# Run migrations and start
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
 

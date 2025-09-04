@@ -1,0 +1,19 @@
+node_modules
+dist
+.git
+.github
+.gitignore
+npm-debug.log*
+*.log
+Dockerfile.frontend
+.DS_Store
+.env
+.env.*
+!*.example
+
+# caches
+.pnpm-store
+.turbo
+.next
+coverage
+

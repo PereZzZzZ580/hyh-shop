@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: hyh-backend
+    env: docker
+    plan: starter
+    region: oregon
+    rootDir: hyh-backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    # Declara variables para que Render te pida completarlas al crear el servicio
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://tu-frontend.onrender.com
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: hyh-shop
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: Admin
+      - key: COD_CITIES
+        value: Armenia,Calarca
+      - key: WHATSAPP_NUMBER
+        sync: false
+    
