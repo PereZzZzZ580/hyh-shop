@@ -7,7 +7,7 @@ export class CheckoutPreviewDto {
   // ciudad para calcular envío (recomendado para COD)
   @IsOptional() @IsString() city?: string;
 
-  // método de pago: COD o WHATSAPP
-  @IsOptional() @IsIn(['COD', 'WHATSAPP'] as const)
-  paymentMethod?: 'COD' | 'WHATSAPP';
+  // método de pago: COD, WHATSAPP o WOMPI
+  @IsOptional() @IsIn(['COD', 'WHATSAPP', 'WOMPI'] as const)
+  paymentMethod?: 'COD' | 'WHATSAPP' | 'WOMPI';
 }

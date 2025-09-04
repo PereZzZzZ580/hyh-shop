@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const [ciudad, setCiudad] = useState("");
   const [linea1, setLinea1] = useState("");
   const [cupon, setCupon] = useState("");
-  const [metodoPago, setMetodoPago] = useState<"WHATSAPP" | "COD" | "WOMPI">("WHATSAPP");
+  const [metodoPago, setMetodoPago] = useState<"WHATSAPP" | "COD">("WHATSAPP");
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -100,33 +100,11 @@ export default function CheckoutPage() {
       }
       // Seguridad: si la ciudad no es local, forzamos método WhatsApp
       const metodoEfectivo = esLocal ? metodoPago : "WHATSAPP";
-      const resp = await apiFetchAuth<{ orderId: string; wompi?: { checkoutUrl: string } | null; whatsapp?: { waLink: string } | null }>("/orders", {
+      await apiFetchAuth<{ orderId: string }>("/orders", {
         method: "POST",
         body: JSON.stringify({ ...body, paymentMethod: metodoEfectivo }),
       });
       clear();
-
-      if (metodoEfectivo === "WOMPI") {
-        const url = resp.wompi?.checkoutUrl;
-        if (url) {
-          window.location.assign(url);
-          return;
-        }
-        // Fallback por si no vino URL: ir al pedido
-        window.location.assign(`/pedido/${resp.orderId}`);
-        return;
-      }
-
-      if (metodoEfectivo === "COD") {
-        window.location.assign(`/pedido/${resp.orderId}`);
-        return;
-      }
-
-      if (resp.whatsapp?.waLink) {
-        window.location.assign(resp.whatsapp.waLink);
-        return;
-      }
-
       const resumenProductos = items
         .map(({ variant, qty }) => `${variant.product.name} × ${qty}`)
         .join(", ");
@@ -219,93 +197,4 @@ export default function CheckoutPage() {
             Campo opcional para cupones obtenidos en compras anteriores.
           </p>
         </div>
-
-        <div>
-          <label className="block mb-1 text-sm opacity-80">Método de pago</label>
-          <select
-            value={metodoPago}
-            onChange={(e) => {
-              const val = e.target.value as "WHATSAPP" | "COD" | "WOMPI";
-              if (val === "COD" && !esLocal) {
-                // Evita seleccionar contraentrega fuera de cobertura
-                setMostrandoCobertura(true);
-                setTimeout(() => setMostrandoCobertura(false), 2000);
-                return;
-              }
-              setMetodoPago(val);
-            }}
-            onClick={() => {
-              setAnimandoPago(true);
-              setTimeout(() => setAnimandoPago(false), 300);
-            }}
-            className={`w-full h-10 rounded-lg bg-transparent border border-white/20 px-3 ${
-              animandoPago ? "animate-pulse" : ""
-            }`}
-          >
-            <option value="WHATSAPP">WhatsApp</option>
-            <option value="WOMPI">Tarjeta/Transferencia (Wompi)</option>
-            <option value="COD" disabled={!esLocal}>
-              Contraentrega { !esLocal && ciudad ? "(sin cobertura)" : "" }
-            </option>
-          </select>
-          {!esLocal && ciudad && (
-            <p className={`mt-2 inline-flex items-center gap-2 text-xs text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 rounded px-2 py-1 ${mostrandoCobertura ? "opacity-100" : "opacity-90"}`}>
-              Zona sin cobertura para contraentrega
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm opacity-80">Nombre de contacto</label>
-          <input
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm opacity-80">Teléfono de contacto</label>
-          <input
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            type ="tel"
-            required
-            className="w-full h-10 rounded-lg bg-transparent border border-white/20 px-3"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={enviando || items.length === 0}
-          className="h-11 rounded-lg px-5 border border-white/20 hover:border-white/40 disabled:opacity-50"
-        >
-          {enviando ? "Procesando..." : "Confirmar pedido"}
-        </button>
-      </form>
-
-      <aside className="border border-white/10 rounded-2xl p-4 h-fit">
-        <h2 className="text-xl font-semibold">Resumen</h2>
-        <div className="mt-3 space-y-2 text-sm">
-          {items.map(({ variant, qty }) => (
-            <div key={variant.id} className="flex justify-between">
-              <span className="opacity-80">{variant.product.name} × {qty}</span>
-              <span>${(variant.price * qty).toLocaleString("es-CO")}</span>
-            </div>
-          ))}
-          <hr className="my-2 border-white/10" />
-          <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toLocaleString("es-CO")}</span></div>
-          <div className="flex justify-between"><span>Envío</span><span>${envio.toLocaleString("es-CO")}</span></div>
-          {descuento ? (
-            <div className="flex justify-between"><span>Descuento</span><span>-${descuento.toLocaleString("es-CO")}</span></div>
-          ) : null}
-          <div className="flex justify-between text-lg font-semibold mt-1">
-            <span>Total</span><span>${total.toLocaleString("es-CO")}</span>
-          </div>
-        </div>
-      </aside>
-    </section>
-  );
-}
 

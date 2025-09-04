@@ -6,9 +6,10 @@ import { AdminOrdersController } from './admin.controller';
 import { RolesGuard } from '../auth/roles.guard';
 import { CouponsModule } from '../coupons/coupons.module';
 import { ShippingModule } from '../shipping/shipping.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
-  imports: [PricingModule, CouponsModule, ShippingModule],
+  imports: [PricingModule, CouponsModule, ShippingModule, PaymentsModule],
   controllers: [OrdersController, AdminOrdersController],
   providers: [OrdersService, RolesGuard],
 })

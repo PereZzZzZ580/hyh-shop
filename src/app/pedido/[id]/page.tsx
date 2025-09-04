@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 
 type Item = { name: string; qty: number; unitPrice: number };
@@ -18,12 +19,28 @@ type OrderSummary = {
   address: { line1?: string | null; city?: string | null } | null;
 };
 
-export default function PedidoExito({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function PedidoExito() {
+  const routeParams = useParams<{ id: string }>();
+  const id = (routeParams?.id as string) || "";
   const [resumen, setResumen] = useState<OrderSummary | null>(null);
 
   useEffect(() => {
+    if (!id) return;
     apiFetch<OrderSummary>(`/orders/${id}/summary`).then(setResumen).catch(() => {});
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    // Verificación de Wompi al regresar del checkout
+    try {
+      const url = typeof window !== "undefined" ? new URL(window.location.href) : null;
+      if (!url) return;
+      const tx = url.searchParams.get("transactionId") || url.searchParams.get("id");
+      if (!tx) return;
+      apiFetch<any>(`/payments/wompi/verify?transactionId=${encodeURIComponent(tx)}&reference=${encodeURIComponent(id)}`)
+        .then(() => apiFetch<OrderSummary>(`/orders/${id}/summary`).then(setResumen).catch(() => {}))
+        .catch(() => {});
+    } catch {}
   }, [id]);
 
   if (!resumen) return null;

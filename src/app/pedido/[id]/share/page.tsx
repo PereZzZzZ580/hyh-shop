@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 
 type Item = { name: string; qty: number; unitPrice: number };
@@ -19,12 +20,14 @@ type OrderSummary = {
 
 const money = (n: number) => new Intl.NumberFormat("es-CO").format(n);
 
-export default function PedidoShare({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function PedidoShare() {
+  const routeParams = useParams<{ id: string }>();
+  const id = (routeParams?.id as string) || "";
   const [resumen, setResumen] = useState<OrderSummary | null>(null);
   const [copiado, setCopiado] = useState(false);
 
   useEffect(() => {
+    if (!id) return;
     apiFetch<OrderSummary>(`/orders/${id}/summary`).then(setResumen).catch(() => {});
   }, [id]);
 

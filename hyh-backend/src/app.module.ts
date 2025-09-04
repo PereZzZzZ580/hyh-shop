@@ -13,6 +13,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HealthModule } from './health/health.module';
 import { ContactModule } from './contact/contact.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ShippingModule,
     AccountModule,
     HealthModule,
-    ContactModule
+    ContactModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}

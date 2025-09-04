@@ -13,8 +13,8 @@ export class CreateOrderDto {
   @IsString()
   cartId!: string;
 
- @IsIn(['COD', 'WHATSAPP'] as const)
-  paymentMethod!: 'COD' | 'WHATSAPP';
+ @IsIn(['COD', 'WHATSAPP', 'WOMPI'] as const)
+  paymentMethod!: 'COD' | 'WHATSAPP' | 'WOMPI';
 
   @IsOptional() @IsString()
   addressId?: string;

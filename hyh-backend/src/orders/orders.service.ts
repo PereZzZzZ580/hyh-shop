@@ -3,6 +3,7 @@ import { PricingService } from '../common/pricing/pricing.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ShippingService } from '../shipping/shipping.service';
+import { WompiService } from '../payments/wompi.service';
 
 const COD_CITIES = (process.env.COD_CITIES || '')
   .split(',')
@@ -18,6 +19,7 @@ export class OrdersService {
     private pricing: PricingService,
     private coupons: CouponsService,
     private shipping: ShippingService,
+    private wompi: WompiService,
   ) {}
 
   private async assertCartOwner(cartId: string, userId: string) {
@@ -98,7 +100,7 @@ export class OrdersService {
   async createFromCart(params: {
     cartId: string;
     userId: string;
-    paymentMethod: 'COD' | 'WHATSAPP';
+    paymentMethod: 'COD' | 'WHATSAPP' | 'WOMPI';
     addressId?: string | null;
     addressRaw?: { country?: string; city?: string; line1?: string; line2?: string; phone?: string; zip?: string } | null;
     contactName?: string | null;
@@ -181,6 +183,22 @@ export class OrdersService {
       totals.grandTotal,
     );
 
+    const baseFrontend = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const wompi:
+      | { checkoutUrl: string }
+      | null = params.paymentMethod === 'WOMPI'
+      ? {
+          checkoutUrl: this.wompi.buildCheckoutUrl({
+            reference: order.id,
+            amountInCents: totals.grandTotal * 100,
+            currency: 'COP',
+            redirectUrl: `${baseFrontend}/pedido/${order.id}`,
+            customerName: params.contactName ?? null,
+            customerPhone: params.contactPhone ?? null,
+          }),
+        }
+      : null;
+
     return {
       orderId: order.id,
       status: order.status,
@@ -191,6 +209,7 @@ export class OrdersService {
         params.paymentMethod === 'WHATSAPP' && WHATSAPP_NUMBER
           ? { number: WHATSAPP_NUMBER, waLink: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}` }
           : null,
+      wompi,
     };
   }
 
