@@ -1,18 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 
-function getEnv(name: string, def?: string) {
-  const v = process.env[name] ?? def;
-  if (!v) throw new Error(`Missing env var: ${name}`);
-  return v;
-}
-
 @Injectable()
 export class WompiService {
-  private readonly privateKey = getEnv('WOMPI_PRIVATE_KEY', '');
-  private readonly publicKey = getEnv('WOMPI_PUBLIC_KEY', '');
-  private readonly integrityKey = getEnv('WOMPI_INTEGRITY_KEY', '');
-  private readonly apiBase = process.env.WOMPI_ENV === 'sandbox' ? 'https://sandbox.wompi.co' : 'https://production.wompi.co';
+  private get privateKey() {
+    const v = process.env.WOMPI_PRIVATE_KEY;
+    if (!v) throw new Error('Missing env var: WOMPI_PRIVATE_KEY');
+    return v;
+  }
+
+  private get publicKey() {
+    const v = process.env.WOMPI_PUBLIC_KEY;
+    if (!v) throw new Error('Missing env var: WOMPI_PUBLIC_KEY');
+    return v;
+  }
+
+  private get integrityKey() {
+    const v = process.env.WOMPI_INTEGRITY_KEY;
+    if (!v) throw new Error('Missing env var: WOMPI_INTEGRITY_KEY');
+    return v;
+  }
+
+  private get apiBase() {
+    return process.env.WOMPI_ENV === 'production' ? 'https://production.wompi.co' : 'https://sandbox.wompi.co';
+  }
+
   private readonly checkoutBase = 'https://checkout.wompi.co/p/';
 
   buildCheckoutUrl(params: {

@@ -10,8 +10,8 @@ COPY tsconfig.json ./
 COPY src ./src
 COPY prisma ./prisma
 
-# Build + generate Prisma Client
-RUN npm run build && npx prisma generate
+# Build (includes prisma generate via npm scripts)
+RUN npm run build
 
 # ---- Runner ----
 FROM node:20-slim AS runner
@@ -27,5 +27,5 @@ COPY package*.json ./
 EXPOSE 4000
 
 # Run migrations and start
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["npm", "run", "start:migrate"]
 

@@ -33,7 +33,7 @@ export class OrdersService {
     cartId: string,
     couponCode: string | undefined,
     userId: string,
-    opts?: { city?: string; paymentMethod?: 'COD' | 'WHATSAPP' }
+    opts?: { city?: string; paymentMethod?: 'COD' | 'WHATSAPP' | 'WOMPI' }
   ) {
     await this.assertCartOwner(cartId, userId);
     const cart = await this.prisma.cart.findUnique({

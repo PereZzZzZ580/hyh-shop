@@ -11,10 +11,16 @@ export class OrdersController {
 
   @Post('checkout/preview')
   preview(@Req() req: any, @Body() dto: CheckoutPreviewDto) {
-    return this.orders.preview(dto.cartId, dto.coupon, req.user.sub, {
-      city: dto.city,
-      paymentMethod: dto.paymentMethod,
-    });
+    return this.orders.preview(
+      dto.cartId,
+      dto.coupon,
+      req.user.sub,
+      {
+        city: dto.city,
+        // Solo incluir paymentMethod si viene definido para evitar conflicto de tipos
+        ...(dto.paymentMethod ? { paymentMethod: dto.paymentMethod } : {}),
+      },
+    );
   }
 
   @Post('orders')

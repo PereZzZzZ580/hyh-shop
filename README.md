@@ -1,31 +1,34 @@
 # HyH Shop
 
-Aplicación full‑stack que combina un front‑end **Next.js** y un backend **NestJS** con **Prisma**.
+Aplicación full‑stack con frontend en Next.js y backend en NestJS + Prisma.
 
 ## Requisitos
 - Node.js 20
-- Docker (para base de datos PostgreSQL y Redis en el backend)
+- Docker (para base de datos local opcional)
 
 ## Variables de entorno
-Copia los archivos de ejemplo y ajusta los valores necesarios:
 
-```bash
-cp .env.production .env.production
-cp hyh-backend/.env
+### Frontend (Vercel / local)
+- `NEXT_PUBLIC_API_URL`: URL pública del backend.
+- `PEXELS_API_KEY` (opcional): clave para el asesor de imágenes.
+
+Para desarrollo local crea `.env.local` en la raíz:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:4000
 ```
 
-### Frontend (`.env`)
-- `NEXT_PUBLIC_API_URL`: URL del backend.
-- `PEXELS_API_KEY`: clave de Pexels para obtener imágenes de "Ejemplos similares" en el asesor (si no se define, se usarán placeholders locales aleatorios).
+En Vercel, define `NEXT_PUBLIC_API_URL` apuntando a tu backend en Render.
 
-### Backend (`hyh-backend/.env`)
+### Backend (`hyh-backend/.env` para local)
 - `DATABASE_URL` / `DIRECT_URL`: conexión a PostgreSQL.
 - `JWT_SECRET`: clave para firmar los JWT.
-- `CORS_ORIGIN`: origen permitido para CORS.
-- `PORT`: puerto HTTP del backend.
+- `CORS_ORIGIN`: orígenes permitidos (coma‑separados), ej. `http://localhost:3000`.
+- `PORT`: puerto HTTP (por defecto 4000).
+- Opcionales: `CLOUDINARY_*`, `WOMPI_*`, `FRONTEND_URL`, `WHATSAPP_NUMBER`, etc. Ver `hyh-backend/.env.example`.
 
 ## Desarrollo local
-```bash
+```
 # Backend
 cd hyh-backend
 npm install
@@ -33,49 +36,36 @@ npm run docker:up
 npm run prisma:migrate
 npm run dev
 
-# Frontend
+# Frontend (en otra terminal)
 cd ..
 npm install
 npm run dev
 ```
 
 ## Pruebas
-```bash
+```
 npm test
 cd hyh-backend && npm test
 ```
 
 ## Build de producción
-```bash
-npm run build        # Frontend (incluye prisma generate)
+```
+npm run build        # Frontend
 cd hyh-backend && npm run build
 ```
 
 ## Despliegue
-Puedes desplegar con Docker (todo en un servidor) o usar Vercel + Render/Railway.
 
-### Opción A: Docker (frontend + backend)
+### Vercel (frontend) + Render (backend)
 
-1) Variables del backend: crea `hyh-backend/.env` a partir de `hyh-backend/.env.example`.
-2) Construir e iniciar en producción:
-```bash
-docker compose -f docker-compose.prod.yml up -d --build
-```
-3) Accede a:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:4000 (docs en /docs)
+Backend en Render (Docker):
+- Usa el blueprint `render.yaml` (recomendado) o crea un Web Service con `hyh-backend/Dockerfile` y contexto `hyh-backend`.
+- Node 20. Health check `/health`.
+- Variables: ver `hyh-backend/.env.example` (mínimo: `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CORS_ORIGIN`).
+- El contenedor corre migraciones al iniciar (`npm run start:migrate`).
 
-Para personalizar el API del frontend, exporta `NEXT_PUBLIC_API_URL` antes de construir o edita `docker-compose.prod.yml`.
-
-### Opción B: Vercel (frontend) + Render/Railway (backend)
-
-Backend (Render/Railway):
-- Build: `npm ci && npm run build && npx prisma migrate deploy`
-- Start: `npm run start:prod`
-- Node: 20
-- Variables: ver `hyh-backend/.env.example`
-
-Frontend (Vercel):
-- Framework: Next.js
+Frontend en Vercel (Next.js):
 - Build Command: `npm run build`
-- Env: `NEXT_PUBLIC_API_URL=https://tu-api`
+- Define `NEXT_PUBLIC_API_URL` con la URL pública del backend.
+- Si cambias el dominio en Vercel, actualiza `CORS_ORIGIN` en Render.
+

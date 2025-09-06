@@ -1,19 +1,21 @@
+# Node / deps
 node_modules
-dist
-.git
-.github
-.gitignore
 npm-debug.log*
-*.log
-Dockerfile.frontend
-.DS_Store
+yarn-debug.log*
+yarn-error.log*
+
+# Builds
+dist
+
+# Env & local
 .env
 .env.*
-!*.example
 
-# caches
-.pnpm-store
-.turbo
-.next
-coverage
+# VCS
+.git
+.gitignore
+
+# Docker/local
+docker-compose.yml
+Dockerfile.render
 

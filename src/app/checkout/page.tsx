@@ -81,7 +81,7 @@ export default function CheckoutPage() {
     try {
       type OrderBody = {
         cartId: string;
-        paymentMethod: "WHATSAPP" | "COD";
+        paymentMethod: "WHATSAPP" | "COD" | "WOMPI";
         contactName: string;
         contactPhone: string;
         addressId?: string;
