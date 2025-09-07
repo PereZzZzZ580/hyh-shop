@@ -61,8 +61,8 @@ function humanStatus(o: OrderListItem) {
   if (o.status === "REFUNDED" || o.paymentStatus === "REFUNDED") return { label: "Reembolsado", tone: "text-red-300 border-red-400/40" };
   if (o.status === "FULFILLED" || o.shipmentStatus === "DELIVERED") return { label: "Completado", tone: "text-emerald-300 border-emerald-400/40" };
   if (o.status === "PAID" || o.paymentStatus === "APPROVED" || o.shipmentStatus === "READY" || o.shipmentStatus === "SHIPPED") return { label: "En proceso", tone: "text-yellow-200 border-yellow-300/40" };
-  // Wompi specifics: show pending until approved
-  if (o.paymentMethod === "WOMPI" && o.paymentStatus !== "APPROVED") return { label: "Pendiente de pago", tone: "text-yellow-200 border-yellow-300/40" };
+  // Wompi specifics: when not caught by the previous branch, it means not aprobado aún
+  if (o.paymentMethod === "WOMPI") return { label: "Pendiente de pago", tone: "text-yellow-200 border-yellow-300/40" };
   return { label: "Pendiente de pago", tone: "text-yellow-200 border-yellow-300/40" };
 }
 
