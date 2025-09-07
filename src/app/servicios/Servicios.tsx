@@ -2,7 +2,8 @@
 
 import { Clock, Shield, MapPin, CreditCard } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/store/auth";
 import { useRouter } from "next/navigation";
 
@@ -11,22 +12,34 @@ export default function Servicios() {
   const router = useRouter();
   const servicios = [
     {
-      nombre: "Corte clásico",
-      precio: 25000,
-      duracion: "45 min",
-      img: "/corteClasico.png",
-    },
-    {
-      nombre: "Arreglo de barba",
-      precio: 20000,
-      duracion: "30 min",
+      nombre: "Barba sola",
+      precio: 15000,
+      duracion: "25 min",
       img: "/corteBarba.png",
     },
     {
-      nombre: "Corte + Barba",
-      precio: 40000,
-      duracion: "70 min",
+      nombre: "Barba + Corte",
+      precio: 30000,
+      duracion: "60 min",
       img: "/Barbar_y_pelo.png",
+    },
+    {
+      nombre: "Cejas",
+      precio: 5000,
+      duracion: "10 min",
+      img: "/haciendoCejas.png",
+    },
+    {
+      nombre: "Corte + Barba + Cejas",
+      precio: 35000,
+      duracion: "75 min",
+      img: "/barbaCejaCorte.png",
+    },
+    {
+      nombre: "Corte solo",
+      precio: 28000,
+      duracion: "45 min",
+      img: "/corteClasico.png",
     },
   ];
   type Servicio = (typeof servicios)[number];
@@ -38,6 +51,26 @@ export default function Servicios() {
   const [hora, setHora] = useState("");
   const [notas, setNotas] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Bloquear el scroll del body cuando haya cualquier modal abierto
+  useEffect(() => {
+    const anyOpen = showAuthModal || !!servicioSeleccionado;
+    if (anyOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [showAuthModal, servicioSeleccionado]);
+
+  // Portal para evitar problemas de posicionamiento fijo dentro de contenedores transformados
+  function Portal({ children }: { children: React.ReactNode }) {
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+    if (!mounted) return null;
+    return createPortal(children, document.body);
+  }
 
   const enviarWhatsApp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -180,117 +213,119 @@ export default function Servicios() {
       </section>
 
       {servicioSeleccionado && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
-          {/* Fondo semitransparente */}
-          <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setServicioSeleccionado(null)}
-          />
-          {/* Contenedor modal */}
-          <div className="relative w-[92vw] max-w-md rounded-2xl border border-yellow-400/60 bg-neutral-900 p-6 text-white shadow-2xl">
-            <h3 className="text-xl font-semibold">
-              Agendar {servicioSeleccionado.nombre}
-            </h3>
-            <p className="mt-2 text-sm opacity-80">
-              Si deseas puedes contactarte directamente por WhatsApp con el
-              barbero o agendar la cita desde aquí.
-            </p>
-            <div className="mt-4">
-              <a
-                href={`https://wa.me/573138907119?text=${encodeURIComponent(
-                  `Hola, deseo agendar ${servicioSeleccionado.nombre}${
-                    fecha ? ` el ${fecha}` : ""
-                  }${hora ? ` a las ${hora}` : ""}${
-                    direccion ? ` en ${direccion}` : ""
-                  }.${notas ? ` Notas: ${notas}` : ""}`
-                )}`}
-                onClick={(e) => {
-                  if (!autenticado) {
-                    e.preventDefault();
-                    setShowAuthModal(true);
-                  }
-                }}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-green-500/60 px-4 text-green-400 hover:bg-green-500/10"
-              >
-                Contactar por WhatsApp
-              </a>
-            </div>
-            <form onSubmit={enviarWhatsApp} className="mt-4 space-y-4">
-              <label className="block text-sm">
-                <span className="mb-1 block">Dirección</span>
-                <input
-                  type="text"
-                  required
-                  placeholder="Dirección"
-                  value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
-                  className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block">Fecha</span>
-                <input
-                  type="date"
-                  required
-                  placeholder="Selecciona la fecha"
-                  value={fecha}
-                  onChange={(e) => setFecha(e.target.value)}
-                  className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block">Hora</span>
-                <div className="relative">
-                  {!hora && (
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
-                      Selecciona la hora presionando el reloj
-                    </span>
-                  )}
-                  <input
-                    type="time"
-                    required
-                    value={hora}
-                    onChange={(e) => setHora(e.target.value)}
-                    className={`w-full rounded-lg border border-white/15 bg-neutral-800 p-2 pr-10 ${
-                      hora ? "text-white" : "text-transparent"
-                    }`}
-                  />
-                  <Clock className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
-                </div>
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block">Notas</span>
-                <textarea
-                  placeholder="Notas"
-                  value={notas}
-                  onChange={(e) => setNotas(e.target.value)}
-                  className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
-                />
-              </label>
-              <p className="text-xs opacity-80">
-                Atención en Armenia y Calarcá. Cancelaciones con 2h de
-                anticipación.
+        <Portal>
+          <div className="fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
+            {/* Fondo semitransparente */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setServicioSeleccionado(null)}
+            />
+            {/* Contenedor modal */}
+            <div className="relative w-[92vw] max-w-md rounded-2xl border border-yellow-400/60 bg-neutral-900 p-6 text-white shadow-2xl">
+              <h3 className="text-xl font-semibold">
+                Agendar {servicioSeleccionado.nombre}
+              </h3>
+              <p className="mt-2 text-sm opacity-80">
+                Si deseas puedes contactarte directamente por WhatsApp con el
+                barbero o agendar la cita desde aquí.
               </p>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setServicioSeleccionado(null)}
-                  className="rounded-lg border border-white/15 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
+              <div className="mt-4">
+                <a
+                  href={`https://wa.me/573138907119?text=${encodeURIComponent(
+                    `Hola, deseo agendar ${servicioSeleccionado.nombre}${
+                      fecha ? ` el ${fecha}` : ""
+                    }${hora ? ` a las ${hora}` : ""}${
+                      direccion ? ` en ${direccion}` : ""
+                    }.${notas ? ` Notas: ${notas}` : ""}`
+                  )}`}
+                  onClick={(e) => {
+                    if (!autenticado) {
+                      e.preventDefault();
+                      setShowAuthModal(true);
+                    }
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-green-500/60 px-4 text-green-400 hover:bg-green-500/10"
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-lg border border-yellow-400 px-4 py-2 text-yellow-200 hover:bg-yellow-400/10 cursor-pointer"
-                >
-                  Agendar
-                </button>
+                  Contactar por WhatsApp
+                </a>
               </div>
-            </form>
+              <form onSubmit={enviarWhatsApp} className="mt-4 space-y-4">
+                <label className="block text-sm">
+                  <span className="mb-1 block">Dirección</span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Dirección"
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                    className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block">Fecha</span>
+                  <input
+                    type="date"
+                    required
+                    placeholder="Selecciona la fecha"
+                    value={fecha}
+                    onChange={(e) => setFecha(e.target.value)}
+                    className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block">Hora</span>
+                  <div className="relative">
+                    {!hora && (
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
+                        Selecciona la hora presionando el reloj
+                      </span>
+                    )}
+                    <input
+                      type="time"
+                      required
+                      value={hora}
+                      onChange={(e) => setHora(e.target.value)}
+                      className={`w-full rounded-lg border border-white/15 bg-neutral-800 p-2 pr-10 ${
+                        hora ? "text-white" : "text-transparent"
+                      }`}
+                    />
+                    <Clock className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
+                  </div>
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block">Notas</span>
+                  <textarea
+                    placeholder="Notas"
+                    value={notas}
+                    onChange={(e) => setNotas(e.target.value)}
+                    className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
+                  />
+                </label>
+                <p className="text-xs opacity-80">
+                  Atención en Armenia y Calarcá. Cancelaciones con 2h de
+                  anticipación.
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setServicioSeleccionado(null)}
+                    className="rounded-lg border border-white/15 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg border border-yellow-400 px-4 py-2 text-yellow-200 hover:bg-yellow-400/10 cursor-pointer"
+                  >
+                    Agendar
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Botón flotante móvil */}
@@ -310,40 +345,41 @@ export default function Servicios() {
       </button>
 
       {showAuthModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] opacity-0 animate-[fadeIn_.18s_ease-out_forwards]">
-          <div className="bg-[#181818] border border-yellow-400/70 rounded-2xl p-6 sm:p-7 text-center shadow-[var(--shadow-base)] w-[92vw] max-w-md animate-[pop_.22s_ease-out]">
-            <h2 className="text-xl font-bold text-yellow-400 mb-4">¡Regístrate o inicia sesión!</h2>
-            <p className="text-white mb-6">Para poder agendar debes registrarte o iniciar sesión.</p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={() => {
-                  setShowAuthModal(false);
-                  router.push("/ingresar");
-                }}
-                className="inline-flex h-10 px-4 items-center justify-center rounded-lg bg-yellow-400 text-black text-sm font-medium hover:bg-yellow-500 shadow-sm"
-              >
-                Ingresar
-              </button>
-              <button
-                onClick={() => {
-                  setShowAuthModal(false);
-                  router.push("/registrarse");
-                }}
-                className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-yellow-400 text-yellow-400 text-sm font-medium hover:bg-yellow-400 hover:text-black"
-              >
-                Registrarse
-              </button>
-              <button
-                onClick={() => setShowAuthModal(false)}
-                className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-white/20 text-white text-sm hover:bg-white/10"
-              >
-                Cancelar
-              </button>
+        <Portal>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[80] opacity-0 animate-[fadeIn_.18s_ease-out_forwards]" role="dialog" aria-modal="true">
+            <div className="bg-[#181818] border border-yellow-400/70 rounded-2xl p-6 sm:p-7 text-center shadow-[var(--shadow-base)] w-[92vw] max-w-md animate-[pop_.22s_ease-out]">
+              <h2 className="text-xl font-bold text-yellow-400 mb-4">¡Regístrate o inicia sesión!</h2>
+              <p className="text-white mb-6">Para poder agendar debes registrarte o iniciar sesión.</p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    router.push("/ingresar");
+                  }}
+                  className="inline-flex h-10 px-4 items-center justify-center rounded-lg bg-yellow-400 text-black text-sm font-medium hover:bg-yellow-500 shadow-sm"
+                >
+                  Ingresar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    router.push("/registrarse");
+                  }}
+                  className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-yellow-400 text-yellow-400 text-sm font-medium hover:bg-yellow-400 hover:text-black"
+                >
+                  Registrarse
+                </button>
+                <button
+                  onClick={() => setShowAuthModal(false)}
+                  className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-white/20 text-white text-sm hover:bg-white/10"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </section>
   );
 }
-
