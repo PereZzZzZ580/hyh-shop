@@ -21,11 +21,29 @@ export class AdminOrdersController {
 
   @Patch(':id/pay')
   markPaid(@Param('id') id: string) {
-    return this.prisma.order.update({ where: { id }, data: { paymentStatus: 'APPROVED' } });
+    return this.prisma.order.update({ where: { id }, data: { paymentStatus: 'APPROVED', status: 'PAID' } });
   }
 
   @Patch(':id/fulfill')
   markFulfilled(@Param('id') id: string) {
     return this.prisma.order.update({ where: { id }, data: { status: 'FULFILLED', shipmentStatus: 'DELIVERED' } });
+  }
+
+  @Patch(':id/pending')
+  markPending(@Param('id') id: string) {
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: 'PENDING', paymentStatus: 'INITIATED', shipmentStatus: 'NONE' },
+    });
+  }
+
+  @Patch(':id/cancel')
+  cancel(@Param('id') id: string) {
+    return this.prisma.order.update({ where: { id }, data: { status: 'CANCELLED' } });
+  }
+
+  @Patch(':id/refund')
+  refund(@Param('id') id: string) {
+    return this.prisma.order.update({ where: { id }, data: { status: 'REFUNDED', paymentStatus: 'REFUNDED' } });
   }
 }
