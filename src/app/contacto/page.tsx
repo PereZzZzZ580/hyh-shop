@@ -26,12 +26,17 @@ const schema = z.object({
     .or(z.literal("").transform(() => undefined))
     .optional(),
   mensaje: z.string().min(1, "Mensaje requerido"),
-  consent: z.literal(true, {
-    errorMap: () => ({ message: "Acepta la política de privacidad" }),
+  // Compatibilidad con Zod v4: validar literal true con refine
+  consent: z.boolean().refine((v) => v === true, {
+    message: "Acepta la política de privacidad",
   }),
 });
 
-type FormData = z.infer<typeof schema>;
+// Tipado: React Hook Form trabaja con el shape de entrada del esquema.
+// Para evitar el desajuste de tipos con zodResolver (por defaults),
+// usamos z.input<typeof schema> para los valores del formulario.
+type FormValues = z.input<typeof schema>;
+type FormData = z.output<typeof schema>;
 
 export default function Contacto() {
   const {
@@ -39,9 +44,11 @@ export default function Contacto() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { motivo: "GENERAL" } as Partial<FormValues> });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (values: FormValues) => {
+    // Normaliza con Zod para aplicar defaults/conversión de tipos
+    const data: FormData = schema.parse(values);
     await fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -152,11 +159,13 @@ export default function Contacto() {
         )}
 
         <label className="flex items-center gap-2 text-sm text-white/80">
-          <input type="checkbox" {...register("consent")}/> Acepto la {" "}
-          <Link href="/privacidad" className="underline">política de privacidad</Link>
+          <input type="checkbox" {...register("consent")} /> Acepto la{" "}
+          <Link href="/privacidad" className="underline">
+            política de privacidad
+          </Link>
         </label>
         {errors.consent && (
-          <p className="text-red-500 text-sm">{errors.consent.message as string}</p>
+          <p className="text-red-500 text-sm">{String(errors.consent.message)}</p>
         )}
 
         <div className="flex items-center gap-3">
@@ -165,13 +174,13 @@ export default function Contacto() {
             disabled={isSubmitting}
             className="h-10 px-4 rounded-lg border border-white/20 inline-flex items-center gap-2"
           >
-            <Send size={16}/> Enviar
+            <Send size={16} /> Enviar
           </button>
           <a
             href={`https://wa.me/${waNumber}?text=${waText}`}
             className="h-10 px-4 rounded-lg border border-yellow-400/40 text-yellow-200 inline-flex items-center gap-2"
           >
-            <MessageCircle size={16}/> WhatsApp
+            <MessageCircle size={16} /> WhatsApp
           </a>
         </div>
       </form>
@@ -180,7 +189,7 @@ export default function Contacto() {
       <div className="max-w-2xl mx-auto mt-10 grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-white/15 p-4">
           <div className="flex items-center gap-2 text-yellow-100">
-            <Phone size={18}/> Teléfono / WhatsApp
+            <Phone size={18} /> Teléfono / WhatsApp
           </div>
           <a
             href={`https://wa.me/${waNumber}?text=${waText}`}
@@ -191,17 +200,23 @@ export default function Contacto() {
         </div>
         <div className="rounded-lg border border-white/15 p-4">
           <div className="flex items-center gap-2 text-yellow-100">
-            <Mail size={18}/> Email
+            <Mail size={18} /> Email
           </div>
-          <a href="mailto:contacto@hyhshop.co?subject=Consulta%20desde%20la%20web" className="block mt-2 text-sm text-white/80 hover:underline">
+          <a
+            href="mailto:contacto@hyhshop.co?subject=Consulta%20desde%20la%20web"
+            className="block mt-2 text-sm text-white/80 hover:underline"
+          >
             contacto@hyhshop.co
           </a>
         </div>
         <div className="rounded-lg border border-white/15 p-4">
           <div className="flex items-center gap-2 text-yellow-100">
-            <Clock size={18}/> Horario
+            <Clock size={18} /> Horario
           </div>
-          <p className="mt-2 text-sm text-white/80">Lun–Sáb  9:00 a.m–9:00 p.m</p>        </div>
+          <p className="mt-2 text-sm text-white/80">
+            Lun–Sáb 9:00 a.m. – 9:00 p.m.
+          </p>
+        </div>
       </div>
     </section>
   );
