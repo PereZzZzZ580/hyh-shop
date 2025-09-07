@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock } from "lucide-react";
+import { Clock, Shield, MapPin, CreditCard } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "@/store/auth";
@@ -61,34 +61,58 @@ export default function Servicios() {
 
   return (
     <section>
-      <section className="text-center space-y-3">
-        <h1 className="text-4xl font-bold">Barbería a Domicilio</h1>
-        <p className="opacity-80">
-          Profesionales a tu puerta, puntuales y con higiene certificada.
-        </p>
-        <div className="flex justify-center gap-3">
-          <a
-            href="#servicios"
-            className="border border-gold rounded-xl px-4 py-2 hover:bg-gold hover:text-black transition-colors cursor-pointer"
-          >
-            Ver servicios
-          </a>
-          <a
-            href="https://wa.me/573138907119"
-            onClick={(e) => {
-              if (!autenticado) {
+      {/* Héroe con imagen de fondo */}
+      <section className="relative overflow-hidden rounded-2xl border border-yellow-400/20">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[url('/barber-hero.jpg')] bg-cover bg-center opacity-40 md:opacity-50"
+        />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
+        <div className="relative mx-auto max-w-5xl px-6 py-16 md:py-24 text-center space-y-4">
+          <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-yellow-200">
+            Barbería a Domicilio
+          </h1>
+          <p className="text-neutral-200/90 md:text-lg">
+            Puntualidad, higiene y bioseguridad en cada visita.
+          </p>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <a
+              href="#servicios"
+              onClick={(e) => {
+                // Verificar auth: si no está autenticado, mostrar modal
+                if (!autenticado) {
+                  e.preventDefault();
+                  setShowAuthModal(true);
+                  return;
+                }
+                // Si está autenticado, hacer scroll suave a servicios
                 e.preventDefault();
-                setShowAuthModal(true);
-              }
-            }}
-            className="border border-gold rounded px-4 py-2 hover:bg-gold hover:text-black transition-colors cursor-pointer"
-          >
-            Agendar por WhatsApp
-          </a>
+                document
+                  .getElementById("servicios")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="rounded-xl border border-yellow-400/70 px-5 py-2.5 text-yellow-200 hover:bg-yellow-400 hover:text-black"
+            >
+              Ver servicios
+            </a>
+            <a
+              href="https://wa.me/573138907119"
+              onClick={(e) => {
+                if (!autenticado) {
+                  e.preventDefault();
+                  setShowAuthModal(true);
+                }
+              }}
+              className="rounded-xl bg-yellow-400 px-5 py-2.5 text-black hover:brightness-110"
+            >
+              Agendar por WhatsApp
+            </a>
+          </div>
         </div>
       </section>
 
-      <div id="servicios" className="mt-10 grid gap-6 md:grid-cols-3">
+      {/* Cuadrícula de servicios */}
+      <div id="servicios" className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {servicios.map((s) => (
           <article
             key={s.nombre}
@@ -99,7 +123,9 @@ export default function Servicios() {
             </div>
             <div className="p-4">
               <h3 className="text-xl font-semibold">{s.nombre}</h3>
-              <p className="opacity-80 text-sm">{s.duracion}</p>
+              <p className="mt-1 flex items-center gap-2 text-sm opacity-80">
+                <Clock className="h-4 w-4 text-yellow-300/80" /> {s.duracion}
+              </p>
               <p className="text-lg font-semibold">
                 ${s.precio.toLocaleString("es-CO")}
               </p>
@@ -120,56 +146,54 @@ export default function Servicios() {
         ))}
       </div>
 
-      <details className="p-4 border-t border-white/10 group">
-        <summary className="cursor-pointer font-medium transition-colors flex items-center justify-between">
-          <span>Higiene y bioseguridad</span>
-          <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </summary>
-        <div className="accordion-grid mt-2">
-          <div className="accordion-content">
-            <p className="opacity-80 text-sm py-1">Utensilios esterilizados y desinfección constante.</p>
+      {/* Bloque informativo con íconos */}
+      <section className="mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-2xl border border-yellow-400/15 bg-black/40 p-6">
+            <div className="h-10 w-10 rounded-full bg-yellow-400/20 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-yellow-300" />
+            </div>
+            <h3 className="mt-4 font-semibold text-yellow-100">Higiene y bioseguridad</h3>
+            <p className="mt-2 text-sm text-neutral-300">
+              Herramientas esterilizadas, desinfección constante y protocolos vigentes.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-yellow-400/15 bg-black/40 p-6">
+            <div className="h-10 w-10 rounded-full bg-yellow-400/20 flex items-center justify-center">
+              <MapPin className="h-5 w-5 text-yellow-300" />
+            </div>
+            <h3 className="mt-4 font-semibold text-yellow-100">Cobertura y horarios</h3>
+            <p className="mt-2 text-sm text-neutral-300">
+              Armenia y Calarcá. Agenda disponible de 8:00 a 20:00.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-yellow-400/15 bg-black/40 p-6">
+            <div className="h-10 w-10 rounded-full bg-yellow-400/20 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-yellow-300" />
+            </div>
+            <h3 className="mt-4 font-semibold text-yellow-100">Métodos de pago</h3>
+            <p className="mt-2 text-sm text-neutral-300">
+              Efectivo o transferencia. Factura digital disponible.
+            </p>
           </div>
         </div>
-      </details>
-      <details className="p-4 border-t border-white/10 group">
-        <summary className="cursor-pointer font-medium transition-colors flex items-center justify-between">
-          <span>Cobertura y horarios</span>
-          <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </summary>
-        <div className="accordion-grid mt-2">
-          <div className="accordion-content">
-            <p className="opacity-80 text-sm py-1">Armenia y Calarcá de 8am a 8pm.</p>
-          </div>
-        </div>
-      </details>
-      <details className="p-4 border-t border-white/10 group">
-        <summary className="cursor-pointer font-medium transition-colors flex items-center justify-between">
-          <span>Métodos de pago</span>
-          <svg className="summary-chevron h-4 w-4 text-white/70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 5l8 7-8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </summary>
-        <div className="accordion-grid mt-2">
-          <div className="accordion-content">
-            <p className="opacity-80 text-sm py-1">Efectivo o transferencia.</p>
-          </div>
-        </div>
-      </details>
+      </section>
 
       {servicioSeleccionado && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 pt-0">
-          <div className="w-full max-w-md rounded-lg bg-neutral-900 p-6 text-white">
-            <div className="w-full max-w-md rounded-lg bg-neutral-900 p-6 text-white"></div>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          {/* Fondo semitransparente */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setServicioSeleccionado(null)}
+          />
+          {/* Contenedor modal */}
+          <div className="relative w-[92vw] max-w-md rounded-2xl border border-yellow-400/60 bg-neutral-900 p-6 text-white shadow-2xl">
             <h3 className="text-xl font-semibold">
               Agendar {servicioSeleccionado.nombre}
             </h3>
             <p className="mt-2 text-sm opacity-80">
               Si deseas puedes contactarte directamente por WhatsApp con el
-              barbero o agendar la cita desde acá.
+              barbero o agendar la cita desde aquí.
             </p>
             <div className="mt-4">
               <a
@@ -188,7 +212,7 @@ export default function Servicios() {
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-green-500 underline cursor-pointer"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-green-500/60 px-4 text-green-400 hover:bg-green-500/10"
               >
                 Contactar por WhatsApp
               </a>
@@ -202,7 +226,7 @@ export default function Servicios() {
                   placeholder="Dirección"
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
-                  className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+                  className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
                 />
               </label>
               <label className="block text-sm">
@@ -213,14 +237,14 @@ export default function Servicios() {
                   placeholder="Selecciona la fecha"
                   value={fecha}
                   onChange={(e) => setFecha(e.target.value)}
-                  className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+                  className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
                 />
               </label>
               <label className="block text-sm">
                 <span className="mb-1 block">Hora</span>
                 <div className="relative">
                   {!hora && (
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/50 text-white/60">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
                       Selecciona la hora presionando el reloj
                     </span>
                   )}
@@ -229,7 +253,7 @@ export default function Servicios() {
                     required
                     value={hora}
                     onChange={(e) => setHora(e.target.value)}
-                    className={`w-full rounded border border-white/10 bg-neutral-800 p-2 pr-10 ${
+                    className={`w-full rounded-lg border border-white/15 bg-neutral-800 p-2 pr-10 ${
                       hora ? "text-white" : "text-transparent"
                     }`}
                   />
@@ -242,7 +266,7 @@ export default function Servicios() {
                   placeholder="Notas"
                   value={notas}
                   onChange={(e) => setNotas(e.target.value)}
-                  className="w-full rounded border border-white/10 bg-neutral-800 p-2"
+                  className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
                 />
               </label>
               <p className="text-xs opacity-80">
@@ -253,13 +277,13 @@ export default function Servicios() {
                 <button
                   type="button"
                   onClick={() => setServicioSeleccionado(null)}
-                  className="rounded border border-white/10 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
+                  className="rounded-lg border border-white/15 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="rounded border border-white/10 px-4 py-2 transition-colors hover:bg-white/10 cursor-pointer"
+                  className="rounded-lg border border-yellow-400 px-4 py-2 text-yellow-200 hover:bg-yellow-400/10 cursor-pointer"
                 >
                   Agendar
                 </button>
@@ -269,18 +293,21 @@ export default function Servicios() {
         </div>
       )}
 
-      <a
-        href="https://wa.me/573138907119"
-        onClick={(e) => {
+      {/* Botón flotante móvil */}
+      <button
+        onClick={() => {
           if (!autenticado) {
-            e.preventDefault();
             setShowAuthModal(true);
+            return;
           }
+          document
+            .getElementById("servicios")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
         className="fixed bottom-4 right-4 z-50 bg-gold text-black rounded-xl px-4 py-2 md:hidden transition-colors hover:bg-gold/80 cursor-pointer"
       >
         Agendar ahora
-      </a>
+      </button>
 
       {showAuthModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] opacity-0 animate-[fadeIn_.18s_ease-out_forwards]">
@@ -319,3 +346,4 @@ export default function Servicios() {
     </section>
   );
 }
+

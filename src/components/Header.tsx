@@ -99,7 +99,7 @@ export default function Header() {
     </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 font-semibold text-[15px] md:text-[16px] text-gold">
+        <nav className="hidden lg:flex items-center gap-8 font-semibold text-[15px] md:text-[16px] text-gold">
           <Link href="/" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Inicio</Link>
           <Link href="/servicios" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Servicios</Link>
           <Link href="/productos" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Productos</Link>
@@ -110,7 +110,7 @@ export default function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-6">
           <Link
             href="https://www.instagram.com/hhbarberhome/"
             target="_blank"
@@ -190,7 +190,7 @@ export default function Header() {
         </div>
 
         {/* Mobile Actions */}
-        <div className="md:hidden flex items-center gap-4">
+        <div className="lg:hidden flex items-center gap-4">
           {autenticado ? (
             <div className="relative" ref={userMenuMobileRef}>
               <button
