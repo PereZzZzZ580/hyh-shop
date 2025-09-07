@@ -30,6 +30,11 @@ const nextConfig = {
       },
     ],
   },
+  // Evita depender del binario nativo de Lightning CSS durante el build
+  // en entornos donde el optionalDependency pueda no resolverse.
+  experimental: {
+    optimizeCss: false,
+  },
   webpack: (config) => {
     // Use project root for alias in ESM config
     config.resolve.alias["@"] = path.resolve(process.cwd(), "src");
