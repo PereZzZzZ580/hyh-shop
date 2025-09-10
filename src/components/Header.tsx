@@ -177,7 +177,7 @@ export default function Header() {
                 href="/ingresar"
                 className="border-2 border-gold/80 text-gold px-5 py-2.5 rounded-xl hover:bg-gold hover:text-black shadow-[var(--shadow-gold)] hover:shadow-[0_8px_24px_rgba(255,215,0,.35)] transition-colors"
               >
-                Login
+                Iniciar sesión
               </Link>
               <Link
                 href="/registrarse"
@@ -253,7 +253,7 @@ export default function Header() {
       onClick={() => setOpen(false)}
     >
       <div
-        className={`fixed top-0 right-0 z-[60] h-full w-3/4 max-w-xs bg-black p-6 flex flex-col gap-6 text-gold rounded-l-xl shadow-xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 z-[60] h-full w-3/4 max-w-xs bg-black p-6 pb-8 flex flex-col gap-6 text-gold rounded-l-xl shadow-xl transition-transform duration-300 overflow-y-auto overscroll-contain ${open ? "translate-x-0" : "translate-x-full"}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -333,9 +333,9 @@ export default function Header() {
                 <Link
                   href="/ingresar"
                   onClick={() => setOpen(false)}
-                  className="bg-gold text-black px-4 py-2 rounded-xl text-center hover:bg-gold600 hover:shadow-gold transition-colors"
+                  className="border-2 border-gold text-gold px-4 py-2 rounded-xl text-center hover:bg-gold hover:text-black transition-colors"
                 >
-                  Login
+                  Iniciar sesión
                 </Link>
                 <Link
                   href="/registrarse"

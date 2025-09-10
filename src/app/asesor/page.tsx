@@ -351,6 +351,65 @@ export default function AsesorPage() {
     }
   }
 
+  // Obtiene un stream de cámara con comprobaciones y fallbacks
+  async function ensureCameraStream(): Promise<MediaStream> {
+    const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(location.hostname);
+    if (!window.isSecureContext && !isLocalhost) {
+      throw new Error("Necesitas usar HTTPS o localhost para usar la cámara.");
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("Tu navegador no soporta cámara o está deshabilitada.");
+    }
+
+    try {
+      return await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "user" } } });
+    } catch (err: any) {
+      if (err?.name === "OverconstrainedError" || err?.name === "NotFoundError") {
+        const devices = await navigator.mediaDevices.enumerateDevices().catch(() => [] as MediaDeviceInfo[]);
+        const firstCam = (devices as MediaDeviceInfo[]).find((d) => d.kind === "videoinput");
+        if (firstCam) {
+          try {
+            return await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: firstCam.deviceId } } });
+          } catch {}
+        }
+      }
+      try {
+        return await navigator.mediaDevices.getUserMedia({ video: true });
+      } catch (e2: any) {
+        const name = e2?.name ?? err?.name;
+        if (name === "NotAllowedError") throw new Error("Permiso denegado. Revisa los permisos del navegador.");
+        if (name === "NotFoundError") throw new Error("No se encontró una cámara en este dispositivo.");
+        if (name === "NotReadableError") throw new Error("La cámara está en uso por otra aplicación.");
+        if (name === "OverconstrainedError") throw new Error("No se pudo usar la cámara solicitada.");
+        if (name === "SecurityError") throw new Error("Bloqueado por la política de permisos del sitio.");
+        throw new Error("No se pudo acceder a la cámara.");
+      }
+    }
+  }
+
+  async function startCameraImproved() {
+    try {
+      // Primero solicita el stream dentro del gesto del usuario
+      const stream = await ensureCameraStream();
+
+      // Asegura que el elemento <video> exista antes de asignar el stream
+      setUsingCamera(true);
+      await new Promise((r) => setTimeout(r, 0));
+      let attempts = 0;
+      while (!videoRef.current && attempts < 10) {
+        await new Promise((r) => setTimeout(r, 50));
+        attempts++;
+      }
+      const video = videoRef.current;
+      if (!video) throw new Error("No se pudo inicializar el elemento de video.");
+      (video as HTMLVideoElement).srcObject = stream;
+      try { await (video as HTMLVideoElement).play(); } catch {}
+    } catch (e: any) {
+      setUsingCamera(false);
+      setError(e?.message || "No se pudo acceder a la cámara.");
+    }
+  }
+
   async function startCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -404,7 +463,7 @@ export default function AsesorPage() {
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             className="border-2 border-gold/80 text-gold px-4 py-2 rounded-xl hover:bg-gold hover:text-black transition-colors"
-            onClick={() => (usingCamera ? stopCamera() : startCamera())}
+            onClick={() => (usingCamera ? stopCamera() : startCameraImproved())}
             disabled={loadingModel}
           >
             {usingCamera ? "Detener cámara" : "Usar cámara"}
@@ -457,7 +516,7 @@ export default function AsesorPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-xl overflow-hidden bg-black/40 border border-white/10 min-h-[240px] flex items-center justify-center">
               {usingCamera ? (
-                <video ref={videoRef} className="w-full h-auto" playsInline muted />
+                <video ref={videoRef} className="w-full h-auto" playsInline autoPlay muted />
               ) : currentImgUrl ? (
                 <img src={currentImgUrl} alt="captura" className="w-full h-auto object-contain" />
               ) : (
