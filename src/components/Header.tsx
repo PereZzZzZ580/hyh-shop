@@ -106,7 +106,6 @@ export default function Header() {
           <Link href="/asesor" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Asesor</Link>
           <Link href="/galeria" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Galería</Link>
           <Link href="/tienda" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Nuestra Tienda</Link>
-          <Link href="/contacto" className="hover:underline hover:underline-offset-4 hover:shadow-gold">Contacto</Link>
         </nav>
 
         {/* Desktop Actions */}
@@ -271,7 +270,6 @@ export default function Header() {
           <Link href="/asesor" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Asesor</Link>
           <Link href="/galeria" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Galería</Link>
           <Link href="/tienda" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Nuestra Tienda</Link>
-          <Link href="/contacto" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Contacto</Link>
         </nav>
         <div className="mt-auto flex flex-col gap-5 text-gold">
           <Link
