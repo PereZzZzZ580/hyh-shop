@@ -40,11 +40,15 @@ export async function POST(req: NextRequest) {
   const SAME_SITE = (['lax','strict','none'].includes(sameSiteEnv) ? (sameSiteEnv as "lax"|"strict"|"none") : 'lax');
 
   const response = NextResponse.json({ ok: true });
+  const cookieDomain = process.env.COOKIE_DOMAIN && process.env.COOKIE_DOMAIN.trim() !== ''
+    ? process.env.COOKIE_DOMAIN.trim()
+    : undefined;
   response.cookies.set("token", token, {
     httpOnly: true,
     sameSite: SAME_SITE,
     secure: SECURE_COOKIE,
     path: "/",
+    domain: cookieDomain,
     maxAge: 60 * 60 * 24, // 1 día (coincide con expiresIn del backend)
   });
   return response;
