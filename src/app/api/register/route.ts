@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   // Enforce same-origin to mitigate CSRF for registration
   const origin = req.headers.get("origin");
-  const allowedOrigin = process.env.APP_ORIGIN || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const allowedOrigin = process.env.APP_ORIGIN || req.nextUrl.origin;
   if (origin && origin !== allowedOrigin) {
     return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
   }

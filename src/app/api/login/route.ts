@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   // Enforce same-origin to mitigate login CSRF/session fixation
   const origin = req.headers.get("origin");
-  const allowedOrigin = process.env.APP_ORIGIN || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  // Permite por defecto el mismo origen desde el que se sirve la app
+  const allowedOrigin = process.env.APP_ORIGIN || req.nextUrl.origin;
   if (origin && origin !== allowedOrigin) {
     return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
   }
@@ -48,4 +49,3 @@ export async function POST(req: NextRequest) {
   });
   return response;
 }
-
