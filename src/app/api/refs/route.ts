@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.PEXELS_API_KEY || process.env.NEXT_PUBLIC_PEXELS_KEY; // por si acaso
   const fallback = Array.from({ length: count }, (_, i) =>
-    `https://picsum.photos/seed/${encodeURIComponent(shape)}-${i}/600/400`
+    `https://picsum.photos/seed/${encodeURIComponent(shape)}-${i}/600/900`
   );
 
   if (!apiKey) {
@@ -62,9 +62,25 @@ export async function GET(req: NextRequest) {
     "low fade": ["low fade"],
     "mid fade": ["mid fade", "medium fade"],
     "high fade": ["high fade"],
+    "skin fade": ["skin fade", "bald fade"],
     textured: ["textured", "texture"],
     "textured crop": ["textured crop", "french crop"],
     crop: ["crop", "french crop"],
+    "french crop": ["french crop", "textured crop"],
+    "buzz cut": ["buzz cut", "induction cut"],
+    "ivy league": ["ivy league", "harvard clip"],
+    "slick back": ["slick back", "slicked back"],
+    mullet: ["mullet"],
+    "faux hawk": ["faux hawk", "fohawk"],
+    curtains: ["curtains", "middle part"],
+    "flat top": ["flat top"],
+    caesar: ["caesar", "ceasar"],
+    edgar: ["edgar cut", "takuache"],
+    bowl: ["bowl cut"],
+    "line up": ["line up", "shape up"],
+    taper: ["taper", "taper fade"],
+    "drop fade": ["drop fade"],
+    "burst fade": ["burst fade"],
     layers: ["layers", "layered"],
     "medium length": ["medium length", "medium hair"],
     "side swept fringe": ["side swept fringe", "side fringe"],
@@ -77,10 +93,12 @@ export async function GET(req: NextRequest) {
     for (const key of Object.keys(STYLE_KEYWORDS)) {
       if (s.includes(normalize(key))) STYLE_KEYWORDS[key].forEach((k) => out.add(k));
     }
+    // Spanish hints
     if (s.includes("desvanecido")) out.add("fade");
     if (s.includes("alto")) out.add("high fade");
     if ((s.includes("medio") && s.includes("fade")) || (s.includes("medio") && s.includes("desvanecido"))) out.add("mid fade");
     if (s.includes("bajo")) out.add("low fade");
+    if (s.includes("piel")) out.add("skin fade");
     if (s.includes("flequillo")) out.add("fringe");
     if (s.includes("texturiz")) out.add("textured");
     if (s.includes("capas")) out.add("layers");
@@ -93,59 +111,124 @@ export async function GET(req: NextRequest) {
 
   const shapeQualifier = shapeToQuery[shape] || "face";
 
-  // Si el cliente envía estilos, hacemos varias consultas específicas y agregamos
+  async function fetchPexels(q: string, perPage: number) {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(q)}&per_page=${perPage}&orientation=portrait&locale=en-US&page=1`,
+      {
+        headers: { Authorization: apiKey! },
+        next: { revalidate },
+      }
+    );
+    if (!res.ok) return [] as any[];
+    const data = await res.json();
+    return (data?.photos as any[]) || [];
+  }
+
+  // Optional providers: Unsplash and Pixabay (if keys present)
+  const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
+  async function fetchUnsplash(q: string, perPage: number) {
+    if (!UNSPLASH_KEY) return [] as any[];
+    const res = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=${perPage}&orientation=portrait`,
+      {
+        headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` },
+        next: { revalidate },
+      }
+    );
+    if (!res.ok) return [] as any[];
+    const data = await res.json();
+    return (data?.results as any[]) || [];
+  }
+
+  const PIXABAY_KEY = process.env.PIXABAY_API_KEY;
+  async function fetchPixabay(q: string, perPage: number) {
+    if (!PIXABAY_KEY) return [] as any[];
+    const urlPix = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(q)}&per_page=${perPage}&image_type=photo&orientation=vertical&category=people&safesearch=true`;
+    const res = await fetch(urlPix, { next: { revalidate } as any });
+    if (!res.ok) return [] as any[];
+    const data = await res.json();
+    return (data?.hits as any[]) || [];
+  }
+
+  function rankPhotos(photos: any[], styleWords: string[]) {
+    const negative = ["woman", "female", "girl", "lady", "kid", "child", "children"];
+    const hairWords = [
+      "hair",
+      "hairstyle",
+      "haircut",
+      "barber",
+      "pompadour",
+      "quiff",
+      "fade",
+      "undercut",
+      "fringe",
+      "layers",
+      "textured",
+      "crop",
+      "crew",
+      "side part",
+      "beard",
+    ];
+    return photos
+      .map((p) => {
+        const alt = (
+          p?.alt ||
+          p?.description ||
+          p?.alt_description ||
+          (Array.isArray(p?.tags) ? p.tags.map((t: any) => (t?.title || t)).join(" ") : p?.tags) ||
+          p?.tags_en ||
+          ""
+        )
+          .toString()
+          .toLowerCase();
+        let score = 0;
+        for (const sw of styleWords) if (alt.includes(sw)) score += 5; // fuerte
+        for (const hw of hairWords) if (alt.includes(hw)) score += 2;
+        if (negative.some((n) => alt.includes(n))) score -= 8;
+        // Preferir retratos verticales y tamaños grandes
+        const width = p?.width || p?.imageWidth || p?.w || 0;
+        const height = p?.height || p?.imageHeight || p?.h || 0;
+        if (height >= width) score += 1;
+        if (width >= 1200 || height >= 1200) score += 1;
+        if (p?.src?.portrait || p?.urls?.regular || p?.largeImageURL) score += 1;
+        return { p, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .map(({ p }) => p);
+  }
+
+  // 1) Con estilos -> múltiples consultas específicas + ranking
   if (styles.length > 0) {
     try {
-      const perStyle = Math.max(1, Math.ceil(count / styles.length));
-      const queries = styles.map((style) => {
+      const perStyle = Math.min(15, Math.max(6, Math.ceil((count * 3) / styles.length)));
+      const photoBuckets: any[] = [];
+      for (const style of styles) {
         const kws = styleToKeywords(style);
-        const extra = kws.length ? kws.join(" ") : style;
-        return `male men barber hairstyle haircut ${extra} ${shapeQualifier} portrait close-up`;
-      });
-      const responses = await Promise.allSettled(
-        queries.map((q) =>
-          fetch(
-            `https://api.pexels.com/v1/search?query=${encodeURIComponent(q)}&per_page=${perStyle}&orientation=portrait&locale=en-US&page=1`,
-            {
-              headers: { Authorization: apiKey },
-              next: { revalidate },
-            }
-          )
-        )
-      );
-      const allPhotos: any[] = [];
-      for (const r of responses) {
-        if (r.status === "fulfilled" && r.value.ok) {
-          try {
-            const data = await r.value.json();
-            if (Array.isArray(data?.photos)) allPhotos.push(...data.photos);
-          } catch {}
-        }
+        const extra = (kws.length ? kws : [style]).join(" ");
+        const baseQuery = `male men barber hairstyle haircut ${extra} ${shapeQualifier} portrait close-up`;
+        const altQuery = `men ${extra} haircut portrait barbershop`;
+        const [a, b, u1, x1] = await Promise.all([
+          fetchPexels(baseQuery, perStyle),
+          fetchPexels(altQuery, Math.max(4, Math.floor(perStyle / 2))),
+          fetchUnsplash(`${extra} haircut portrait`, Math.max(6, Math.floor(perStyle / 2))),
+          fetchPixabay(`${extra} haircut man`, Math.max(6, Math.floor(perStyle / 2))),
+        ]);
+        const ranked = rankPhotos([...a, ...b, ...u1, ...x1], kws.length ? kws : [normalize(style)]);
+        photoBuckets.push(...ranked);
       }
-      const hairWords = [
-        "hair",
-        "hairstyle",
-        "haircut",
-        "barber",
-        "pompadour",
-        "quiff",
-        "fade",
-        "undercut",
-        "fringe",
-        "layers",
-        "textured",
-        "crop",
-        "crew",
-        "side part",
-      ];
-      const filtered = allPhotos.filter((p: any) => {
-        const alt = String(p?.alt || "").toLowerCase();
-        return hairWords.some((w) => alt.includes(w));
-      });
-      const preferred = (filtered.length ? filtered : allPhotos)
-        .map((p: any) => p?.src?.medium || p?.src?.portrait || p?.src?.large)
+      const preferred = photoBuckets
+        .map((p: any) => p?.src?.large2x || p?.src?.portrait || p?.src?.large || p?.src?.medium || p?.urls?.regular || p?.largeImageURL)
         .filter(Boolean);
-      const urls = Array.from(new Set(preferred)).slice(0, count);
+      let urls = Array.from(new Set(preferred)).slice(0, count);
+
+      // Fallback adicional con Unsplash (featured) si faltan
+      if (urls.length < count) {
+        const missing = count - urls.length;
+        const styleString = normalize(styles.join(" ") || "haircut").replace(/\s+/g, ",");
+        const base = `https://source.unsplash.com/800x1200/?male,men,haircut,hairstyle,barber,${styleString}`;
+        for (let i = 0; i < missing; i++) urls.push(`${base}&sig=${i}`);
+      }
+
       if (!urls.length) return NextResponse.json({ urls: fallback });
       return NextResponse.json({ urls });
     } catch {
@@ -153,37 +236,30 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Si no hay estilos, consulta genérica por forma de rostro
-  const query = `male men barber hairstyle haircut ${shapeQualifier} portrait close-up`;
+  // 2) Sin estilos -> consulta genérica por forma de rostro y ranking
   try {
-    const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=portrait&locale=en-US&page=1`,
-      {
-        headers: { Authorization: apiKey },
-        // habilita cache en Next; los CDN de Pexels ya responden con cache
-        next: { revalidate },
-      }
-    );
-    if (!res.ok) {
-      return NextResponse.json({ urls: fallback }, { status: 200 });
+    const query = `male men barber hairstyle haircut ${shapeQualifier} portrait close-up`;
+    const [p1, u1, x1] = await Promise.all([
+      fetchPexels(query, Math.max(12, count * 2)),
+      fetchUnsplash(`men haircut portrait barber`, Math.max(8, count)),
+      fetchPixabay(`men haircut portrait`, Math.max(8, count)),
+    ]);
+    const photos = [...p1, ...u1, ...x1];
+    const ranked = rankPhotos(photos, []);
+    let urls = ranked
+      .map((p: any) => p?.src?.large2x || p?.src?.portrait || p?.src?.large || p?.src?.medium || p?.urls?.regular || p?.largeImageURL)
+      .filter(Boolean)
+      .slice(0, count);
+
+    if (urls.length < count) {
+      const base = `https://source.unsplash.com/800x1200/?male,men,haircut,hairstyle,barber`;
+      const missing = count - urls.length;
+      for (let i = 0; i < missing; i++) urls.push(`${base}&sig=${i}`);
     }
-    const data = await res.json();
-    const urls = (data?.photos || [])
-      .filter((p: any) => {
-        const alt = String(p?.alt || "").toLowerCase();
-        return (
-          alt.includes("hair") ||
-          alt.includes("hairstyle") ||
-          alt.includes("haircut") ||
-          alt.includes("barber")
-        );
-      })
-      .map((p: any) => p?.src?.medium || p?.src?.portrait || p?.src?.large)
-      .filter(Boolean);
+
     if (!urls.length) return NextResponse.json({ urls: fallback });
     return NextResponse.json({ urls });
   } catch {
     return NextResponse.json({ urls: fallback });
   }
 }
-

@@ -50,7 +50,7 @@ const RECOMMENDATIONS: Record<ShapeKey, string[]> = {
   ],
   rectangular: [
     "Flequillo para acortar frente",
-    "Medium crop",
+    "French crop",
     "Texturizado con caída",
     "Corte medio con capas",
   ],
@@ -62,7 +62,7 @@ const RECOMMENDATIONS: Record<ShapeKey, string[]> = {
   ],
   corazon: [
     "Side swept fringe",
-    "Medium crop",
+    "French crop",
     "Fade bajo con textura",
     "Cortes que aporten volumen en laterales",
   ],
