@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  // Enforce same-origin to mitigate CSRF for registration
+  const origin = req.headers.get("origin");
+  const allowedOrigin = process.env.APP_ORIGIN || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  if (origin && origin !== allowedOrigin) {
+    return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+  }
   const body = await req.json();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -28,4 +34,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

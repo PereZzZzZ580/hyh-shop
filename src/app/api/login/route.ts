@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  // Enforce same-origin to mitigate login CSRF/session fixation
+  const origin = req.headers.get("origin");
+  const allowedOrigin = process.env.APP_ORIGIN || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  if (origin && origin !== allowedOrigin) {
+    return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+  }
+
   const body = await req.json();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   // Permite desactivar la cookie "secure" en despliegues sin HTTPS
   const SECURE_COOKIE = (process.env.COOKIE_SECURE
     ? process.env.COOKIE_SECURE === "true"
     : process.env.NODE_ENV === "production");
+
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -26,13 +34,18 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  const sameSiteEnv = (process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === "production" ? "strict" : "lax")).toLowerCase();
+  const SAME_SITE = (['lax','strict','none'].includes(sameSiteEnv) ? (sameSiteEnv as "lax"|"strict"|"none") : 'lax');
+
   const response = NextResponse.json({ ok: true });
   response.cookies.set("token", token, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: SAME_SITE,
     secure: SECURE_COOKIE,
     path: "/",
     maxAge: 60 * 60 * 24, // 1 día (coincide con expiresIn del backend)
   });
   return response;
 }
+
