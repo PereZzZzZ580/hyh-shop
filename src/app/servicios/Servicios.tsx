@@ -21,11 +21,6 @@ export default function Servicios() {
   type Servicio = (typeof servicios)[number];
 
   const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(null);
-  // Estados antiguos (mantener para evitar errores en el bloque antiguo que quedó deshabilitado)
-  const [direccion, setDireccion] = useState("");
-  const [fecha, setFecha] = useState("");
-  const [hora, setHora] = useState("");
-  const [notas, setNotas] = useState("");
   const [showJoinModal, setShowJoinModal] = useState(false);
 
   // Bloquear scroll cuando hay modal
@@ -266,7 +261,7 @@ export default function Servicios() {
       </section>
 
       {/* Modal de reserva */}
-      {servicioSeleccionado && false && (
+      {/*
         <Portal>
           <div className="fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
             <div className="absolute inset-0 bg-black/70" onClick={() => setServicioSeleccionado(null)} />
@@ -375,7 +370,7 @@ export default function Servicios() {
             </div>
           </div>
         </Portal>
-      )}
+      */}
 
       {servicioSeleccionado && (
         <ReservaModal servicio={servicioSeleccionado} onClose={() => setServicioSeleccionado(null)} />
