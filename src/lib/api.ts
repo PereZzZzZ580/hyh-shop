@@ -11,11 +11,16 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}) {
     ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {}),
   };
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    credentials: "include",
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      credentials: "include",
+      headers,
+    });
+  } catch (err: any) {
+    throw new Error("No se pudo conectar con la API");
+  }
   if (!res.ok) {
     const msg = await res.text();
     throw new Error(msg || "Error al llamar a la API");
@@ -32,11 +37,16 @@ export async function apiFetchAuth<T>(
     ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {}),
   };
-  const res = await fetch(`${INTERNAL_API_BASE}${path}`, {
-    ...options,
-    credentials: "include",
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${INTERNAL_API_BASE}${path}`, {
+      ...options,
+      credentials: "include",
+      headers,
+    });
+  } catch (err: any) {
+    throw new Error("No se pudo conectar con el servidor");
+  }
   if (!res.ok) {
     const msg = await res.text();
     throw new Error(msg || "Error al llamar a la API");

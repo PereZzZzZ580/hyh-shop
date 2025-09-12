@@ -1,9 +1,10 @@
 "use client";
 
-import { apiFetch } from "@/lib/api";
+import { apiFetchAuth } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -36,6 +37,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function Registrarse() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -47,17 +49,28 @@ export default function Registrarse() {
   const termsAccepted = watch("terms", false);
 
   const onSubmit = async (data: FormData) => {
-    await apiFetch("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-    router.push("/ingresar");
+    setError(null);
+    try {
+      await apiFetchAuth("/register", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      router.push("/ingresar");
+    } catch (e: any) {
+      const msg = e?.message || "No se pudo completar el registro";
+      setError(
+        msg.includes("Failed to fetch")
+          ? "No se puede contactar con el servidor. Intentalo de nuevo."
+          : msg
+      );
+    }
   };
 
   return (
     <div className="flex min-h-screen justify-center bg-neutral-50 px-4 py-24">
       <div className="w-full max-w-[400px] space-y-6 rounded-lg bg-white p-8 text-gray-900 shadow">
         <h1 className="text-3xl font-bold">Registrarse</h1>
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <input
