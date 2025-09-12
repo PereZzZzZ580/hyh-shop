@@ -21,12 +21,7 @@ const token = req.cookies.get("token")?.value;
     } catch {
       return NextResponse.redirect(new URL("/", req.url));
     }
-  } else if (
-    !token &&
-     (pathname.startsWith("/checkout") ||
-      pathname.startsWith("/mi-cuenta") ||
-      pathname.startsWith("/pedido"))
-  ) {
+  } else if (!token && pathname.startsWith("/mi-cuenta")) {
     return NextResponse.redirect(new URL("/ingresar", req.url));
   }
 
@@ -35,9 +30,7 @@ const token = req.cookies.get("token")?.value;
 
 export const config = {
    matcher: [
-    "/checkout/:path*",
     "/mi-cuenta/:path*",
-    "/pedido/:path*",
     "/admin/:path*",
   ],
 };

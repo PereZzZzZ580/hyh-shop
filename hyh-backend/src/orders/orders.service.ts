@@ -250,7 +250,188 @@ export class OrdersService {
   }
 
   private buildWhatsAppText(items: { name: string; qty: number; unit: number }[], grandTotal: number) {
-    const lines = items.map(i => `• ${i.name} x${i.qty} — $${i.unit.toLocaleString('es-CO')}`).join('%0A');
+    const lines = items.map(i => `• ${i.name} x${i.qty} – $${i.unit.toLocaleString('es-CO')}`).join('%0A');
     return `Hola, quiero confirmar este pedido:%0A${lines}%0A%0ATotal: $${grandTotal.toLocaleString('es-CO')}`;
+  }
+
+  // Guest checkout: preview totals from items (no cart, no auth)
+  async previewGuest(params: {
+    items: { variantId: string; qty: number }[];
+    coupon?: string;
+    city?: string;
+    paymentMethod?: 'COD' | 'WHATSAPP' | 'WOMPI';
+  }) {
+    if (!params.items || params.items.length === 0) throw new BadRequestException('Cart is empty');
+    const variantIds = params.items.map(i => i.variantId);
+    const variants = await this.prisma.variant.findMany({
+      where: { id: { in: variantIds } },
+      include: { product: true },
+    });
+    if (variants.length !== variantIds.length) throw new NotFoundException('One or more variants not found');
+    const byId = new Map(variants.map(v => [v.id, v] as const));
+    const lines = params.items.map(i => {
+      const v = byId.get(i.variantId)!;
+      return { qty: i.qty, unitPrice: v.price };
+    });
+    const subtotal = lines.reduce((acc, l) => acc + l.unitPrice * l.qty, 0);
+
+    const coupon = params.coupon
+      ? await this.coupons.validate(params.coupon, subtotal).catch(() => null)
+      : null;
+
+    const weightGr = params.items.reduce((acc, i) => acc + (byId.get(i.variantId)!.weight ?? 500) * i.qty, 0);
+    const ship = await this.shipping.quote({ city: params.city, weightGr });
+
+    if (params.paymentMethod === 'COD' && COD_CITIES.length) {
+      const city = (params.city || '').toLowerCase();
+      if (!city || !COD_CITIES.includes(city)) {
+        throw new BadRequestException(`Contraentrega solo disponible en: ${COD_CITIES.join(', ')}`);
+      }
+    }
+
+    const totals = this.pricing.preview({
+      lines,
+      shipping: { baseFee: ship.total },
+      coupon:
+        coupon && coupon.rule && typeof coupon.rule === 'object'
+          ? { type: (coupon.rule as any).type, value: (coupon.rule as any).value }
+          : null,
+      taxRate: 0,
+    });
+
+    const waText = this.buildWhatsAppText(
+      params.items.map(i => ({ name: byId.get(i.variantId)!.product.name, qty: i.qty, unit: byId.get(i.variantId)!.price })),
+      totals.grandTotal,
+    );
+
+    return {
+      items: params.items.map(i => ({
+        variantId: i.variantId,
+        qty: i.qty,
+        unitPrice: byId.get(i.variantId)!.price,
+        name: byId.get(i.variantId)!.product.name,
+      })),
+      shipping: ship,
+      coupon: coupon ? { code: (coupon as any).code, discount: totals.discountTotal } : null,
+      totals,
+      paymentMethod: params.paymentMethod ?? null,
+      whatsapp: WHATSAPP_NUMBER
+        ? { number: WHATSAPP_NUMBER, message: waText, waLink: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}` }
+        : null,
+    };
+  }
+
+  async createGuest(params: {
+    items: { variantId: string; qty: number }[];
+    paymentMethod: 'COD' | 'WHATSAPP' | 'WOMPI';
+    addressRaw?: { country?: string; city?: string; line1?: string; line2?: string; phone?: string; zip?: string } | null;
+    contactName?: string | null;
+    contactPhone?: string | null;
+  }) {
+    if (!params.items || params.items.length === 0) throw new BadRequestException('Cart is empty');
+
+    const variantIds = params.items.map(i => i.variantId);
+    const variants = await this.prisma.variant.findMany({
+      where: { id: { in: variantIds } },
+      include: { product: true },
+    });
+    if (variants.length !== variantIds.length) throw new NotFoundException('One or more variants not found');
+    const byId = new Map(variants.map(v => [v.id, v] as const));
+
+    const city = (params.addressRaw?.city || '').toLowerCase();
+    if (params.paymentMethod === 'COD') {
+      if (!params.contactName || !params.contactPhone || !city) {
+        throw new BadRequestException('Contraentrega requiere nombre, teléfono y ciudad');
+      }
+      if (COD_CITIES.length && !COD_CITIES.includes(city)) {
+        throw new BadRequestException(`Contraentrega solo disponible en: ${COD_CITIES.join(', ')}`);
+      }
+    }
+
+    const weightGr = params.items.reduce((acc, i) => acc + (byId.get(i.variantId)!.weight ?? 500) * i.qty, 0);
+    const ship = await this.shipping.quote({ city: params.addressRaw?.city, weightGr });
+    const lines = params.items.map(i => ({ qty: i.qty, unitPrice: byId.get(i.variantId)!.price }));
+    const totals = this.pricing.preview({ lines, shipping: { baseFee: ship.total }, taxRate: 0 });
+
+    const order = await this.prisma.$transaction(async (tx) => {
+      // stock
+      for (const it of params.items) {
+        const v = byId.get(it.variantId)!;
+        if (v.stock < it.qty) throw new BadRequestException(`Sin stock para variante ${it.variantId}`);
+      }
+
+      const created = await tx.order.create({
+        data: {
+          userId: null,
+          addressId: null,
+          status: 'PENDING',
+          paymentStatus: 'INITIATED',
+          paymentMethod: params.paymentMethod as any,
+          contactName: params.contactName ?? null,
+          contactPhone: params.contactPhone ?? null,
+          shipmentStatus: 'NONE',
+          currency: 'COP',
+          subtotal: totals.subtotal,
+          discountTotal: totals.discountTotal,
+          shippingTotal: totals.shippingTotal,
+          taxTotal: totals.taxTotal,
+          grandTotal: totals.grandTotal,
+          items: {
+            create: params.items.map((i) => ({
+              variantId: i.variantId,
+              qty: i.qty,
+              unitPrice: byId.get(i.variantId)!.price,
+              discount: 0,
+            })),
+          },
+        },
+      });
+
+      for (const it of params.items) {
+        await tx.variant.update({
+          where: { id: it.variantId },
+          data: {
+            stock: { decrement: it.qty },
+            movements: { create: { type: 'OUT', qty: it.qty, note: `Order ${created.id}` } },
+          },
+        });
+      }
+
+      return created;
+    });
+
+    const waText = this.buildWhatsAppText(
+      params.items.map(i => ({ name: byId.get(i.variantId)!.product.name, qty: i.qty, unit: byId.get(i.variantId)!.price })),
+      totals.grandTotal,
+    );
+
+    const baseFrontend = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const wompi:
+      | { checkoutUrl: string }
+      | null = params.paymentMethod === 'WOMPI'
+      ? {
+          checkoutUrl: this.wompi.buildCheckoutUrl({
+            reference: order.id,
+            amountInCents: totals.grandTotal * 100,
+            currency: 'COP',
+            redirectUrl: `${baseFrontend}/pedido/${order.id}`,
+            customerName: params.contactName ?? null,
+            customerPhone: params.contactPhone ?? null,
+          }),
+        }
+      : null;
+
+    return {
+      orderId: order.id,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      totals,
+      whatsapp:
+        params.paymentMethod === 'WHATSAPP' && WHATSAPP_NUMBER
+          ? { number: WHATSAPP_NUMBER, waLink: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}` }
+          : null,
+      wompi,
+    };
   }
 }

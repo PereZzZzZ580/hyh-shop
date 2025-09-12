@@ -43,7 +43,25 @@ export default function PedidoExito() {
     } catch {}
   }, [id]);
 
-  if (!resumen) return null;
+  if (!resumen) {
+    return (
+      <section className="max-w-3xl">
+        <div className="rounded-2xl border border-white/10 p-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold">¡Pedido creado!</h1>
+            <span className="text-sm opacity-80">N.º {id}</span>
+          </div>
+          <p className="mt-4 opacity-80">
+            Tu pedido fue generado correctamente. Si pagaste por WhatsApp o Contraentrega, te contactaremos para confirmar.
+          </p>
+          <div className="mt-6 space-y-2">
+            <a href="/registrarse" className="inline-block h-10 rounded-lg px-4 border border-white/15 hover:border-white/30">Crear cuenta y guardar mis datos</a>
+            <a href="/" className="inline-block h-10 rounded-lg px-4 border border-white/15 hover:border-white/30">Volver al inicio</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="max-w-3xl">

@@ -13,6 +13,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [menuUsuario, setMenuUsuario] = useState(false);
   const fetchCart = useCart((s) => s.fetch);
+  const persistCartLocal = useCart((s) => s.persistLocal);
   const autenticado = useAuth((s) => s.autenticado);
   const usuario = useAuth((s) => s.usuario);
   const setAutenticado = useAuth((s) => s.setAutenticado);
@@ -158,6 +159,7 @@ export default function Header() {
                 )}
                 <button
                   onClick={() => {
+                    persistCartLocal();
                     fetch("/api/logout", { method: "POST" });
                     setAutenticado(false);
                     setUsuario(null);
@@ -315,6 +317,7 @@ export default function Header() {
                 )}
                 <button
                   onClick={() => {
+                    persistCartLocal();
                     fetch("/api/logout", { method: "POST" });
                     setAutenticado(false);
                     setUsuario(null);

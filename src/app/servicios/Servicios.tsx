@@ -10,51 +10,26 @@ import { useRouter } from "next/navigation";
 export default function Servicios() {
   const { autenticado } = useAuth();
   const router = useRouter();
+
   const servicios = [
-    {
-      nombre: "Barba sola",
-      precio: 15000,
-      duracion: "25 min",
-      img: "/corteBarba.png",
-    },
-    {
-      nombre: "Barba + Corte",
-      precio: 30000,
-      duracion: "60 min",
-      img: "/Barbar_y_pelo.png",
-    },
-    {
-      nombre: "Cejas",
-      precio: 5000,
-      duracion: "10 min",
-      img: "/haciendoCejas.png",
-    },
-    {
-      nombre: "Corte + Barba + Cejas",
-      precio: 35000,
-      duracion: "75 min",
-      img: "/barbaCejaCorte.png",
-    },
-    {
-      nombre: "Corte solo",
-      precio: 28000,
-      duracion: "45 min",
-      img: "/corteClasico.png",
-    },
-  ];
+    { nombre: "Barba sola", precio: 15000, duracion: "25 min", img: "/corteBarba.png" },
+    { nombre: "Barba + Corte", precio: 30000, duracion: "60 min", img: "/Barbar_y_pelo.png" },
+    { nombre: "Cejas", precio: 5000, duracion: "10 min", img: "/haciendoCejas.png" },
+    { nombre: "Corte + Barba + Cejas", precio: 35000, duracion: "75 min", img: "/barbaCejaCorte.png" },
+    { nombre: "Corte solo", precio: 28000, duracion: "45 min", img: "/corteClasico.png" },
+  ] as const;
   type Servicio = (typeof servicios)[number];
-  const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(
-    null,
-  );
+
+  const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(null);
   const [direccion, setDireccion] = useState("");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
   const [notas, setNotas] = useState("");
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
-  // Bloquear el scroll del body cuando haya cualquier modal abierto
+  // Bloquear scroll cuando hay modal
   useEffect(() => {
-    const anyOpen = showAuthModal || !!servicioSeleccionado;
+    const anyOpen = !!servicioSeleccionado || showJoinModal;
     if (anyOpen) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
@@ -62,9 +37,9 @@ export default function Servicios() {
         document.body.style.overflow = prev;
       };
     }
-  }, [showAuthModal, servicioSeleccionado]);
+  }, [servicioSeleccionado, showJoinModal]);
 
-  // Portal para evitar problemas de posicionamiento fijo dentro de contenedores transformados
+  // Portal helper
   function Portal({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
@@ -72,70 +47,53 @@ export default function Servicios() {
     return createPortal(children, document.body);
   }
 
+  const abrirWA = (texto: string) => {
+    const url = `https://wa.me/573138907119?text=${encodeURIComponent(texto)}`;
+    window.open(url, "_blank", "noopener");
+  };
+
   const enviarWhatsApp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!autenticado) {
-      setShowAuthModal(true);
-      return;
-    }
     if (!servicioSeleccionado) return;
-    const mensaje = encodeURIComponent(
-      `Hola, deseo agendar ${servicioSeleccionado.nombre} el ${fecha} a las ${hora} en ${direccion}. ${
-        notas ? `Notas: ${notas}` : ""
-      }`
-    );
-    window.open(`https://wa.me/573138907119?text=${mensaje}`);
+    const texto = `Hola, deseo agendar ${servicioSeleccionado.nombre}${
+      fecha ? ` el ${fecha}` : ""
+    }${hora ? ` a las ${hora}` : ""}${direccion ? ` en ${direccion}` : ""}.${
+      notas ? ` Notas: ${notas}` : ""
+    }`;
+    abrirWA(texto);
+    // limpiar
     setServicioSeleccionado(null);
     setDireccion("");
     setFecha("");
     setHora("");
     setNotas("");
+    if (!autenticado) setShowJoinModal(true);
   };
 
   return (
     <section>
-      {/* Héroe con imagen de fondo */}
+      {/* Héroe */}
       <section className="relative overflow-hidden rounded-2xl border border-yellow-400/20">
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[url('/barber-hero.jpg')] bg-cover bg-center opacity-40 md:opacity-50"
-        />
+        <div aria-hidden className="absolute inset-0 bg-[url('/barber-hero.jpg')] bg-cover bg-center opacity-40 md:opacity-50" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
         <div className="relative mx-auto max-w-5xl px-6 py-16 md:py-24 text-center space-y-4">
-          <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-yellow-200">
-            Barbería a Domicilio
-          </h1>
-          <p className="text-neutral-200/90 md:text-lg">
-            Puntualidad, higiene y bioseguridad en cada visita.
-          </p>
+          <h1 className="font-serif text-4xl md:text-6xl tracking-tight text-yellow-200">Barbería a Domicilio</h1>
+          <p className="text-neutral-200/90 md:text-lg">Puntualidad, higiene y bioseguridad en cada visita.</p>
           <div className="mt-4 flex items-center justify-center gap-3">
             <a
               href="#servicios"
               onClick={(e) => {
-                // Verificar auth: si no está autenticado, mostrar modal
-                if (!autenticado) {
-                  e.preventDefault();
-                  setShowAuthModal(true);
-                  return;
-                }
-                // Si está autenticado, hacer scroll suave a servicios
                 e.preventDefault();
-                document
-                  .getElementById("servicios")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
               className="rounded-xl border border-yellow-400/70 px-5 py-2.5 text-yellow-200 hover:bg-yellow-400 hover:text-black"
             >
               Ver servicios
             </a>
             <a
-              href="https://wa.me/573138907119"
-              onClick={(e) => {
-                if (!autenticado) {
-                  e.preventDefault();
-                  setShowAuthModal(true);
-                }
-              }}
+              href={`https://wa.me/573138907119?text=${encodeURIComponent("Hola, quiero solicitar uno de tus servicios")}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-xl bg-yellow-400 px-5 py-2.5 text-black hover:brightness-110"
             >
               Agendar por WhatsApp
@@ -147,10 +105,7 @@ export default function Servicios() {
       {/* Cuadrícula de servicios */}
       <div id="servicios" className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {servicios.map((s) => (
-          <article
-            key={s.nombre}
-            className="rounded-2xl overflow-hidden border border-white/10 hover:border-gold/40 transition"
-          >
+          <article key={s.nombre} className="rounded-2xl overflow-hidden border border-white/10 hover:border-gold/40 transition">
             <div className="relative h-90">
               <Image src={s.img} alt={s.nombre} fill className="object-cover" />
             </div>
@@ -159,27 +114,19 @@ export default function Servicios() {
               <p className="mt-1 flex items-center gap-2 text-sm opacity-80">
                 <Clock className="h-4 w-4 text-yellow-300/80" /> {s.duracion}
               </p>
-              <p className="text-lg font-semibold">
-                ${s.precio.toLocaleString("es-CO")}
-              </p>
+              <p className="text-lg font-semibold">${s.precio.toLocaleString("es-CO")}</p>
               <button
-                onClick={() => {
-                  if (!autenticado) {
-                    setShowAuthModal(true);
-                    return;
-                  }
-                  setServicioSeleccionado(s);
-                }}
+                onClick={() => setServicioSeleccionado(s)}
                 className="mt-2 w-full rounded-xl border border-gold px-4 py-2 hover:bg-gold hover:text-black transition-colors cursor-pointer"
               >
-                Agendar
+                Reservar
               </button>
             </div>
           </article>
         ))}
       </div>
 
-      {/* Bloque informativo con íconos */}
+      {/* Bloque informativo */}
       <section className="mt-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="rounded-2xl border border-yellow-400/15 bg-black/40 p-6">
@@ -187,71 +134,53 @@ export default function Servicios() {
               <Shield className="h-5 w-5 text-yellow-300" />
             </div>
             <h3 className="mt-4 font-semibold text-yellow-100">Higiene y bioseguridad</h3>
-            <p className="mt-2 text-sm text-neutral-300">
-              Herramientas esterilizadas, desinfección constante y protocolos vigentes.
-            </p>
+            <p className="mt-2 text-sm text-neutral-300">Herramientas esterilizadas, desinfección constante y protocolos vigentes.</p>
           </div>
           <div className="rounded-2xl border border-yellow-400/15 bg-black/40 p-6">
             <div className="h-10 w-10 rounded-full bg-yellow-400/20 flex items-center justify-center">
               <MapPin className="h-5 w-5 text-yellow-300" />
             </div>
             <h3 className="mt-4 font-semibold text-yellow-100">Cobertura y horarios</h3>
-            <p className="mt-2 text-sm text-neutral-300">
-              Armenia y Calarcá. Agenda disponible de 8:00 a 20:00.
-            </p>
+            <p className="mt-2 text-sm text-neutral-300">Armenia y Calarcá. Agenda disponible de 8:00 a 20:00.</p>
           </div>
           <div className="rounded-2xl border border-yellow-400/15 bg-black/40 p-6">
             <div className="h-10 w-10 rounded-full bg-yellow-400/20 flex items-center justify-center">
               <CreditCard className="h-5 w-5 text-yellow-300" />
             </div>
             <h3 className="mt-4 font-semibold text-yellow-100">Métodos de pago</h3>
-            <p className="mt-2 text-sm text-neutral-300">
-              Efectivo o transferencia. Factura digital disponible.
-            </p>
+            <p className="mt-2 text-sm text-neutral-300">Efectivo o transferencia. Factura digital disponible.</p>
           </div>
         </div>
       </section>
 
+      {/* Modal de reserva */}
       {servicioSeleccionado && (
         <Portal>
           <div className="fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
-            {/* Fondo semitransparente */}
-            <div
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-              onClick={() => setServicioSeleccionado(null)}
-            />
-            {/* Contenedor modal */}
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setServicioSeleccionado(null)} />
             <div className="relative w-[92vw] max-w-md rounded-2xl border border-yellow-400/60 bg-neutral-900 p-6 text-white shadow-2xl">
-              <h3 className="text-xl font-semibold">
-                Agendar {servicioSeleccionado.nombre}
-              </h3>
-              <p className="mt-2 text-sm opacity-80">
-                Si deseas puedes contactarte directamente por WhatsApp con el
-                barbero o agendar la cita desde aquí.
-              </p>
+              <h3 className="text-xl font-semibold">Agendar {servicioSeleccionado.nombre}</h3>
+              <p className="mt-2 text-sm opacity-80">Si deseas puedes contactarte directamente por WhatsApp con el barbero o agendar la cita desde aquí.</p>
+
               <div className="mt-4">
-                <a
-                  href={`https://wa.me/573138907119?text=${encodeURIComponent(
-                    `Hola, deseo agendar ${servicioSeleccionado.nombre}${
+                <button
+                  type="button"
+                  onClick={() => {
+                    const texto = `Hola, deseo agendar ${servicioSeleccionado.nombre}${
                       fecha ? ` el ${fecha}` : ""
-                    }${hora ? ` a las ${hora}` : ""}${
-                      direccion ? ` en ${direccion}` : ""
-                    }.${notas ? ` Notas: ${notas}` : ""}`
-                  )}`}
-                  onClick={(e) => {
-                    if (!autenticado) {
-                      e.preventDefault();
-                      setShowAuthModal(true);
-                    }
+                    }${hora ? ` a las ${hora}` : ""}${direccion ? ` en ${direccion}` : ""}.${
+                      notas ? ` Notas: ${notas}` : ""
+                    }`;
+                    abrirWA(texto);
+                    if (!autenticado) setShowJoinModal(true);
                   }}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="inline-flex h-10 items-center justify-center rounded-lg border border-green-500/60 px-4 text-green-400 hover:bg-green-500/10"
                 >
                   Contactar por WhatsApp
-                </a>
+                </button>
               </div>
-              <form onSubmit={enviarWhatsApp} className="mt-4 space-y-4">
+
+              <form onSubmit={enviarWhatsApp} onKeyDown={(e) => e.stopPropagation()} className="mt-4 space-y-4">
                 <label className="block text-sm">
                   <span className="mb-1 block">Dirección</span>
                   <input
@@ -260,9 +189,12 @@ export default function Servicios() {
                     placeholder="Dirección"
                     value={direccion}
                     onChange={(e) => setDireccion(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onInput={(e) => e.stopPropagation()}
                     className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
                   />
                 </label>
+
                 <label className="block text-sm">
                   <span className="mb-1 block">Fecha</span>
                   <input
@@ -271,9 +203,12 @@ export default function Servicios() {
                     placeholder="Selecciona la fecha"
                     value={fecha}
                     onChange={(e) => setFecha(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onInput={(e) => e.stopPropagation()}
                     className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
                   />
                 </label>
+
                 <label className="block text-sm">
                   <span className="mb-1 block">Hora</span>
                   <div className="relative">
@@ -287,26 +222,28 @@ export default function Servicios() {
                       required
                       value={hora}
                       onChange={(e) => setHora(e.target.value)}
-                      className={`w-full rounded-lg border border-white/15 bg-neutral-800 p-2 pr-10 ${
-                        hora ? "text-white" : "text-transparent"
-                      }`}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      onInput={(e) => e.stopPropagation()}
+                      className={`w-full rounded-lg border border-white/15 bg-neutral-800 p-2 pr-10 ${hora ? "text-white" : "text-transparent"}`}
                     />
                     <Clock className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
                   </div>
                 </label>
+
                 <label className="block text-sm">
                   <span className="mb-1 block">Notas</span>
                   <textarea
                     placeholder="Notas"
                     value={notas}
                     onChange={(e) => setNotas(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onInput={(e) => e.stopPropagation()}
                     className="w-full rounded-lg border border-white/15 bg-neutral-800 p-2"
                   />
                 </label>
-                <p className="text-xs opacity-80">
-                  Atención en Armenia y Calarcá. Cancelaciones con 2h de
-                  anticipación.
-                </p>
+
+                <p className="text-xs opacity-80">Atención en Armenia y Calarcá. Cancelaciones con 2h de anticipación.</p>
+
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
@@ -331,49 +268,44 @@ export default function Servicios() {
       {/* Botón flotante móvil */}
       <button
         onClick={() => {
-          if (!autenticado) {
-            setShowAuthModal(true);
-            return;
-          }
-          document
-            .getElementById("servicios")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
         className="fixed bottom-4 right-4 z-50 bg-gold text-black rounded-xl px-4 py-2 md:hidden transition-colors hover:bg-gold/80 cursor-pointer"
       >
         Agendar ahora
       </button>
 
-      {showAuthModal && (
+      {/* Modal para invitar a registrarse */}
+      {showJoinModal && (
         <Portal>
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[80] opacity-0 animate-[fadeIn_.18s_ease-out_forwards]" role="dialog" aria-modal="true">
             <div className="bg-[#181818] border border-yellow-400/70 rounded-2xl p-6 sm:p-7 text-center shadow-[var(--shadow-base)] w-[92vw] max-w-md animate-[pop_.22s_ease-out]">
-              <h2 className="text-xl font-bold text-yellow-400 mb-4">¡Regístrate o inicia sesión!</h2>
-              <p className="text-white mb-6">Para poder agendar debes registrarte o iniciar sesión.</p>
+              <h2 className="text-xl font-bold text-yellow-400 mb-3">¡Únete a la familia H&H!</h2>
+              <p className="text-white/90 mb-5">Crea tu cuenta para guardar tus datos y recibir descuentos y promociones.</p>
               <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={() => {
-                    setShowAuthModal(false);
-                    router.push("/ingresar");
+                    setShowJoinModal(false);
+                    router.push("/registrarse");
                   }}
                   className="inline-flex h-10 px-4 items-center justify-center rounded-lg bg-yellow-400 text-black text-sm font-medium hover:bg-yellow-500 shadow-sm"
                 >
-                  Ingresar
+                  Registrarme
                 </button>
                 <button
                   onClick={() => {
-                    setShowAuthModal(false);
-                    router.push("/registrarse");
+                    setShowJoinModal(false);
+                    router.push("/ingresar");
                   }}
                   className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-yellow-400 text-yellow-400 text-sm font-medium hover:bg-yellow-400 hover:text-black"
                 >
-                  Registrarse
+                  Iniciar sesión
                 </button>
                 <button
-                  onClick={() => setShowAuthModal(false)}
+                  onClick={() => setShowJoinModal(false)}
                   className="inline-flex h-10 px-4 items-center justify-center rounded-lg border border-white/20 text-white text-sm hover:bg-white/10"
                 >
-                  Cancelar
+                  Más tarde
                 </button>
               </div>
             </div>
@@ -383,3 +315,4 @@ export default function Servicios() {
     </section>
   );
 }
+

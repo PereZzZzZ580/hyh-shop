@@ -2,6 +2,7 @@
 
 import { apiFetch, apiFetchAuth, useApiAuth } from "@/lib/api";
 import { useCart } from "@/store/cart";
+import { useAuth } from "@/store/auth";
 import type { Address } from "@/types/address";
 import { useEffect, useState } from "react";
 
@@ -17,6 +18,7 @@ type Preview = {
 
 export default function CheckoutPage() {
   const { items, clear, id: cartId } = useCart();
+  const { autenticado } = useAuth();
 
   const { data: direcciones } = useApiAuth<Address[]>("/me/addresses");
   const [direccionId, setDireccionId] = useState("");
@@ -33,23 +35,39 @@ export default function CheckoutPage() {
 
 
   useEffect(() => {
-    if (!cartId) return;
     const obtener = async () => {
       try {
-        const p = await apiFetchAuth<Preview>("/checkout/preview", {
-          method: "POST",
-          body: JSON.stringify({
-            cartId,
-            city: ciudad || undefined,
-            coupon: cupon || undefined,
-            paymentMethod: metodoPago,
-          }),
-        });
-        setPreview(p);
-      } catch {}
+        if (autenticado && cartId) {
+          const p = await apiFetchAuth<Preview>("/checkout/preview", {
+            method: "POST",
+            body: JSON.stringify({
+              cartId,
+              city: ciudad || undefined,
+              coupon: cupon || undefined,
+              paymentMethod: metodoPago,
+            }),
+          });
+          setPreview(p);
+        } else if (!autenticado && items.length > 0) {
+          const p = await apiFetchAuth<Preview>("/guest/checkout/preview", {
+            method: "POST",
+            body: JSON.stringify({
+              items: items.map((i) => ({ variantId: i.variantId, qty: i.qty })),
+              city: ciudad || undefined,
+              coupon: cupon || undefined,
+              paymentMethod: metodoPago,
+            }),
+          });
+          setPreview(p);
+        } else {
+          setPreview(null);
+        }
+      } catch {
+        setPreview(null);
+      }
     };
     obtener();
-  }, [cartId, ciudad, cupon, metodoPago]);
+  }, [autenticado, cartId, ciudad, cupon, metodoPago, items]);
 
   // Si la ciudad cambia a fuera de cobertura, evita dejar seleccionado COD
   useEffect(() => {
@@ -61,7 +79,7 @@ export default function CheckoutPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cartId) return;
+    if (!cartId && items.length === 0) return;
     if ((direcciones?.length || 0) > 0 && direccionId === "") {
       alert("seleciona una direccion");
       return;
@@ -79,31 +97,47 @@ export default function CheckoutPage() {
     }
     setEnviando(true);
     try {
-      type OrderBody = {
-        cartId: string;
-        paymentMethod: "WHATSAPP" | "COD" | "WOMPI";
-        contactName: string;
-        contactPhone: string;
-        addressId?: string;
-        addressRaw?: { country: string; city: string; line1: string };
-      };
-      const body: OrderBody = {
-        cartId,
-        paymentMethod: metodoPago,
-        contactName: nombre,
-        contactPhone: telefono,
-      };
-      if (direccionId && direccionId !== "nueva") {
-        body.addressId = direccionId;
-      } else {
-        body.addressRaw = { country: "Colombia", city: ciudad, line1: linea1 };
-      }
+      // build order body only when using server cart
       // Seguridad: si la ciudad no es local, forzamos método WhatsApp
       const metodoEfectivo = esLocal ? metodoPago : "WHATSAPP";
-      const resp = await apiFetchAuth<{ orderId: string; wompi?: { checkoutUrl: string } | null; whatsapp?: { waLink: string } | null }>("/orders", {
-        method: "POST",
-        body: JSON.stringify({ ...body, paymentMethod: metodoEfectivo }),
-      });
+      let resp: { orderId: string; wompi?: { checkoutUrl: string } | null; whatsapp?: { waLink: string } | null };
+      if (cartId) {
+        type OrderBody = {
+          cartId: string;
+          paymentMethod: "WHATSAPP" | "COD" | "WOMPI";
+          contactName: string;
+          contactPhone: string;
+          addressId?: string;
+          addressRaw?: { country: string; city: string; line1: string };
+        };
+        const body: OrderBody = {
+          cartId: cartId,
+          paymentMethod: metodoEfectivo,
+          contactName: nombre,
+          contactPhone: telefono,
+        };
+        if (direccionId && direccionId !== "nueva") {
+          body.addressId = direccionId;
+        } else {
+          body.addressRaw = { country: "Colombia", city: ciudad, line1: linea1 };
+        }
+        resp = await apiFetchAuth<{ orderId: string; wompi?: { checkoutUrl: string } | null; whatsapp?: { waLink: string } | null }>("/orders", {
+          method: "POST",
+          body: JSON.stringify({ ...body, paymentMethod: metodoEfectivo }),
+        });
+      } else {
+        const guestBody = {
+          items: items.map((i) => ({ variantId: i.variantId, qty: i.qty })),
+          paymentMethod: metodoEfectivo,
+          contactName: nombre,
+          contactPhone: telefono,
+          addressRaw: { country: "Colombia", city: ciudad, line1: linea1 },
+        };
+        resp = await apiFetchAuth<{ orderId: string; wompi?: { checkoutUrl: string } | null; whatsapp?: { waLink: string } | null }>("/guest/orders", {
+          method: "POST",
+          body: JSON.stringify(guestBody),
+        });
+      }
       clear();
 
       if (metodoEfectivo === "WOMPI") {

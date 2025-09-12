@@ -3,18 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
-  const body = await req.json();
-
-  const res = await fetch(`${API_URL}/cart/items`, {
+  const body = await req.text();
+  const res = await fetch(`${API_URL}/guest/orders`, {
     method: "POST",
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body,
   });
-
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
 }
+

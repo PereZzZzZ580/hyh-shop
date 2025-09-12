@@ -5,14 +5,9 @@ import type { Product } from "@/types/product";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useAuth } from "@/store/auth";
-import { useRouter } from "next/navigation";
-import AuthModal from "@/components/ui/AuthModal";
 
 export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCart((s) => s.addItem);
-  const { autenticado } = useAuth();
-  const router = useRouter();
   const variant = product.variants[0];
   const image = product.images[0]?.url;
   const sinStock = !variant || variant.stock < 1;
@@ -20,7 +15,6 @@ export default function ProductCard({ product }: { product: Product }) {
     variant && variant.compareAtPrice && variant.compareAtPrice > variant.price;
   const [showToast, setShowToast] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
   return (
     <article className="relative group rounded-2xl border border-yellow-400/15 bg-black/40 shadow-[0_0_30px_-10px_rgba(212,175,55,0.25)] hover:shadow-[0_0_40px_-10px_rgba(212,175,55,0.45)] overflow-hidden transition-shadow duration-300 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5">
@@ -69,13 +63,19 @@ export default function ProductCard({ product }: { product: Product }) {
           <button
             onClick={async () => {
               if (isAdding) return;
-              if (!autenticado) {
-                setShowModal(true);
-                return;
-              }
               setIsAdding(true);
               try {
-                await addItem(variant.id, 1);
+                await addItem(variant.id, 1, {
+                  priceSnapshot: variant.price,
+                  variant: {
+                    id: variant.id,
+                    price: variant.price,
+                    compareAtPrice: variant.compareAtPrice ?? null,
+                    stock: variant.stock,
+                    attributes: variant.attributes,
+                    product: { name: product.name, slug: product.slug, brand: product.brand ?? null },
+                  },
+                });
                 setShowToast(true);
                 setTimeout(() => setShowToast(false), 1200);
               } finally {
@@ -107,20 +107,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       )}
 
-      <AuthModal
-        open={showModal}
-        message="Para poder añadir productos al carrito debes registrarte o iniciar sesión."
-        onLogin={() => {
-          setShowModal(false);
-          router.push("/ingresar");
-        }}
-        onRegister={() => {
-          setShowModal(false);
-          router.push("/registrarse");
-        }}
-        onCancel={() => setShowModal(false)}
-      />
+      {/* Registro opcional se mostrará post-compra */}
     </article>
   );
 }
-

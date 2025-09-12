@@ -11,7 +11,7 @@ export async function DELETE(
   const id = (context.params as { id: string }).id;
   const res = await fetch(`${API_URL}/cart/items/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
@@ -27,7 +27,7 @@ export async function PUT(
   const res = await fetch(`${API_URL}/cart/items/${id}`, {
     method: "PUT",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),

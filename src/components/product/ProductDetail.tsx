@@ -78,7 +78,16 @@ export default function ProductDetail({ product }: { product: Product }) {
               )}
 
               <div className="mt-6">
-                <AddToCart variantId={variant.id} stock={variant.stock} />
+                <AddToCart
+                  variantId={variant.id}
+                  stock={variant.stock}
+                  variantInfo={{
+                    price: variant.price,
+                    compareAtPrice: variant.compareAtPrice ?? undefined,
+                    attributes: variant.attributes,
+                    product: { name: product.name, slug: product.slug, brand: product.brand ?? undefined },
+                  }}
+                />
               </div>
             </>
           )}

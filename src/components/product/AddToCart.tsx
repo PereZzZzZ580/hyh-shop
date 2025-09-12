@@ -2,36 +2,45 @@
 
 import { useState } from "react";
 import { useCart } from "@/store/cart";
-import { useAuth } from "@/store/auth";
-import { useRouter } from "next/navigation";
-import AuthModal from "@/components/ui/AuthModal";
 
-export default function AddToCart({ variantId, stock }: { variantId: string; stock: number }) {
+type VariantInfo = {
+  price: number;
+  compareAtPrice?: number | null;
+  attributes: Record<string, string>;
+  product: { name: string; slug: string; brand?: string | null };
+};
+
+export default function AddToCart({
+  variantId,
+  stock,
+  variantInfo,
+}: {
+  variantId: string;
+  stock: number;
+  variantInfo?: VariantInfo;
+}) {
   const add = useCart((s) => s.addItem);
-  const { autenticado } = useAuth();
-  const router = useRouter();
   const [qty, setQty] = useState(1);
-  const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const max = Math.max(1, stock);
 
   const handleAdd = async () => {
-    if (!autenticado) {
-      setShowModal(true);
-      return;
-    }
-    await add(variantId, qty);
+    const snapshot = variantInfo
+      ? {
+          priceSnapshot: variantInfo.price,
+          variant: {
+            id: variantId,
+            price: variantInfo.price,
+            compareAtPrice: variantInfo.compareAtPrice ?? null,
+            stock: stock,
+            attributes: variantInfo.attributes,
+            product: variantInfo.product,
+          },
+        }
+      : undefined;
+    await add(variantId, qty, snapshot);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
-  };
-
-  const handleRegister = () => {
-    setShowModal(false);
-    router.push("/registrarse");
-  };
-  const handleLogin = () => {
-    setShowModal(false);
-    router.push("/ingresar");
   };
 
   return (
@@ -62,15 +71,6 @@ export default function AddToCart({ variantId, stock }: { variantId: string; sto
           ¡Producto agregado con éxito!
         </div>
       )}
-
-      <AuthModal
-        open={showModal}
-        message="Para poder añadir productos al carrito debes registrarte o iniciar sesión."
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-        onCancel={() => setShowModal(false)}
-      />
     </div>
   );
 }
-
