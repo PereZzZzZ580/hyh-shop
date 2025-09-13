@@ -342,7 +342,8 @@ export default function AsesorPage() {
     try {
       const url = URL.createObjectURL(file);
       setCurrentImgUrl(url);
-      const img = await createImageBitmap(await (await fetch(url)).blob());
+      // Avoid fetching a blob: URL (blocked by CSP connect-src); use file directly
+      const img = await createImageBitmap(file);
       await analyzeImageBitmap(img, img.width, img.height);
     } catch (e) {
       setError("Error procesando la imagen.");

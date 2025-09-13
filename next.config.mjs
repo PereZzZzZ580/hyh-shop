@@ -9,14 +9,17 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  // Allow Next scripts; relax in dev
+  // Allow Next scripts; add WASM eval in prod for MediaPipe
+  // Chrome/Edge support 'wasm-unsafe-eval'; some browsers still gate on 'unsafe-eval'.
   isProd
-    ? "script-src 'self' 'unsafe-inline' https:"
-    : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+    ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' 'unsafe-eval' https:"
+    : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https:",
   "style-src 'self' 'unsafe-inline' https:",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https:",
-  "connect-src 'self' https: http: ws: wss:",
+  "connect-src 'self' https: http: ws: wss: blob:",
+  // Allow workers created from blobs if libs use them
+  "worker-src 'self' blob:",
   isProd ? 'upgrade-insecure-requests' : ''
 ]
   .filter(Boolean)
@@ -27,7 +30,8 @@ const securityHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  // Allow camera on same-origin so the advisor can use getUserMedia
+  { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=()' },
   { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
   ...(isProd
     ? [{ key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' }]
