@@ -12,10 +12,10 @@ export default function Servicios() {
   const router = useRouter();
 
   const servicios = [
-    { nombre: "Barba sola", precio: 15000, duracion: "25 min", img: "/.png" },
-    { nombre: "Barba + Corte", precio: 30000, duracion: "60 min", img: "/corteYbarba.png" },
+    { nombre: "Barba sola", precio: 15000, duracion: "25 min", img: "/barba_Sola.jpeg" },
+    { nombre: "Barba + Corte", precio: 30000, duracion: "60 min", img: "/barba_corte.jpeg" },
     { nombre: "Cejas", precio: 5000, duracion: "10 min", img: "/.png" },
-    { nombre: "Corte + Barba + Cejas", precio: 35000, duracion: "75 min", img: "/.png" },
+    { nombre: "Corte + Barba + Cejas", precio: 35000, duracion: "75 min", img: "/corteYbarba.png" },
     { nombre: "Corte solo", precio: 28000, duracion: "45 min", img: "/soloCorte.png" },
   ] as const;
   type Servicio = (typeof servicios)[number];
@@ -214,7 +214,19 @@ export default function Servicios() {
         {servicios.map((s) => (
           <article key={s.nombre} className="rounded-2xl overflow-hidden border border-white/10 hover:border-gold/40 transition">
             <div className="relative h-90">
-              <Image src={s.img} alt={s.nombre} fill className="object-cover" />
+              <Image
+                src={s.img}
+                alt={s.nombre}
+                fill
+                className="object-cover"
+                style={
+                  s.nombre === "Barba + Corte"
+                    ? { objectPosition: "center 69%" }
+                    : s.nombre === "Barba sola"
+                    ? { objectPosition: "center 30%" }
+                    : undefined
+                }
+              />
             </div>
             <div className="p-4">
               <h3 className="text-xl font-semibold">{s.nombre}</h3>
