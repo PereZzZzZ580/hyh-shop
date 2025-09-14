@@ -16,3 +16,34 @@ export async function DELETE(
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
 }
+
+export async function PATCH(
+  req: NextRequest,
+  context: any
+) {
+  const token = req.cookies.get("token")?.value;
+  const id = (context.params as { id: string }).id;
+  const contentType = req.headers.get("content-type") || "";
+
+  let res: Response;
+  if (contentType.includes("application/json")) {
+    const json = await req.json().catch(() => ({}));
+    res = await fetch(`${API_URL}/media/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json),
+    });
+  } else {
+    const form = await req.formData();
+    res = await fetch(`${API_URL}/media/${id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+  }
+  const data = await res.json().catch(() => ({}));
+  return NextResponse.json(data, { status: res.status });
+}

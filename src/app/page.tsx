@@ -32,7 +32,7 @@ let products: Product[] = [];
         <div className="space-y-6 md:space-y-8">
           <SectionTitle>Nuestros Productos</SectionTitle>
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6">
               {products.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

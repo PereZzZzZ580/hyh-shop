@@ -1,6 +1,6 @@
 "use client";
 
-import type { Category, Product } from "@/types/product";
+import type { Category, Product, Media } from "@/types/product";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
@@ -24,6 +24,8 @@ export default function AdminProductsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState<Product | null>(null);
+  const [existingImages, setExistingImages] = useState<Media[]>([]);
+  const [busyImgId, setBusyImgId] = useState<string | null>(null);
 
   // confirmación de borrado de producto
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -176,6 +178,60 @@ export default function AdminProductsPage() {
     );
     setImages([]); // limpiamos selección previa al entrar a editar
     setEditing(p);
+    setExistingImages(p.images ?? []);
+  };
+
+  // Cargar imágenes desde API al entrar a editar (asegura isCover actualizado)
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!editing) return;
+      try {
+        const res = await fetch(`/api/media?productId=${editing.id}`);
+        if (res.ok) {
+          const imgs: Media[] = await res.json();
+          setExistingImages(imgs);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchImages();
+  }, [editing]);
+
+  // Imagen como principal
+  const markAsCover = async (mediaId: string) => {
+    if (!editing) return;
+    try {
+      setBusyImgId(mediaId);
+      const res = await fetch(`/api/media/${mediaId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isCover: true }),
+      });
+      if (!res.ok) throw new Error("No se pudo marcar como principal");
+      setExistingImages((prev) => prev.map((m) => ({ ...m, isCover: m.id === mediaId })));
+      setFlash({ type: "success", message: "Imagen marcada como principal." });
+    } catch (e: any) {
+      setFlash({ type: "error", message: e?.message || "Error al actualizar imagen" });
+    } finally {
+      setBusyImgId(null);
+    }
+  };
+
+  // Eliminar imagen existente
+  const deleteExistingImage = async (mediaId: string) => {
+    if (!editing) return;
+    try {
+      setBusyImgId(mediaId);
+      const res = await fetch(`/api/media/${mediaId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("No se pudo eliminar la imagen");
+      setExistingImages((prev) => prev.filter((m) => m.id !== mediaId));
+      setFlash({ type: "success", message: "Imagen eliminada." });
+    } catch (e: any) {
+      setFlash({ type: "error", message: e?.message || "Error al eliminar imagen" });
+    } finally {
+      setBusyImgId(null);
+    }
   };
 
   // abrir modal de eliminar producto
@@ -321,6 +377,47 @@ export default function AdminProductsPage() {
             Eliminar variante
           </button>
         </div>
+
+        {/* Imágenes actuales del producto (editar) */}
+        {editing && (
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Imágenes actuales</h3>
+            {existingImages.length === 0 ? (
+              <p className="text-sm text-white/70">Este producto no tiene imágenes.</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {existingImages.map((img) => (
+                  <div key={img.id} className="group relative overflow-hidden rounded-lg border border-white/15">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt={img.alt ?? ""} className="aspect-square w-full object-cover" />
+                    {img.isCover ? (
+                      <span className="absolute left-2 top-2 rounded-md bg-yellow-400/90 px-2 py-1 text-[11px] font-medium text-black">Principal</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => markAsCover(img.id)}
+                        disabled={busyImgId === img.id}
+                        className="absolute left-2 top-2 rounded-md border border-yellow-400/70 bg-black/60 px-2 py-1 text-xs text-yellow-300 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-50"
+                        title="Marcar como principal"
+                      >
+                        {busyImgId === img.id ? "..." : "Hacer principal"}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => deleteExistingImage(img.id)}
+                      disabled={busyImgId === img.id}
+                      className="absolute right-2 top-2 rounded-md border border-red-500/70 bg-black/60 px-2 py-1 text-xs text-red-300 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-50"
+                      title="Eliminar imagen"
+                    >
+                      {busyImgId === img.id ? "..." : "Eliminar"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Imágenes: elegir + agregar más + previews */}
         <div className="space-y-3">

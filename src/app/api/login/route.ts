@@ -1,12 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
+function normalize(o?: string | null) {
+  try {
+    if (!o) return null;
+    const u = new URL(o);
+    // normaliza a solo hostname, ignorando www y puertos/esquema
+    return u.hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   // Enforce same-origin to mitigate login CSRF/session fixation
   const origin = req.headers.get("origin");
-  // Permite por defecto el mismo origen desde el que se sirve la app
-  const allowedOrigin = process.env.APP_ORIGIN || req.nextUrl.origin;
-  if (origin && origin !== allowedOrigin) {
-    return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+
+  const enforce = String(process.env.ENABLE_ORIGIN_CHECK || "").toLowerCase() === "true";
+  if (enforce && origin) {
+    // Construye lista de orígenes permitidos
+    const list: string[] = [];
+    const envList = process.env.ALLOWED_ORIGINS || process.env.APP_ORIGIN || "";
+    if (envList) list.push(...envList.split(",").map((s) => s.trim()).filter(Boolean));
+    list.push(req.nextUrl.origin);
+
+    const normalizedOrigin = normalize(origin);
+    const allowed = list
+      .map((o) => normalize(o))
+      .filter(Boolean) as string[];
+
+    const ok = allowed.includes(normalizedOrigin || "");
+    if (!ok) {
+      return NextResponse.json({ error: "Origen no permitido" }, { status: 403 });
+    }
   }
 
   const body = await req.json();
