@@ -12,17 +12,10 @@ export default function Servicios() {
   const router = useRouter();
 
   const servicios = [
-<<<<<<< HEAD
     { nombre: "Barba sola", precio: 15000, duracion: "25 min", img: "/barba_Sola.jpeg" },
     { nombre: "Barba + Corte", precio: 30000, duracion: "60 min", img: "/barba_corte.jpeg" },
-    { nombre: "Cejas", precio: 5000, duracion: "10 min", img: "/.png" },
-    { nombre: "Corte + Barba + Cejas", precio: 35000, duracion: "75 min", img: "/corteYbarba.png" },
-=======
-    { nombre: "Barba sola", precio: 15000, duracion: "25 min", img: "/.png" },
-    { nombre: "Barba + Corte", precio: 30000, duracion: "60 min", img: "/corteYbarba.png" },
     { nombre: "Cejas", precio: 5000, duracion: "10 min", img: "/cejas_holman.jpeg" },
-    { nombre: "Corte + Barba + Cejas", precio: 35000, duracion: "75 min", img: "/.png" },
->>>>>>> e63564a2722644aa4b054a8305044aa2f4de958a
+    { nombre: "Corte + Barba + Cejas", precio: 35000, duracion: "75 min", img: "/corteYbarba.png" },
     { nombre: "Corte solo", precio: 28000, duracion: "45 min", img: "/soloCorte.png" },
   ] as const;
   type Servicio = (typeof servicios)[number];
