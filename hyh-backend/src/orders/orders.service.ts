@@ -4,6 +4,9 @@ import { CouponsService } from '../coupons/coupons.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ShippingService } from '../shipping/shipping.service';
 import { WompiService } from '../payments/wompi.service';
+import { SheetsService } from './sheets.service';
+import { WhatsappNotifyService } from './whatsapp.service';
+import { OrdersEmailService } from './email.service';
 
 const COD_CITIES = (process.env.COD_CITIES || '')
   .split(',')
@@ -20,6 +23,9 @@ export class OrdersService {
     private coupons: CouponsService,
     private shipping: ShippingService,
     private wompi: WompiService,
+    private sheets: SheetsService,
+    private whatsapp: WhatsappNotifyService,
+    private email: OrdersEmailService,
   ) {}
 
   private async assertCartOwner(cartId: string, userId: string) {
@@ -198,6 +204,76 @@ export class OrdersService {
           }),
         }
       : null;
+
+    // Notificaciones externas (no bloqueantes)
+    void this.sheets.notifyNewOrder({
+      orderId: order.id,
+      createdAt: (order as any).createdAt ? new Date((order as any).createdAt).toISOString() : new Date().toISOString(),
+      userId: params.userId ?? null,
+      paymentMethod: order.paymentMethod as any,
+      status: order.status as any,
+      paymentStatus: order.paymentStatus as any,
+      totals: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        shippingTotal: totals.shippingTotal,
+        grandTotal: totals.grandTotal,
+      },
+      contactName: params.contactName ?? null,
+      contactPhone: params.contactPhone ?? null,
+      city: params.addressRaw?.city ?? null,
+      items: cart.items.map(i => ({
+        name: i.variant.product.name,
+        qty: i.qty,
+        unitPrice: i.priceSnapshot || i.variant.price,
+      })),
+    });
+
+    void this.whatsapp.notifyAdminNewOrder({
+      orderId: order.id,
+      createdAt: (order as any).createdAt ? new Date((order as any).createdAt).toISOString() : new Date().toISOString(),
+      userId: params.userId ?? null,
+      paymentMethod: order.paymentMethod as any,
+      status: order.status as any,
+      paymentStatus: order.paymentStatus as any,
+      totals: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        shippingTotal: totals.shippingTotal,
+        grandTotal: totals.grandTotal,
+      },
+      contactName: params.contactName ?? null,
+      contactPhone: params.contactPhone ?? null,
+      city: params.addressRaw?.city ?? null,
+      items: cart.items.map(i => ({
+        name: i.variant.product.name,
+        qty: i.qty,
+        unitPrice: i.priceSnapshot || i.variant.price,
+      })),
+    });
+
+    void this.email.notifyNewOrder({
+      orderId: order.id,
+      createdAt: (order as any).createdAt ? new Date((order as any).createdAt).toISOString() : new Date().toISOString(),
+      userId: params.userId ?? null,
+      paymentMethod: order.paymentMethod as any,
+      status: order.status as any,
+      paymentStatus: order.paymentStatus as any,
+      totals: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        shippingTotal: totals.shippingTotal,
+        grandTotal: totals.grandTotal,
+      },
+      contactName: params.contactName ?? null,
+      contactPhone: params.contactPhone ?? null,
+      city: params.addressRaw?.city ?? null,
+      items: cart.items.map(i => ({
+        name: i.variant.product.name,
+        qty: i.qty,
+        unitPrice: i.priceSnapshot || i.variant.price,
+      })),
+    });
 
     return {
       orderId: order.id,
@@ -420,6 +496,76 @@ export class OrdersService {
           }),
         }
       : null;
+
+    // Notificaciones externas (no bloqueantes)
+    void this.sheets.notifyNewOrder({
+      orderId: order.id,
+      createdAt: (order as any).createdAt ? new Date((order as any).createdAt).toISOString() : new Date().toISOString(),
+      userId: null,
+      paymentMethod: order.paymentMethod as any,
+      status: order.status as any,
+      paymentStatus: order.paymentStatus as any,
+      totals: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        shippingTotal: totals.shippingTotal,
+        grandTotal: totals.grandTotal,
+      },
+      contactName: params.contactName ?? null,
+      contactPhone: params.contactPhone ?? null,
+      city: params.addressRaw?.city ?? null,
+      items: params.items.map(i => ({
+        name: byId.get(i.variantId)!.product.name,
+        qty: i.qty,
+        unitPrice: byId.get(i.variantId)!.price,
+      })),
+    });
+
+    void this.whatsapp.notifyAdminNewOrder({
+      orderId: order.id,
+      createdAt: (order as any).createdAt ? new Date((order as any).createdAt).toISOString() : new Date().toISOString(),
+      userId: null,
+      paymentMethod: order.paymentMethod as any,
+      status: order.status as any,
+      paymentStatus: order.paymentStatus as any,
+      totals: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        shippingTotal: totals.shippingTotal,
+        grandTotal: totals.grandTotal,
+      },
+      contactName: params.contactName ?? null,
+      contactPhone: params.contactPhone ?? null,
+      city: params.addressRaw?.city ?? null,
+      items: params.items.map(i => ({
+        name: byId.get(i.variantId)!.product.name,
+        qty: i.qty,
+        unitPrice: byId.get(i.variantId)!.price,
+      })),
+    });
+
+    void this.email.notifyNewOrder({
+      orderId: order.id,
+      createdAt: (order as any).createdAt ? new Date((order as any).createdAt).toISOString() : new Date().toISOString(),
+      userId: null,
+      paymentMethod: order.paymentMethod as any,
+      status: order.status as any,
+      paymentStatus: order.paymentStatus as any,
+      totals: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        shippingTotal: totals.shippingTotal,
+        grandTotal: totals.grandTotal,
+      },
+      contactName: params.contactName ?? null,
+      contactPhone: params.contactPhone ?? null,
+      city: params.addressRaw?.city ?? null,
+      items: params.items.map(i => ({
+        name: byId.get(i.variantId)!.product.name,
+        qty: i.qty,
+        unitPrice: byId.get(i.variantId)!.price,
+      })),
+    });
 
     return {
       orderId: order.id,

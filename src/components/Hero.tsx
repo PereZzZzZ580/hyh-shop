@@ -11,6 +11,12 @@ export default function Hero() {
         <p className="mt-5 text-lg md:text-xl text-neutral-300/90">
           Negro profundo. Detalles dorados. Piezas que hablan por ti.
         </p>
+        <div className="mt-6 flex items-center justify-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-black/40 px-3 py-1 text-sm text-yellow-100">
+            <span className="h-1.5 w-1.5 rounded-full bg-yellow-400" />
+            Compra y agenda sin registrarte <span className="opacity-80">— modo invitado</span>
+          </span>
+        </div>
         <div className="mt-8 flex items-center justify-center gap-4">
           <Link
             href="/tienda"
