@@ -17,7 +17,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const [isAdding, setIsAdding] = useState(false);
 
   return (
-    <article className="relative group rounded-2xl border border-yellow-400/15 bg-black/40 shadow-[0_0_30px_-10px_rgba(212,175,55,0.25)] hover:shadow-[0_0_40px_-10px_rgba(212,175,55,0.45)] overflow-hidden transition-shadow duration-300 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5">
+    <article className="relative group flex h-full flex-col rounded-2xl border border-yellow-400/15 bg-black/40 shadow-[0_0_30px_-10px_rgba(212,175,55,0.25)] hover:shadow-[0_0_40px_-10px_rgba(212,175,55,0.45)] overflow-hidden transition-shadow duration-300 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5">
       <Link href={`/producto/${product.slug}`}>
         <div className="relative">
           {image ? (
@@ -45,7 +45,7 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
       </Link>
-      <div className="p-5">
+      <div className="flex flex-1 flex-col p-5">
         <Link href={`/producto/${product.slug}`} className="block">
           <h3 className="font-serif text-xl text-yellow-100">{product.name}</h3>
         </Link>
@@ -60,8 +60,9 @@ export default function ProductCard({ product }: { product: Product }) {
           </p>
         )}
         {variant && (
-          <button
-            onClick={async () => {
+          <div className="mt-auto pt-6">
+            <button
+              onClick={async () => {
               if (isAdding) return;
               setIsAdding(true);
               try {
@@ -82,9 +83,9 @@ export default function ProductCard({ product }: { product: Product }) {
                 setIsAdding(false);
               }
             }}
-            disabled={sinStock}
-            className="mt-4 w-full rounded-full border border-yellow-400/50 py-2 text-yellow-100 hover:bg-yellow-400 hover:text-black transition disabled:opacity-50 motion-safe:transition-transform motion-safe:duration-200 active:scale-[0.98]"
-          >
+              disabled={sinStock}
+              className="w-full rounded-full border border-yellow-400/50 py-2 text-yellow-100 hover:bg-yellow-400 hover:text-black transition disabled:opacity-50 motion-safe:transition-transform motion-safe:duration-200 active:scale-[0.98]"
+            >
             {sinStock
               ? "Sin stock"
               : isAdding
@@ -98,7 +99,8 @@ export default function ProductCard({ product }: { product: Product }) {
                   </span>
                 )
                 : "Añadir al carrito"}
-          </button>
+            </button>
+          </div>
         )}
       </div>
       {showToast && (

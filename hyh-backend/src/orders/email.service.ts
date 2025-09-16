@@ -69,7 +69,7 @@ export class OrdersEmailService {
     );
   }
 
-  async notifyNewOrder(payload: OrderPayload) {
+  private async sendEmail(payload: OrderPayload, subject: string, bodyLines: (string | undefined)[]) {
     const {
       MAIL_HOST,
       MAIL_PORT,
@@ -77,7 +77,7 @@ export class OrdersEmailService {
       MAIL_PASS,
       CONTACT_FROM,
     } = process.env as Record<string, string | undefined>;
-    const to = process.env.ORDER_NOTIFY_TO || process.env.CONTACT_TO;
+    const to = process.env.ORDER_NOTIFY_TO || process.env.CONTACT_TO || 'hyhshop247@gmail.com';
 
     if (!MAIL_HOST || !MAIL_PORT || !MAIL_USER || !MAIL_PASS || !to) {
       this.logger.warn('Email not configured (MAIL_* or ORDER_NOTIFY_TO missing). Skipping send.');
@@ -92,21 +92,8 @@ export class OrdersEmailService {
       auth: MAIL_USER && MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
     });
 
-    const subject = `Nuevo pedido ${payload.orderId}`;
+    const text = bodyLines.filter(Boolean).join('\n');
     const csv = this.buildCsv(payload);
-    const text = [
-      `Nuevo pedido` ,
-      `ID: ${payload.orderId}`,
-      `Fecha: ${new Date(payload.createdAt).toLocaleString('es-CO')}`,
-      `Pago: ${payload.paymentMethod}`,
-      `Estado: ${payload.status} / ${payload.paymentStatus}`,
-      payload.city ? `Ciudad: ${payload.city}` : undefined,
-      payload.contactName ? `Contacto: ${payload.contactName}` : undefined,
-      payload.contactPhone ? `Tel: ${payload.contactPhone}` : undefined,
-      `Total: $${payload.totals.grandTotal.toLocaleString('es-CO')}`,
-      '',
-      'Se adjunta CSV con el detalle.',
-    ].filter(Boolean).join('\n');
 
     await transporter.sendMail({
       from: CONTACT_FROM || MAIL_USER,
@@ -123,5 +110,42 @@ export class OrdersEmailService {
 
     return { sent: true };
   }
-}
 
+  async notifyNewOrder(payload: OrderPayload) {
+    const subject = `Nuevo pedido ${payload.orderId}`;
+    const lines = [
+      'Nuevo pedido',
+      `ID: ${payload.orderId}`,
+      `Fecha: ${new Date(payload.createdAt).toLocaleString('es-CO')}`,
+      `Pago: ${payload.paymentMethod}`,
+      `Estado: ${payload.status} / ${payload.paymentStatus}`,
+      payload.city ? `Ciudad: ${payload.city}` : undefined,
+      payload.contactName ? `Contacto: ${payload.contactName}` : undefined,
+      payload.contactPhone ? `Tel: ${payload.contactPhone}` : undefined,
+      `Total: $${payload.totals.grandTotal.toLocaleString('es-CO')}`,
+      '',
+      'Se adjunta CSV con el detalle.',
+    ];
+
+    return this.sendEmail(payload, subject, lines);
+  }
+
+  async notifyPaymentApproved(payload: OrderPayload) {
+    const subject = `Compra exitosa ${payload.orderId}`;
+    const lines = [
+      'Compra exitosa confirmada por Wompi',
+      `Pedido: ${payload.orderId}`,
+      `Fecha: ${new Date(payload.createdAt).toLocaleString('es-CO')}`,
+      `Pago: ${payload.paymentMethod}`,
+      `Estado: ${payload.status} / ${payload.paymentStatus}`,
+      payload.city ? `Ciudad: ${payload.city}` : undefined,
+      payload.contactName ? `Contacto: ${payload.contactName}` : undefined,
+      payload.contactPhone ? `Tel: ${payload.contactPhone}` : undefined,
+      `Total: $${payload.totals.grandTotal.toLocaleString('es-CO')}`,
+      '',
+      'Se adjunta CSV con el detalle de la compra.',
+    ];
+
+    return this.sendEmail(payload, subject, lines);
+  }
+}

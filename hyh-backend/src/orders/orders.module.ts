@@ -10,11 +10,11 @@ import { ShippingModule } from '../shipping/shipping.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { SheetsService } from './sheets.service';
 import { WhatsappNotifyService } from './whatsapp.service';
-import { OrdersEmailService } from './email.service';
+import { OrdersEmailModule } from './email.module';
 
 @Module({
-  imports: [PricingModule, CouponsModule, ShippingModule, PaymentsModule],
+  imports: [PricingModule, CouponsModule, ShippingModule, PaymentsModule, OrdersEmailModule],
   controllers: [OrdersController, AdminOrdersController, GuestOrdersController],
-  providers: [OrdersService, RolesGuard, SheetsService, WhatsappNotifyService, OrdersEmailService],
+  providers: [OrdersService, RolesGuard, SheetsService, WhatsappNotifyService],
 })
 export class OrdersModule {}
