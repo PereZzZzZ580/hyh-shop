@@ -11,7 +11,13 @@ export async function GET(req: NextRequest) {
     );
   }
   try {
-    const res = await fetch(`${API_URL}/orders`, {
+    const range = req.nextUrl.searchParams.get("range");
+    const baseUrl = API_URL.replace(/\/$/, "");
+    const ordersUrl = new URL(`${baseUrl}/orders`);
+    if (range) {
+      ordersUrl.searchParams.set("range", range);
+    }
+    const res = await fetch(ordersUrl.toString(), {
       headers: {
         Authorization: `Bearer ${token}`,
       },

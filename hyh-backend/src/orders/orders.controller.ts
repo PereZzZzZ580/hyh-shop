@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CheckoutPreviewDto } from './dto/checkout-preview.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -39,10 +39,11 @@ export class OrdersController {
 
   // Lista los pedidos del usuario autenticado
   @Get('orders')
-  async list(@Req() req: any) {
+  async list(@Req() req: any, @Query('range') range?: string) {
     const userId = req.user.sub as string;
+    const from = this.resolveRange(range);
     const orders = await this.prisma.order.findMany({
-      where: { userId },
+      where: { userId, ...(from ? { createdAt: { gte: from } } : {}) },
       orderBy: { createdAt: 'desc' },
       include: {
         items: {
@@ -81,5 +82,21 @@ export class OrdersController {
   @Get('orders/:id/summary')
   summary(@Req() req: any, @Param('id') id: string) {
     return this.orders.summary(id, req.user.sub);
+  }
+  private resolveRange(range?: string): Date | null {
+    if (!range || range === 'all') {
+      return null;
+    }
+    const now = new Date();
+    switch (range) {
+      case 'today':
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      case '3d':
+        return new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+      case '7d':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      default:
+        return null;
+    }
   }
 }
