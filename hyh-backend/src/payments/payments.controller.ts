@@ -1,11 +1,17 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+﻿import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrdersEmailService } from '../orders/email.service';
+import { WhatsappNotifyService } from '../orders/whatsapp.service';
 import { WompiService } from './wompi.service';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private prisma: PrismaService, private wompi: WompiService, private email: OrdersEmailService) {}
+  constructor(
+    private prisma: PrismaService,
+    private wompi: WompiService,
+    private email: OrdersEmailService,
+    private whatsapp: WhatsappNotifyService,
+  ) {}
 
   @Get('wompi/verify')
   async verifyWompi(@Query('transactionId') transactionId: string, @Query('reference') reference: string) {
@@ -46,7 +52,7 @@ export class PaymentsController {
     });
 
     if (paymentApproved && !wasAlreadyApproved) {
-      void this.email.notifyPaymentApproved({
+      const payload = {
         orderId: updated.id,
         createdAt: updated.createdAt.toISOString(),
         userId: updated.userId,
@@ -67,10 +73,11 @@ export class PaymentsController {
           qty: item.qty,
           unitPrice: item.unitPrice,
         })),
-      });
+      };
+      void this.email.notifyPaymentApproved(payload);
+      void this.whatsapp.notifyPaymentApproved(payload);
     }
 
     return { orderId: reference, status: updated.status, paymentStatus: updated.paymentStatus };
   }
 }
-
