@@ -313,7 +313,7 @@ export default function CheckoutPage() {
         <button
           type="submit"
           disabled={enviando || items.length === 0}
-          className="h-11 rounded-lg px-5 border border-white/20 hover:border-white/40 disabled:opacity-50"
+          className="h-11 rounded-lg px-5 border border-yellow-400 hover:border-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60 disabled:opacity-50"
         >
           {enviando ? "Procesando..." : "Confirmar pedido"}
         </button>

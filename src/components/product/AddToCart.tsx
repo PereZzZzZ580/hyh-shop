@@ -60,7 +60,7 @@ export default function AddToCart({
         <button
           onClick={handleAdd}
           disabled={stock < 1}
-          className="h-10 px-4 rounded-lg border border-white/15 hover:border-white/30 disabled:opacity-50"
+          className="h-10 px-4 rounded-lg border border-yellow-400 hover:border-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60 disabled:opacity-50"
         >
           {stock < 1 ? "Sin stock" : "Agregar al carrito"}
         </button>
