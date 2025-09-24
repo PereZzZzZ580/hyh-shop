@@ -14,9 +14,12 @@ function atributosStr(attrs: Variant["attributes"]) {
 export default function ProductDetail({ product }: { product: Product }) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-  // Usamos la primera variante por defecto
+  // Filtramos variantes con stock > 0
+  const availableVariants = product.variants.filter((v) => v.stock > 0);
+
+  // Usamos la primera variante disponible por defecto
   const [variant, setVariant] =
-    useState<Variant | null>(product.variants[0] ?? null);
+    useState<Variant | null>(availableVariants[0] ?? null);
 
   const [related, setRelated] = useState<Product[]>([]);
 
@@ -52,16 +55,16 @@ export default function ProductDetail({ product }: { product: Product }) {
             <p className="opacity-80">{product.description}</p>
           )}
 
-          {variant && (
+          {variant ? (
             <>
               <p className="text-2xl font-semibold">
                 ${variant.price.toLocaleString("es-CO")}
               </p>
               <p className="text-sm opacity-80">Stock: {variant.stock}</p>
 
-              {product.variants.length > 1 && (
+              {availableVariants.length > 1 && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {product.variants.map((v) => (
+                  {availableVariants.map((v) => (
                     <button
                       key={v.id}
                       onClick={() => setVariant(v)}
@@ -90,6 +93,10 @@ export default function ProductDetail({ product }: { product: Product }) {
                 />
               </div>
             </>
+          ) : (
+            <div className="rounded-lg border border-yellow-400/20 bg-yellow-400/10 p-4 text-center">
+              <p className="text-yellow-200">Este producto no está disponible actualmente.</p>
+            </div>
           )}
 
           <details className="border-t border-white/10 p-4">

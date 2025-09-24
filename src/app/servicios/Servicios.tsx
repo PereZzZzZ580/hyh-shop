@@ -388,15 +388,7 @@ export default function Servicios() {
         <ReservaModal servicio={servicioSeleccionado} onClose={() => setServicioSeleccionado(null)} />
       )}
 
-      {/* Botón flotante móvil */}
-      <button
-        onClick={() => {
-          document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }}
-        className="fixed bottom-4 right-4 z-50 bg-gold text-black rounded-xl px-4 py-2 md:hidden transition-colors hover:bg-gold/80 cursor-pointer"
-      >
-        Agendar ahora
-      </button>
+
 
       {/* Modal para invitar a registrarse */}
       {showJoinModal && (

@@ -33,8 +33,8 @@ export default function ProductCard({ product }: { product: Product }) {
               src="/file.svg"
               alt="Sin imagen"
               width={400}
-              height={300}
-              className="aspect-[4/3] w-full object-contain p-8 opacity-50 transition-transform duration-500 will-change-transform group-hover:scale-105"
+              height={400}
+              className="aspect-square w-full object-contain p-8 opacity-50 transition-transform duration-500 will-change-transform group-hover:scale-105"
             />
           )}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
