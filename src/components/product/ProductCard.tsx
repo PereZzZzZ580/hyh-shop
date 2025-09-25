@@ -25,8 +25,8 @@ export default function ProductCard({ product }: { product: Product }) {
               src={image}
               alt={product.name}
               width={400}
-              height={300}
-              className="aspect-[4/3] w-full object-cover transition-transform duration-500 will-change-transform group-hover:scale-105"
+              height={400}
+              className="aspect-square w-full object-cover transition-transform duration-500 will-change-transform group-hover:scale-105"
             />
           ) : (
             <Image
