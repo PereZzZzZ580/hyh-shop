@@ -133,7 +133,7 @@ export default function Header() {
             <ShoppingCart className="h-6 w-6" />
             {mounted && count > 0 && (
               <span
-                className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gray-300 ring-1 ring-black/40"
+                className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gold shadow-[0_0_6px_2px_rgba(255,215,0,0.7)] ring-1 ring-white/50"
                 suppressHydrationWarning
                 aria-hidden="true"
               />
@@ -233,7 +233,7 @@ export default function Header() {
             <ShoppingCart className="h-6 w-6" />
             {mounted && count > 0 && (
               <span
-                className="absolute -top-2 -right-2 h-2.5 w-2.5 rounded-full bg-gray-300 ring-1 ring-black/40"
+                className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gold shadow-[0_0_6px_2px_rgba(255,215,0,0.7)] ring-1 ring-white/50"
                 suppressHydrationWarning
                 aria-hidden="true"
               />
@@ -296,7 +296,7 @@ export default function Header() {
               <span>Carrito</span>
               {mounted && count > 0 && (
                 <span
-                  className="absolute -top-2 -right-4 h-2.5 w-2.5 rounded-full bg-gray-300 ring-1 ring-black/40"
+                  className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-gold shadow-[0_0_6px_2px_rgba(255,215,0,0.7)] ring-1 ring-white/50"
                   suppressHydrationWarning
                   aria-hidden="true"
                 />
