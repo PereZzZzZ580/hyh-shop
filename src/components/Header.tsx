@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/store/auth";
 import { useCart } from "@/store/cart";
+import type { LucideProps } from "lucide-react";
 import { Facebook, Instagram, Menu, ShoppingCart, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,6 +22,46 @@ export default function Header() {
   const router = useRouter();
 
   const nombreUsuario = usuario?.name || "Usuario";
+  const TikTokIcon = ({ size = 24, color = "currentColor", className, ...props }: LucideProps) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      className={className}
+      focusable="false"
+      aria-hidden={props["aria-hidden"] ?? true}
+      {...props}
+    >
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+    </svg>
+  );
+
+  const socialLinks = [
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/hhbarberhome/",
+      Icon: Instagram,
+    },
+    {
+      label: "Facebook",
+      href: "https://facebook.com",
+      Icon: Facebook,
+    },
+    {
+      label: "TikTok",
+      href: "https://www.tiktok.com/@hhbarbershop0?_t=ZS-90hEHV8UcUr&_r=1",
+      Icon: TikTokIcon,
+    },
+  ];
+  const socialButtonClasses =
+    "group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-gold/40 bg-black/40 text-gold shadow-[0_0_12px_rgba(255,215,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-gold hover:text-black hover:shadow-[0_0_28px_rgba(255,215,0,0.55)] hover:bg-gradient-to-br hover:from-[#FCE7B4] hover:to-[#D8A24D]";
+  const socialHighlightClasses =
+    "pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-transparent via-[#FFE9A3]/20 to-[#FFD46F]/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100";
+  const socialMobileClasses =
+    "group flex items-center gap-4 rounded-xl border border-gold/20 bg-black/40 px-4 py-3 text-gold transition-all duration-300 hover:border-gold hover:bg-gold/10";
+  const socialMobileIconClasses =
+    "flex h-8 w-8 items-center justify-center rounded-full border border-gold/35 bg-black/40 shadow-[0_0_10px_rgba(255,215,0,0.25)] transition-all duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-black group-hover:shadow-[0_0_20px_rgba(255,215,0,0.45)]";
 
   useEffect(() => {
     setMounted(true);
@@ -110,25 +151,20 @@ export default function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-6">
-          <Link
-            href="https://www.instagram.com/hhbarberhome/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="text-gold hover:shadow-gold"
-          >
-            <Instagram size={22} />
-          </Link>
-          <Link
-            href="https://facebook.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Facebook"
-            className="text-gold hover:shadow-gold"
-          >
-            <Facebook size={22} />
-          </Link>
+        <div className="hidden lg:flex items-center gap-5">
+          {socialLinks.map(({ href, label, Icon }) => (
+            <Link
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className={socialButtonClasses}
+            >
+              <span className={socialHighlightClasses} />
+              <Icon size={18} className="relative transition-transform duration-300 group-hover:scale-110" />
+            </Link>
+          ))}
           <Link href="/carrito" aria-label="Carrito" className="relative text-gold hover:shadow-gold">
             <ShoppingCart className="h-6 w-6" />
             {mounted && count > 0 && (
@@ -274,24 +310,26 @@ export default function Header() {
           <Link href="/tienda" onClick={() => setOpen(false)} className="py-2 hover:underline hover:underline-offset-4 hover:shadow-gold transition-colors">Nuestra Tienda</Link>
         </nav>
         <div className="mt-auto flex flex-col gap-5 text-gold">
-          <Link
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className="py-2 transition-colors"
-          >
-            Instagram
-          </Link>
-          <Link
-            href="https://facebook.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className="py-2 transition-colors"
-          >
-            Facebook
-          </Link>
+          {socialLinks.map(({ href, label, Icon }) => (
+            <Link
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className={socialMobileClasses}
+            >
+              <span className={socialMobileIconClasses}>
+                <Icon size={16} className="transition-transform duration-300 group-hover:scale-110" />
+              </span>
+              <span className="flex flex-col leading-tight">
+                <span className="text-sm font-semibold group-hover:text-gold">{label}</span>
+                <span className="text-xs uppercase tracking-[0.3em] text-gold/70 group-hover:text-gold/80">
+                  Siguenos
+                </span>
+              </span>
+            </Link>
+          ))}
             <Link href="/carrito" onClick={() => setOpen(false)} className="relative py-2 transition-colors">
               <span>Carrito</span>
               {mounted && count > 0 && (
